@@ -42,6 +42,26 @@ end
 # normally the logs don't overwrite, but if you've not given a path, you clearly don't care.
 Logger() = Logger("tensorboard_logs", overwrite=true)
 
+const default_logging_session = Ref(Logger())
+
+"""
+    set_tb_logdir(logdir, overwrite=false)
+Start a new log in the given directory
+"""
+function set_tb_logdir(logdir, overwrite=false)
+    default_logging_session[] = Logger(logdir, overwrite=overwrite)
+end
+
+"""
+    reset_tb_logs()
+Reset the current log, deleteing all information
+"""
+function reset_tb_logs()
+    logdir = default_logging_session[].logdir
+    default_logging_session[] = Logger(logdir, overwrite=true)
+end
+
+
 
 #macro tb_log(name)
 #    :(_tb_log($(esc(string(name))), $(esc(name))))
@@ -50,5 +70,7 @@ Logger() = Logger("tensorboard_logs", overwrite=true)
 export log_histogram, log_value, log_vector
 export scalar_summary, histogram_summary, make_event
 export Logger
+
+export set_tb_logdir, reset_tb_logs, default_logging_session
 
 end # module
