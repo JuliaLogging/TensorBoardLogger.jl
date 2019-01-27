@@ -42,7 +42,7 @@ end
 # normally the logs don't overwrite, but if you've not given a path, you clearly don't care.
 Logger() = Logger("tensorboard_logs", overwrite=true)
 
-const default_logging_session = Ref(Logger())
+#const default_logging_session = Ref(Logger())
 
 """
     set_tb_logdir(logdir, overwrite=false)
