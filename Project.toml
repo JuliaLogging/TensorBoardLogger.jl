@@ -3,6 +3,10 @@ uuid = "899adc3e-224a-11e9-021f-63837185c80f"
 authors = ["Filippo Vicentini <filippovicentini@gmail.com>"]
 version = "0.1.0"
 
+[deps]
+CRC32c = "8bf52ea8-c179-5cab-976a-9e18b702a9bc"
+ProtoBuf = "3349acd9-ac6a-5e09-bcdb-63829b23a429"
+
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
