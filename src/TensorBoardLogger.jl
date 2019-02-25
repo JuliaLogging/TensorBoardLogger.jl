@@ -20,6 +20,8 @@ mutable struct Logger
 end
 
 include("logging.jl")
+include("Loggers/LogValue.jl")
+include("Loggers/LogHistograms.jl")
 include("Logger.jl")
 
 
