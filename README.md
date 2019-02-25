@@ -24,11 +24,13 @@ At the moment, you can log the following values:
 
 ## Example
 ```
-lg = TensorBoardLogger.Logger("runs/run-12", overwrite=true)
+using TensorBoardLogger
+
+lg = Logger("runs/run-12", overwrite=true)
 
 for step=1:100
-    ev = TensorBoardLogger.log_value(lg, "quan/prova1", step*1.5, step=step)
-    ev = TensorBoardLogger.log_value(lg, "quan/prova2", step*2.5, step=step)
+    ev = log_value(lg, "quan/prova1", step*1.5, step=step)
+    ev = log_value(lg, "quan/prova2", step*2.5, step=step)
 
     x0 = 0.5+step/30; s0 = 0.5/(step/20);
     edges = collect(-5:0.1:5)
@@ -37,10 +39,10 @@ for step=1:100
     histvals./=sum(histvals)
     data_tuple = (edges, histvals)
 
-    data_raw = randn(1000).*s0.+x0
-
-    TensorBoardLogger.log_histogram(lg, "hist/cust", data_tuple, step=step)
-    TensorBoardLogger.log_histogram(lg, "hist/auto", data_raw, step=step)
+    # Log pre-binned data
+    log_histogram(lg, "hist/cust", data_tuple, step=step)
+    # Automatically bin the data
+    log_histogram(lg, "hist/auto", randn(1000).*s0.+x0, step=step)
 end
 ```
 
