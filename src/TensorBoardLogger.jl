@@ -3,64 +3,24 @@ module TensorBoardLogger
 using ProtoBuf
 using CRC32c
 
+# Protobuffer definitions for tensorboard
 include("protojl/tensorflow.jl")
 include("protojl/summary_pb.jl")
 include("protojl/event_pb.jl")
 
+# CRC Utils
 include("utils.jl")
 
+# Logging structures
 mutable struct Logger
     logdir::String
     file::IOStream
+    all_files::Dict{String, IOStream}
     global_step::Int
 end
 
 include("logging.jl")
-
-"""
-    Logger(logdir; [overwrite=false, time=time()])
-
-Creates a TensorBoardLogger in the folder `logdir`.
-"""
-function Logger(logdir; overwrite=false, time=time())
-    if overwrite
-        rm(logdir; force=true, recursive=true)
-    end
-    mkpath(logdir)
-
-    hostname = gethostname()
-    fname = "events.out.tfevents.$time.$hostname"
-    file = open(joinpath(logdir, fname), "w")
-
-    # Create the initial log
-    ev_0 = Event(wall_time=time, step=0, file_version="brain.Event:2")
-    write_event(file, ev_0)
-
-    Logger(realpath(logdir), file, 0)
-end
-
-# normally the logs don't overwrite, but if you've not given a path, you clearly don't care.
-Logger() = Logger("tensorboard_logs", overwrite=true)
-
-#const default_logging_session = Ref(Logger())
-
-"""
-    set_tb_logdir(logdir, overwrite=false)
-Start a new log in the given directory
-"""
-function set_tb_logdir(logdir, overwrite=false)
-    default_logging_session[] = Logger(logdir, overwrite=overwrite)
-end
-
-"""
-    reset_tb_logs()
-Reset the current log, deleteing all information
-"""
-function reset_tb_logs()
-    logdir = default_logging_session[].logdir
-    default_logging_session[] = Logger(logdir, overwrite=true)
-end
-
+include("Logger.jl")
 
 
 #macro tb_log(name)
