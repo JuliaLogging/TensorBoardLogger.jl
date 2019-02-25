@@ -3,6 +3,9 @@ module TensorBoardLogger
 using ProtoBuf
 using CRC32c
 
+#TODO: remove it. Only needed to compute histogram bins. 
+using StatsBase
+
 # Protobuffer definitions for tensorboard
 include("protojl/tensorflow.jl")
 include("protojl/summary_pb.jl")

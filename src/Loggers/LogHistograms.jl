@@ -16,6 +16,20 @@ function log_histogram(logger::Logger, name::String, data::Tuple{Vector,Vector};
 end
 
 """
+    log_histogram(logger, name, data::Vector, step)
+
+Bins the values found in `data` and logs them as an histogram under the tag
+`name`.
+"""
+function log_histogram(logger::Logger, name::String, data::Vector;
+                       step=nothing)
+    summ    = SummaryCollection()
+    hvals = fit(Histogram, data)
+    push!(summ.value, histogram_summary(name, collect(hvals.edges[1]), hvals.weights))
+    write_event(logger.file, make_event(logger, summ, step=step))
+end
+
+"""
     log_vector(logger, name, data::Vector, step)
 
 Logs the vector found in `data` as an histogram under the name `name`.
