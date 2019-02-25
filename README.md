@@ -1,4 +1,5 @@
 # TensorBoardLogger
+[![Build Status](https://travis-ci.org/PhilipVinc/TensorBoardLogger.jl.svg?branch=master)](https://travis-ci.org/PhilipVinc/TensorBoardLogger.jl)
 
 **TensorBoardLogger.jl** is an experimental library for logging arbitrary data
 to [Tensorboard](https://www.tensorflow.org/guide/summaries_and_tensorboard)
