@@ -6,7 +6,7 @@ option cc_enable_arenas = true;
 //option java_multiple_files = true;
 //option java_package = "org.tensorflow.framework";
 
-import "tensorboardX/proto/attr_value.proto";
+import "attr_value.proto";
 
 message NodeDef {
   // The name given to this operator. Used for naming inputs,
