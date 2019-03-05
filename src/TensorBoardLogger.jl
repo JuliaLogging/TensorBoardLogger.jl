@@ -10,6 +10,16 @@ using StatsBase
 include("protojl/tensorflow.jl")
 include("protojl/summary_pb.jl")
 include("protojl/event_pb.jl")
+include("protojl/graph_pb.jl")
+include("protojl/node_def_pb.jl")
+include("protojl/attr_value_pb.jl")
+include("protojl/function_pb.jl")
+include("protojl/op_def_pb.jl")
+include("protojl/resource_handle_pb.jl")
+include("protojl/tensor_pb.jl")
+include("protojl/tensor_shape_pb.jl")
+include("protojl/type_pb.jl")
+include("protojl/versions_pb.jl")
 
 # CRC Utils
 include("utils.jl")
@@ -25,6 +35,7 @@ end
 include("logging.jl")
 include("Loggers/LogValue.jl")
 include("Loggers/LogHistograms.jl")
+include("Loggers/LogGraph.jl")
 include("Logger.jl")
 
 
@@ -32,8 +43,8 @@ include("Logger.jl")
 #    :(_tb_log($(esc(string(name))), $(esc(name))))
 #end
 
-export log_histogram, log_value, log_vector
-export scalar_summary, histogram_summary, make_event
+export log_histogram, log_value, log_vector, log_graph
+export scalar_summary, histogram_summary, make_event, graph_summary
 export Logger
 
 export set_tb_logdir, reset_tb_logs, default_logging_session
