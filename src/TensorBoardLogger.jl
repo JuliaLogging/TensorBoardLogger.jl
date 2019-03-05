@@ -1,5 +1,6 @@
 module TensorBoardLogger
 
+using Flux
 using ProtoBuf
 using CRC32c
 
@@ -10,16 +11,16 @@ using StatsBase
 include("protojl/tensorflow.jl")
 include("protojl/summary_pb.jl")
 include("protojl/event_pb.jl")
-include("protojl/graph_pb.jl")
-include("protojl/node_def_pb.jl")
-include("protojl/attr_value_pb.jl")
-include("protojl/function_pb.jl")
-include("protojl/op_def_pb.jl")
+include("protojl/tensor_shape_pb.jl")
 include("protojl/resource_handle_pb.jl")
 include("protojl/tensor_pb.jl")
-include("protojl/tensor_shape_pb.jl")
-include("protojl/type_pb.jl")
+include("protojl/attr_value_pb.jl")
+include("protojl/node_def_pb.jl")
+include("protojl/op_def_pb.jl")
+include("protojl/function_pb.jl")
+include("protojl/types_pb.jl")
 include("protojl/versions_pb.jl")
+include("protojl/graph_pb.jl")
 
 # CRC Utils
 include("utils.jl")
