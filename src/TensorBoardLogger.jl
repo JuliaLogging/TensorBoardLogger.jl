@@ -1,6 +1,5 @@
 module TensorBoardLogger
 
-using Flux
 using ProtoBuf
 using CRC32c
 
