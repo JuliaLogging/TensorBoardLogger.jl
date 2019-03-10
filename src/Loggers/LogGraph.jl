@@ -21,10 +21,11 @@ function graph_summary(name::String, model::Chain)
 		dead_end = true #means cannot expand further
 		if expr.head == :call
 			node_name = string(expr.args[1])
+			org_name = node_name
 			incr = 1
 			for name in Names #this is to allow repeated nodes of same type by appending a number
 				if name == node_name
-					node_name = node_name*"_$incr"
+					node_name = org_name*"_$incr"
 					incr += 1
 				end
 			end
@@ -40,10 +41,11 @@ function graph_summary(name::String, model::Chain)
 		end
 		if dead_end == true
 		    node_name = join(prefixes,"/")*"/"*string(expr)
+			org_name = node_name
 			incr = 1
 			for name in Names #this is to allow repeated nodes of same type by appending a number
 				if name == node_name
-					node_name = node_name*"_$incr"
+					node_name = org_name*"_$incr"
 					incr += 1
 				end
 			end
@@ -67,7 +69,11 @@ end
 import TensorBoardLogger
 using .TensorBoardLogger
 using Flux
-model = Chain(Dense(20, 20, relu), Dense(20, 20, leakyrelu), Dense(20, 20), Dense(20, 20), x -> 2*x, softmax)
+using Metalhead
+using JLD2, FileIO
+
+#model = Chain(Dense(20, 20, relu), Dense(20, 20, leakyrelu), Dense(20, 20), Dense(20, 20), x -> 2*x, softmax)
+model = @load "model.jld2" tinyResNet
 lgr = Logger("/home/shashi/TensorBoardLogger")
 log_graph(lgr, "string", model)
 """
