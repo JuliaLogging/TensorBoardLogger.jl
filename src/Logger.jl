@@ -6,7 +6,7 @@ deletes previously created events.
 If `purge_step::Int` is passed, every step before `purge_step` will be ignored
 by tensorboard (usefull in the case of restarting a crashed computation).
 """
-function TBLogger(logdir; overwrite=false, time=time(), purge_step::Union{Int,Nothing}=nothing)
+function TBLogger(logdir; overwrite=false, time=time(), purge_step::Union{Int,Nothing}=nothing, min_level::LogLevel=Info)
     if overwrite
         rm(logdir; force=true, recursive=true)
     end
@@ -33,7 +33,7 @@ function TBLogger(logdir; overwrite=false, time=time(), purge_step::Union{Int,No
         write_event(file, ev_0)
     end
 
-    TBLogger(realpath(logdir), file, all_files, start_step, Info)
+    TBLogger(realpath(logdir), file, all_files, start_step, min_level)
 end
 
 # normally the logs don't overwrite, but if you've not given a path, you clearly don't care.
@@ -82,8 +82,10 @@ logger when no value is passed by the user.
 """
 set_step(lg::TBLogger, iter::Int) = lg.global_step = iter
 
+increment_step(lg::TBLogger, iter::Int) = lg.global_step += iter
+
 """
-    iteration(lg)
+    step(lg)
 
 Returns the internal iteration counter of the logger. When no step keyword
 is provided to the loggers, it will use this value.
@@ -92,8 +94,6 @@ step(lg::TBLogger) = lg.global_step
 
 
 # Additional things
-
-#const default_logging_session = Ref(Logger())
 
 """
     set_tb_logdir(logdir, overwrite=false)
@@ -110,4 +110,51 @@ Reset the current log, deleteing all information
 function reset_tb_logs()
     logdir = default_logging_session[].logdir
     default_logging_session[] = Logger(logdir, overwrite=true)
+end
+
+
+# Implement the AbstractLogger Interface
+
+catch_exceptions(lg::TBLogger) = false
+
+min_enabled_level(lg::TBLogger) = lg.min_level
+
+# For now, log everything that is above the lg.min_level
+shouldlog(lg::TBLogger, level, _module, group, id) = true
+
+function handle_message(lg::TBLogger, level, message, _module, group, id, file, line; kwargs...)
+    # Unpack the message
+    summ    = SummaryCollection()
+    i_step = 1
+
+    if !isempty(kwargs)
+        for (key,val) in pairs(kwargs)
+            # special values
+            if key == :delta_step
+                i_step = val
+                continue
+            end
+
+            data = Stack{Pair{String,Any}}()
+            name = message*"/$key"
+            push!(data, name => val)
+            while !isempty(data)
+                name, val = pop!(data)
+                loggable(val) ? push!(summ.value, summary_impl(name, val)) : preprocess(name, val, data)
+            end
+        end
+    end
+    iter = increment_step(lg, i_step)
+    write_event(lg.file, make_event(lg, summ, step=iter))
+end
+
+loggable(::Any) = false
+
+function preprocess(name, val, data)
+    fn = fieldnames(typeof(val))
+    for f=fn
+        prop = getproperty(val, f)
+        push!(data, name*"/$f" => prop)
+    end
+    data
 end

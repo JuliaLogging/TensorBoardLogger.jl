@@ -21,3 +21,8 @@ end
 ## Backward compatibility
 log_value(logger, name, value, step) =
     log_value(logger, name, value, step=step)
+
+# Forward
+loggable(::Real) = true
+preprocess(name, val::Complex, data) = push!(data, name*"/re"=>real(val), name*"/im"=>imag(val))
+summary_impl(name, value::Real) = scalar_summary(name, value)
