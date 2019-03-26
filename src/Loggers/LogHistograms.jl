@@ -8,8 +8,9 @@ passed as a tuple holding the `N+1` bin edges and the height of the `N` bins.
 You can also pass the raw data, and a binning algorithm from `StatsBase.jl` will
 be used to bin the data.
 """
-function log_histogram(logger::Logger, name::String, (bins,weights)::Tuple{Vector,Vector};
+function log_histogram(logger::Logger, name::String, (bins,weights)::Tuple{Vector, Array};
                        step=nothing)
+    weights = reshape(weights, :)
     summ    = SummaryCollection()
     push!(summ.value,  histogram_summary(name, bins, weights))
     write_event(logger.file, make_event(logger, summ, step=step))
@@ -21,8 +22,9 @@ end
 Bins the values found in `data` and logs them as an histogram under the tag
 `name`.
 """
-function log_histogram(logger::Logger, name::String, data::Vector;
+function log_histogram(logger::Logger, name::String, data::Array;
                        step=nothing)
+    data = reshape(data, :)
     summ    = SummaryCollection()
     hvals = fit(Histogram, data)
     push!(summ.value, histogram_summary(name, collect(hvals.edges[1]), hvals.weights))
