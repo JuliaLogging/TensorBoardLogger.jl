@@ -24,7 +24,7 @@ Bins the values found in `data` and logs them as an histogram under the tag
 """
 function log_histogram(logger::Logger, name::String, data::Array;
                        step=nothing)
-    data = reshape(data, :)
+    data = vec(data)
     summ    = SummaryCollection()
     hvals = fit(Histogram, data)
     push!(summ.value, histogram_summary(name, collect(hvals.edges[1]), hvals.weights))
