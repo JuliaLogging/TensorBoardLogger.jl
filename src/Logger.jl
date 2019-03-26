@@ -6,7 +6,7 @@ deletes previously created events.
 If `purge_step::Int` is passed, every step before `purge_step` will be ignored
 by tensorboard (usefull in the case of restarting a crashed computation).
 """
-function Logger(logdir; overwrite=false, time=time(), purge_step::Union{Int,Nothing}=nothing)
+function TBLogger(logdir; overwrite=false, time=time(), purge_step::Union{Int,Nothing}=nothing)
     if overwrite
         rm(logdir; force=true, recursive=true)
     end
@@ -33,11 +33,11 @@ function Logger(logdir; overwrite=false, time=time(), purge_step::Union{Int,Noth
         write_event(file, ev_0)
     end
 
-    Logger(realpath(logdir), file, all_files, start_step)
+    TBLogger(realpath(logdir), file, all_files, start_step, Info)
 end
 
 # normally the logs don't overwrite, but if you've not given a path, you clearly don't care.
-Logger() = Logger("tensorboard_logs", overwrite=true)
+TBLogger() = TBLogger("tensorboard_logs", overwrite=true)
 
 # Accessors
 """
@@ -45,15 +45,15 @@ Logger() = Logger("tensorboard_logs", overwrite=true)
 
 Returns the directory to which Logger `lg` is writing data.
 """
-logdir(lg::Logger)   = lg.logdir
+logdir(lg::TBLogger)   = lg.logdir
 
 """
     get_file(lg::Logger) -> IOS
 
 Returns the main `file` IOStream object of Logger `lg`.
 """
-get_file(lg::Logger) = lg.file
-function add_log_file(lg::Logger, path::String)
+get_file(lg::TBLogger) = lg.file
+function add_log_file(lg::TBLogger, path::String)
     file = open(path, "w")
     lg.all_files[path] = file
     return file
@@ -65,7 +65,7 @@ end
 Returns the `file` IOStream object of Logger `lg` writing to the tag
 `tags1/tags2.../tagsN`.
 """
-function get_file(lg::Logger, tags::String...)
+function get_file(lg::TBLogger, tags::String...)
     key = joinpath(logdir(lg), tags...)
     if key ∈ lg.all_files
         return lg.all_files[key]
@@ -80,7 +80,7 @@ end
 Sets the iteration counter in the logger to `iter`. This counter is used by the
 logger when no value is passed by the user.
 """
-set_step(lg::Logger, iter::Int) = lg.global_step = iter
+set_step(lg::TBLogger, iter::Int) = lg.global_step = iter
 
 """
     iteration(lg)
@@ -88,7 +88,7 @@ set_step(lg::Logger, iter::Int) = lg.global_step = iter
 Returns the internal iteration counter of the logger. When no step keyword
 is provided to the loggers, it will use this value.
 """
-step(lg::Logger) = lg.global_step
+step(lg::TBLogger) = lg.global_step
 
 
 # Additional things

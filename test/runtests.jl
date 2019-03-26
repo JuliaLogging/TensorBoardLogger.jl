@@ -2,7 +2,7 @@ using TensorBoardLogger
 using Test
 
 @testset "Scalar Value Logger" begin
-    logger = Logger("log/")
+    logger = TBLogger("log/")
     @test isdir("log/")
     step = 1
     log_value(logger, "float32", 1.25f0, step=step)
@@ -17,7 +17,7 @@ using Test
 end
 
 @testset "Histogram Value Logger" begin
-    logger = Logger("log/")
+    logger = TBLogger("log/")
     @test isdir("log/")
     step = 1
 
