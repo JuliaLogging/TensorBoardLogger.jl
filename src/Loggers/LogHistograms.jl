@@ -1,6 +1,6 @@
 
 """
-    log_histogram(logger, name, data, step)
+    log_histogram(logger, name, (bins,weights); step)
 
 Logs a histogram under the tag `name` on given `step`. The histogram must be
 passed as a tuple holding the `N+1` bin edges and the height of the `N` bins.
@@ -8,15 +8,15 @@ passed as a tuple holding the `N+1` bin edges and the height of the `N` bins.
 You can also pass the raw data, and a binning algorithm from `StatsBase.jl` will
 be used to bin the data.
 """
-function log_histogram(logger::Logger, name::String, data::Tuple{Vector,Vector};
+function log_histogram(logger::Logger, name::String, (bins,weights)::Tuple{Vector,Vector};
                        step=nothing)
     summ    = SummaryCollection()
-    push!(summ.value,  histogram_summary(name, first(data), last(data)))
+    push!(summ.value,  histogram_summary(name, bins, weights))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
 
 """
-    log_histogram(logger, name, data::Vector, step)
+    log_histogram(logger, name, data::Vector; step)
 
 Bins the values found in `data` and logs them as an histogram under the tag
 `name`.
@@ -30,7 +30,7 @@ function log_histogram(logger::Logger, name::String, data::Vector;
 end
 
 """
-    log_vector(logger, name, data::Vector, step)
+    log_vector(logger, name, data::Vector; step)
 
 Logs the vector found in `data` as an histogram under the name `name`.
 """
@@ -58,4 +58,4 @@ end
 
 ## Backward compatibility
 log_histogram(logger, name, value, step) =
-    log_histogram(logger, name, value, step=step)
+    log_histogram(logger, name, value; step=step)
