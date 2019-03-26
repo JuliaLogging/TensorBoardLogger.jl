@@ -10,7 +10,7 @@ be used to bin the data.
 """
 function log_histogram(logger::Logger, name::String, (bins,weights)::Tuple{Vector, Array};
                        step=nothing)
-    weights = reshape(weights, :)
+    weights = vec(weights)
     summ    = SummaryCollection()
     push!(summ.value,  histogram_summary(name, bins, weights))
     write_event(logger.file, make_event(logger, summ, step=step))
