@@ -130,7 +130,7 @@ function handle_message(lg::TBLogger, level, message, _module, group, id, file, 
     if !isempty(kwargs)
         for (key,val) in pairs(kwargs)
             # special values
-            if key == :delta_step
+            if key == :log_step_increment
                 i_step = val
                 continue
             end
@@ -148,13 +148,36 @@ function handle_message(lg::TBLogger, level, message, _module, group, id, file, 
     write_event(lg.file, make_event(lg, summ, step=iter))
 end
 
+"""
+    loggable(value) -> Bool
+
+Returns `true` if `value` is a type that can be serialized into a `Summary`
+ProtoBuffer, `false` otherwise.
+
+This is defined to be false for `::Any`, and for every supported TensorBoard
+Plugin this method should be specialized for the relative type and return true.
+"""
 loggable(::Any) = false
 
-function preprocess(name, val, data)
-    fn = fieldnames(typeof(val))
-    for f=fn
-        prop = getproperty(val, f)
-        push!(data, name*"/$f" => prop)
+"""
+    preprocess(name, val, data)
+
+This method takes a tag `name` and the value `val::T` which cannot be directly
+serialized into TensorBoard, and pushes into the stack `data` several
+name-value pairs `Pair{String,Any}` containing simpler types. Those pairs will
+be serialized if possible, otherwise `preprocess` will be called recursively.
+
+For a struct
+"""
+function preprocess(name, val::T, data) where T
+    if isstructtype(T)
+        fn = fieldnames(T)
+        for f=fn
+            prop = getproperty(val, f)
+            push!(data, name*"/$f" => prop)
+        end
+    else
+        throw(ErrorException("Can't log type $T, but can't preprocess it either.\n You should define preprocess(name, val::$T, data)."))
     end
     data
 end
