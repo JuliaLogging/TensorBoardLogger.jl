@@ -128,19 +128,30 @@ function handle_message(lg::TBLogger, level, message, _module, group, id, file, 
     i_step = 1
 
     if !isempty(kwargs)
+        summary_function = summary_impl
+        for (key, val) in pairs(kwargs)
+            if key == :force_logger
+                summary_function = val
+                break
+            end
+        end
         for (key,val) in pairs(kwargs)
             # special values
             if key == :log_step_increment
                 i_step = val
                 continue
             end
-
+            
+            if key == :force_logger
+                continue
+            end
+            
             data = Stack{Pair{String,Any}}()
             name = message*"/$key"
             push!(data, name => val)
             while !isempty(data)
                 name, val = pop!(data)
-                loggable(val) ? push!(summ.value, summary_impl(name, val)) : preprocess(name, val, data)
+                loggable(val) ? push!(summ.value, summary_function(name, val)) : preprocess(name, val, data)
             end
         end
     end
