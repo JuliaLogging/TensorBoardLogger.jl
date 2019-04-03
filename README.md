@@ -39,7 +39,7 @@ with_logger(lg) do
 
 
         @info "test" i=i j=i^2 dd=rand(10).+0.1*i hh=data_tuple
-        @info "test_2" i=i j=2^i hh=data_tuple delta_step=0
+        @info "test_2" i=i j=2^i hh=data_tuple log_step_increment=0
     end
 end
 ```

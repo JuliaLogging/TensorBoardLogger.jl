@@ -18,11 +18,12 @@ function scalar_summary(name::String, value::Real)
     Summary_Value(tag=name, simple_value=value)
 end
 
-## Backward compatibility
-log_value(logger, name, value, step) =
-    log_value(logger, name, value, step=step)
 
-# Forward
-loggable(::Real) = true
-preprocess(name, val::Complex, data) = push!(data, name*"/re"=>real(val), name*"/im"=>imag(val))
+## Logger Interface
+
+# Define the type(s) that can be serialized to TensorBoard
+preprocess(name, val::Real, data) where T<:Real = push!(data, name=>val)
 summary_impl(name, value::Real) = scalar_summary(name, value)
+
+# Split complex numbers into real/complex pairs
+preprocess(name, val::Complex, data) = push!(data, name*"/re"=>real(val), name*"/im"=>imag(val))

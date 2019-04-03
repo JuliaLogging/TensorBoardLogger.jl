@@ -2,7 +2,6 @@ module TensorBoardLogger
 
 using ProtoBuf
 using CRC32c
-using DataStructures
 
 #TODO: remove it. Only needed to compute histogram bins.
 using StatsBase

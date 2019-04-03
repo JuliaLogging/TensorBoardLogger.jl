@@ -1,4 +1,3 @@
-
 """
     log_histogram(logger, name, (bins,weights); step)
 
@@ -56,17 +55,16 @@ function histogram_summary(name::String, edges::Vector{T1}, hist_vals::Vector{T2
     Summary_Value(tag=name, histo=hp)
 end
 
-## Backward compatibility
-log_histogram(logger, name, value, step) =
-    log_histogram(logger, name, value; step=step)
 
+## Logger Interface
 
-# Forward
+# Define the type(s) that can be serialized to TensorBoard
+preprocess(name,   val::AbstractVector{T}, data) where T<:Real = push!(data, name=>val)
+summary_impl(name, val::AbstractVector{T}) where T<:Real = histogram_summary(name, collect(0:length(val)),val)
+
+preprocess(name,   (bins,weights)::Tuple{Vector,Vector}, data) where T<:Real = push!(data, name=>(bins, weights))
+summary_impl(name, (bins,weights)::Tuple{Vector,Vector}) = histogram_summary(name, bins, weights)
+
+# Split complex numbers into real/complex pairs
 preprocess(name, val::AbstractVector, data) where T<:Complex = push!(data, name*"/re"=>real.(val), name*"/im"=>imag.(val))
 preprocess(name, val::AbstractArray, data) = push!(data, name=>vec(val))
-
-loggable(::AbstractVector{T}) where T<:Real = true
-summary_impl(name, val::AbstractVector) = histogram_summary(name, collect(0:length(val)),val)
-
-loggable(::Tuple{Vector,Vector}) = true
-summary_impl(name, (bins,weights)::Tuple{Vector,Vector}) = histogram_summary(name, bins, weights)
