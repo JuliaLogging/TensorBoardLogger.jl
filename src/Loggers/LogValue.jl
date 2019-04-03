@@ -10,8 +10,8 @@ function log_value(logger::TBLogger, name::String, value::Real; step=nothing)
 end
 
 function log_value(logger::TBLogger, name::String, value::Complex; step=nothing)
-    log_value(logger, name*"/re", real(value), step)
-    log_value(logger, name*"/im", imag(value), step)
+    log_value(logger, name*"/re", real(value), step=step)
+    log_value(logger, name*"/im", imag(value), step=step)
 end
 
 function scalar_summary(name::String, value::Real)

@@ -9,11 +9,6 @@ using Test
     log_value(logger, "float64", 1.5, step=step)
     log_value(logger, "irr", pi, step=step)
     log_value(logger, "complex", 1.0 + 1.0im, step=step)
-
-    log_value(logger, "float32", 1.25f0, step)
-    log_value(logger, "float64", 1.5, step)
-    log_value(logger, "irr", pi, step)
-    log_value(logger, "complex", 1.0 + 1.0im, step)
 end
 
 @testset "Histogram Value Logger" begin
