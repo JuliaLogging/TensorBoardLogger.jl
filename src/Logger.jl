@@ -167,8 +167,11 @@ function preprocess(name, val::T, data) where T
             prop = getproperty(val, f)
             preprocess(name*"/$f", val, data)
         end
-    else
-        throw(ErrorException("Can't log type $T, but can't preprocess it either.\n You should define preprocess(name, val::$T, data)."))
+
+    #TODO If you encounter something that can't be logged, silently drop it.
+    # When String/text logging will be implemented we should use it as a fallback.
+    #else
+    #    throw(ErrorException("Can't log type $T, but can't preprocess it either.\n You should define preprocess(name, val::$T, data)."))
     end
     data
 end
