@@ -2,7 +2,7 @@
 # protobuf is broken).
 const SummaryCollection(;kwargs...) = Summary(value=Base.Vector{Summary_Value}(); kwargs...)
 
-function make_event(logger::Logger, summary::Summary;
+function make_event(logger::TBLogger, summary::Summary;
                     step::Union{Nothing, Int}=nothing)
     # If the step is not set explicitly, get it from the logger
     if typeof(step) == Nothing
@@ -27,4 +27,4 @@ function write_event(file::IOStream, event::Event)
     flush(file)
 end
 
-write_event(logger::Logger, event::Event) = write_event(logger.file, event)
+write_event(logger::TBLogger, event::Event) = write_event(logger.file, event)
