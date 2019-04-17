@@ -12,7 +12,7 @@ and from [TensorBoardX](https://tensorboardx.readthedocs.io/en/latest/).
 
 To use the library you must create a `Logger` object and then log data to it.
 
-  - `Logger(dir_path)` creates a logger saving data to the folder `dir_path`
+  - `TBLogger(dir_path)` creates a logger saving data to the folder `dir_path`
   - `log_value(logger, name, val)` logs to `logger` the value `val` under the tag `name`
 
 ## Supported values
@@ -25,25 +25,22 @@ At the moment, you can log the following values:
 
 ## Example
 ```
-using TensorBoardLogger
+using TensorBoardLogger, Logging, Random
 
-lg = Logger("runs/run-12", overwrite=true)
+lg=TBLogger()
 
-for step=1:100
-    ev = log_value(lg, "quan/prova1", step*1.5, step=step)
-    ev = log_value(lg, "quan/prova2", step*2.5, step=step)
+with_logger(lg) do
+    for i=1:100
+        x0 = 0.5+i/30; s0 = 0.5/(i/20);
+        edges = collect(-5:0.1:5)
+        centers = collect(edges[1:end-1] .+0.05)
+        histvals = [exp(-((c-x0)/s0)^2) for c=centers]
+        data_tuple = (edges, histvals)
 
-    x0 = 0.5+step/30; s0 = 0.5/(step/20);
-    edges = collect(-5:0.1:5)
-    centers = collect(edges[1:end-1] .+0.05)
-    histvals = [exp(-((c-x0)/s0)^2) for c=centers]
-    histvals./=sum(histvals)
-    data_tuple = (edges, histvals)
 
-    # Log pre-binned data
-    log_histogram(lg, "hist/cust", data_tuple, step=step)
-    # Automatically bin the data
-    log_histogram(lg, "hist/auto", randn(1000).*s0.+x0, step=step)
+        @info "test" i=i j=i^2 dd=rand(10).+0.1*i hh=data_tuple
+        @info "test_2" i=i j=2^i hh=data_tuple log_step_increment=0
+    end
 end
 ```
 
