@@ -3,13 +3,14 @@
 
 Logs text with name `name` at step `step`
 """
-function log_text(logger::TBLogger, name::String, text::String; step=nothing)
+function log_text(logger::TBLogger, name::String, text::Any; step=nothing)
     summ    = SummaryCollection()
     push!(summ.value, text_summary(name, text))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
 
-function text_summary(name::String, text::String)
+function text_summary(name::String, text::Any)
+    text = markdown_repr(text)
     texttensorshape = TensorShapeProto(dim = Vector([TensorShapeProto_Dim(size = 1)]))
     textstringval = Vector{Array{UInt8, 1}}()
     push!(textstringval, Array{UInt8, 1}(text))
@@ -33,7 +34,6 @@ using Logging
 lg = TBLogger("/home/shashi/testing")
 with_logger(lg) do
     @info "StringTest" simple = "HelloWorld"
-    @info "ValTest" simple = 26
 end
 
 """

@@ -11,3 +11,19 @@ function serialize_proto(data::Union{ProtoType, ProtoEnum})
     writeproto(pb, data)
     pb.data
 end
+
+"""
+    markdown_repr(x)
+
+Returns the most suitable method for displaying `x` in a markdown document.
+"""
+function markdown_repr(x)
+    for mime_type in ("text/markdown", "text/html", "text/plain")
+        try
+            return repr(mime_type, x)
+        catch err
+            err isa MethodError || rethrow(err)
+        end
+    end
+    return repr(x)
+end
