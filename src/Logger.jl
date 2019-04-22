@@ -164,8 +164,8 @@ function preprocess(name, val::T, data) where T
     if isstructtype(T)
         fn = fieldnames(T)
         for f=fn
-            prop = getproperty(val, f)
-            preprocess(name*"/$f", val, data)
+            prop = getfield(val, f)
+            preprocess(name*"/$f", prop, data)
         end
 
     #TODO If you encounter something that can't be logged, silently drop it.
