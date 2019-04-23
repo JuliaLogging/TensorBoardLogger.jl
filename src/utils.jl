@@ -20,9 +20,14 @@ Returns the most suitable method for displaying `x` in a markdown document.
 function markdown_repr(x)
     for mime_type in ("text/markdown", "text/html", "text/plain")
         try
-            return repr(mime_type, x)
-        catch err
-            err isa MethodError || rethrow(err)
+            if showable(mime_type, x)
+                return repr(mime_type, x)
+            end
+        catch
+            @debug "It said it was showable, but it lied" mime_type x exception=err
+
+            # we blindly catch everything, because who knows what evil
+            # people are doing in their misimplemented `repr` functions
         end
     end
     return repr(x)

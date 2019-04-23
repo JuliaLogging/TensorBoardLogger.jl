@@ -33,7 +33,7 @@ using .TensorBoardLogger
 using Logging
 lg = TBLogger("/home/shashi/testing")
 with_logger(lg) do
-    @info "StringTest" simple = "HelloWorld"
+    @info "StringTest" simple = "Hello **World**"
 end
 
 """
