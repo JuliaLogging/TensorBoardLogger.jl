@@ -1,4 +1,3 @@
-
 """
     log_histogram(logger, name, (bins,weights); step)
 
@@ -8,7 +7,7 @@ passed as a tuple holding the `N+1` bin edges and the height of the `N` bins.
 You can also pass the raw data, and a binning algorithm from `StatsBase.jl` will
 be used to bin the data.
 """
-function log_histogram(logger::Logger, name::String, (bins,weights)::Tuple{Vector, Array};
+function log_histogram(logger::TBLogger, name::String, (bins,weights)::Tuple{Vector, Array};
                        step=nothing)
     weights = vec(weights)
     summ    = SummaryCollection()
@@ -22,7 +21,7 @@ end
 Bins the values found in `data` and logs them as an histogram under the tag
 `name`.
 """
-function log_histogram(logger::Logger, name::String, data::Array;
+function log_histogram(logger::TBLogger, name::String, data::Array;
                        step=nothing)
     data = vec(data)
     summ    = SummaryCollection()
@@ -36,7 +35,7 @@ end
 
 Logs the vector found in `data` as an histogram under the name `name`.
 """
-function log_vector(logger::Logger, name::String, data::Vector; step=nothing)
+function log_vector(logger::TBLogger, name::String, data::Vector; step=nothing)
     summ    = SummaryCollection()
     push!(summ.value, histogram_summary(name, collect(0:length(data)),data))
     write_event(logger.file, make_event(logger, summ, step))
@@ -58,6 +57,16 @@ function histogram_summary(name::String, edges::Vector{T1}, hist_vals::Vector{T2
     Summary_Value(tag=name, histo=hp)
 end
 
-## Backward compatibility
-log_histogram(logger, name, value, step) =
-    log_histogram(logger, name, value; step=step)
+
+## Logger Interface
+
+# Define the type(s) that can be serialized to TensorBoard
+preprocess(name,   val::AbstractVector{T}, data) where T<:Real = push!(data, name=>val)
+summary_impl(name, val::AbstractVector{T}) where T<:Real = histogram_summary(name, collect(0:length(val)),val)
+
+preprocess(name,   (bins,weights)::Tuple{Vector,Vector}, data) where T<:Real = push!(data, name=>(bins, weights))
+summary_impl(name, (bins,weights)::Tuple{Vector,Vector}) = histogram_summary(name, bins, weights)
+
+# Split complex numbers into real/complex pairs
+preprocess(name, val::AbstractVector, data) where T<:Complex = push!(data, name*"/re"=>real.(val), name*"/im"=>imag.(val))
+preprocess(name, val::AbstractArray, data) = push!(data, name=>vec(val))
