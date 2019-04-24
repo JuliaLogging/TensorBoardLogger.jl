@@ -38,7 +38,7 @@ Logs the vector found in `data` as an histogram under the name `name`.
 function log_vector(logger::TBLogger, name::String, data::Vector; step=nothing)
     summ    = SummaryCollection()
     push!(summ.value, histogram_summary(name, collect(0:length(data)),data))
-    write_event(logger.file, make_event(logger, summ, step))
+    write_event(logger.file, make_event(logger, summ, step=step))
 end
 
 function histogram_summary(name::String, edges::Vector{T1}, hist_vals::Vector{T2}) where {T1<:Number, T2<:Number}
@@ -68,5 +68,5 @@ preprocess(name,   (bins,weights)::Tuple{Vector,Vector}, data) where T<:Real = p
 summary_impl(name, (bins,weights)::Tuple{Vector,Vector}) = histogram_summary(name, bins, weights)
 
 # Split complex numbers into real/complex pairs
-preprocess(name, val::AbstractVector, data) where T<:Complex = push!(data, name*"/re"=>real.(val), name*"/im"=>imag.(val))
+preprocess(name, val::AbstractVector{T}, data) where T<:Complex = push!(data, name*"/re"=>real.(val), name*"/im"=>imag.(val))
 preprocess(name, val::AbstractArray, data) = push!(data, name=>vec(val))

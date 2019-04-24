@@ -69,8 +69,28 @@ end
     log_histogram(logger, "hist/cust", data_tuple, step=step)
     log_histogram(logger, "hist/cust", rand(100), step=step)
     log_histogram(logger, "hist/cust", rand(10,10), step=step)
+    log_vector(logger, "hist/cust", rand(10), step=step)
 end
 
+@testset "Histogram processing interface" begin
+    data = Vector{Pair{String,Any}}()
+    vals = rand(10)
+    @test data == preprocess("test1", vals, data)
+    @test first(data[1]) == "test1"
+    @test last(data[1])  == vals
+
+    vals = rand(ComplexF32, 10)
+    preprocess("test2", vals, data)
+    @test first(data[2]) == "test2/re"
+    @test last(data[2])  == real.(vals)
+    @test first(data[3]) == "test2/im"
+    @test last(data[3])  == imag.(vals)
+
+    vals = rand(10, 10)
+    preprocess("test2", vals, data)
+    @test last(data[4]) == vec(vals)
+
+end
 
 @testset "LogInterface" begin
     logger = TBLogger("log/")
