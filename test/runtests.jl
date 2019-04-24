@@ -1,9 +1,25 @@
 using TensorBoardLogger, Logging
 using Test
 
+@testset "Initialization" begin
+    isdir("test_logs/") && rm("test_logs", force=true, recursive=true)
+
+    # Check tb_append
+    TBLogger("test_logs/run")
+    @test isdir("test_logs/run")
+    TBLogger("test_logs/run") #tb_append by default
+    @test isdir("test_logs/run_1")
+    TBLogger("test_logs/run", tb_increment)
+    @test isdir("test_logs/run_2")
+
+    # check tb_overwrite
+    close(open("test_logs/run_2/testfile", "w"))
+    TBLogger("test_logs/run_2", tb_overwrite)
+    @test !isfile("test_logs/run_2/testfile")
+end
+
 @testset "Scalar Value Logger" begin
     logger = TBLogger("log/")
-    @test isdir("log/")
     step = 1
     log_value(logger, "float32", 1.25f0, step=step)
     log_value(logger, "float64", 1.5, step=step)
@@ -13,7 +29,6 @@ end
 
 @testset "Histogram Value Logger" begin
     logger = TBLogger("log/")
-    @test isdir("log/")
     step = 1
 
     x0 = 0.5+step/30; s0 = 0.5/(step/20);
@@ -28,7 +43,6 @@ end
 
 @testset "LogInterface" begin
     logger = TBLogger("log/")
-    @test isdir("log/")
 
     with_logger(logger) do
         for i=1:100
