@@ -8,7 +8,7 @@ already exists.
 export tb_append, tb_overwrite, tb_increment
 
 """
-    Logger(logdir, [tb_increment ; time=time(), purge_step::Int, min_level=Logging.Info])
+    TBLogger(logdir, [tb_increment ; time=time(), purge_step::Int, min_level=Logging.Info])
 
 Creates a TensorBoardLogger in the folder `logdir`. The second (optional)
 argument specifies the behaviour if the `logdir` already exhists: the default
