@@ -1,14 +1,43 @@
 """
-    Logger(logdir; [overwrite=false, time=time(), purge_step::Int])
+    InitPolicy
 
-Creates a TensorBoardLogger in the folder `logdir`. If `overwrite` is true it
-deletes previously created events.
+An enum that describes how to behave if the folder that tensorboard should log
+already exists.
+"""
+@enum InitPolicy tb_append=1 tb_overwrite=2 tb_increment=3
+export tb_append, tb_overwrite, tb_increment
+
+"""
+    TBLogger(logdir, [tb_increment ; time=time(), purge_step::Int, min_level=Logging.Info])
+
+Creates a TensorBoardLogger in the folder `logdir`. The second (optional)
+argument specifies the behaviour if the `logdir` already exhists: the default
+choice `tb_increment` appends an increasing number 1,2... to logdir. Other
+choices are `tb_overwrite`, which overwrites the previous folder and `tb_append`.
+
 If `purge_step::Int` is passed, every step before `purge_step` will be ignored
 by tensorboard (usefull in the case of restarting a crashed computation).
+
+`min_level=Logging.Info` specifies the minimum level of messages logged to
+tensorboard
 """
-function TBLogger(logdir; overwrite=false, time=time(), purge_step::Union{Int,Nothing}=nothing, min_level::LogLevel=Info)
-    if overwrite
+function TBLogger(logdir="tensorboard_logs/run", overwrite=tb_increment; time=time(), purge_step::Union{Int,Nothing}=nothing, min_level::LogLevel=Info)
+    if overwrite == tb_overwrite
         rm(logdir; force=true, recursive=true)
+    elseif overwrite == tb_append
+        # do nothing
+    elseif overwrite == tb_increment
+        # find the next viable name
+        if ispath(logdir)
+            i=1
+            while i<1000 # avoids an infinite loop
+                logdir_new = logdir*"_$i"
+                #println("trying $logdir_new")
+                !ispath(logdir_new) && break
+                i+=1
+            end
+            logdir = logdir*"_$i"
+        end
     end
     mkpath(logdir)
 
@@ -35,9 +64,6 @@ function TBLogger(logdir; overwrite=false, time=time(), purge_step::Union{Int,No
 
     TBLogger(realpath(logdir), file, all_files, start_step, min_level)
 end
-
-# normally the logs don't overwrite, but if you've not given a path, you clearly don't care.
-TBLogger() = TBLogger("tensorboard_logs", overwrite=true)
 
 # Accessors
 """
@@ -164,8 +190,8 @@ function preprocess(name, val::T, data) where T
     if isstructtype(T)
         fn = fieldnames(T)
         for f=fn
-            prop = getproperty(val, f)
-            preprocess(name*"/$f", val, data)
+            prop = getfield(val, f)
+            preprocess(name*"/$f", prop, data)
         end
 
     #TODO If you encounter something that can't be logged, silently drop it.
