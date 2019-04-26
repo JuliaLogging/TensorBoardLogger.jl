@@ -92,6 +92,33 @@ end
 
 end
 
+@testset "Text Logger" begin
+    logger = TBLogger("test_logs/t", tb_overwrite)
+    step = 1
+
+    ss = TensorBoardLogger.text_summary("test", "Hello World")
+    @test isa(ss, TensorBoardLogger.Summary_Value)
+    @test ss.tag == "test"
+
+    log_text(logger, "phrase", "Hello World")
+    log_text(logger, "sentence", "A quick brown fox jumped over a lazy dog.\n")
+    log_text(logger, "multilines", "Is this the real life?\nIs this just fantacy?")
+    log_text(logger, "markdown", "**This** is the *power*  of >>>markdown")
+    log_text(logger, "html", "<p> HTML is a programming language</p>")
+    log_text(logger, "docstring", """This should work too""")
+end
+
+@testset "Text processing interface" begin
+    data = Vector{Pair{String,Any}}()
+    @test data == preprocess("test1", "helloworld", data)
+    @test first(data[1])=="test1"
+    @test last(data[1])=="helloworld"
+
+    data == preprocess("test2", """helloworld""", data)
+    @test first(data[2])=="test2"
+    @test last(data[2])=="""helloworld"""
+end
+
 @testset "LogInterface" begin
     logger = TBLogger("log/")
 
