@@ -9,9 +9,9 @@ be used to bin the data.
 """
 function log_histogram(logger::TBLogger, name::AbstractString, (bins,weights)::Tuple{AbstractVector, AbstractArray};
                        step=nothing)
-    weights = vec(weights)
+    weights = collect(vec(weights))
     summ    = SummaryCollection()
-    push!(summ.value,  histogram_summary(name, bins, weights))
+    push!(summ.value,  histogram_summary(name, collect(bins), weights))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
 
@@ -44,16 +44,10 @@ end
 function histogram_summary(name::AbstractString, edges::AbstractVector{<:Number}, hist_vals::AbstractVector{<:Number})
     @assert length(edges) == length(hist_vals)+1
 
-    hp = HistogramProto(min=minimum(edges), max=maximum(edges),
-                        bucket_limit=Vector{Float64}(),
-                        bucket=Vector{Float64}())
-    for val=edges[2:end]
-        push!(hp.bucket_limit, val)
-    end
-    for val=hist_vals
-        push!(hp.bucket, val)
-    end
 
+    hp = HistogramProto(min=minimum(edges), max=maximum(edges),
+                        bucket_limit=edges[2:end],
+                        bucket=hist_vals)
     Summary_Value(tag=name, histo=hp)
 end
 
