@@ -100,12 +100,12 @@ end
     @test isa(ss, TensorBoardLogger.Summary_Value)
     @test ss.tag == "test"
 
-    log_text(logger, "phrase", "Hello World")
-    log_text(logger, "sentence", "A quick brown fox jumped over a lazy dog.\n")
-    log_text(logger, "multilines", "Is this the real life?\nIs this just fantacy?")
-    log_text(logger, "markdown", "**This** is the *power*  of >>>markdown")
-    log_text(logger, "html", "<p> HTML is a programming language</p>")
-    log_text(logger, "docstring", """This should work too""")
+    log_text(logger, "phrase", "Hello World", step = step)
+    log_text(logger, "sentence", "A quick brown fox jumped over a lazy dog.\n", step = step)
+    log_text(logger, "multilines", "Is this the real life?\nIs this just fantacy?", step = step)
+    log_text(logger, "markdown", "**This** is the *power*  of >>>markdown", step = step)
+    log_text(logger, "html", "<p> HTML is a programming language</p>", step = step)
+    log_text(logger, "docstring", """This should work too""", step = step)
 end
 
 @testset "Text processing interface" begin

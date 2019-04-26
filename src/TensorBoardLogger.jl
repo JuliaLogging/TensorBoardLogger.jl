@@ -50,7 +50,7 @@ include("Logger.jl")
 
 
 export log_histogram, log_value, log_vector, log_text
-export scalar_summary, histogram_summary, make_event
+export scalar_summary, histogram_summary, text_summary, make_event
 export TBLogger
 
 export set_tb_logdir, reset_tb_logs, default_logging_session
