@@ -34,5 +34,5 @@ include("event.jl")
 include("Loggers/LogValue.jl")
 include("Loggers/LogText.jl")
 include("Loggers/LogHistograms.jl")
-
+include("logger_dispatch.jl")
 end # module

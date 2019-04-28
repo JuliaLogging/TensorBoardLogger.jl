@@ -40,9 +40,3 @@ function markdown_repr(x)
     return repr(x)
 end
 
-
-## Logger Interface
-
-# Define the type(s) that can be serialized to TensorBoard
-preprocess(name, val::String, data) where T<:String = push!(data, name=>val)
-summary_impl(name, value::String) = text_summary(name, value)
