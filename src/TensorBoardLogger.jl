@@ -29,24 +29,13 @@ include("protojl/types_pb.jl")
 include("protojl/summary_pb.jl")
 include("protojl/event_pb.jl")
 include("protojl/plugin_text_pb.jl")
-# CRC Utils
-include("utils.jl")
 
-# Logging structures
-mutable struct TBLogger <: AbstractLogger
-    logdir::String
-    file::IOStream
-    all_files::Dict{String, IOStream}
-    global_step::Int
-
-	min_level::LogLevel
-end
-
+include("TBLogger.jl")
+include("utils.jl")  # CRC Utils
 include("event.jl")
 include("Loggers/LogValue.jl")
 include("Loggers/LogText.jl")
 include("Loggers/LogHistograms.jl")
-include("Logger.jl")
 
 
 export log_histogram, log_value, log_vector, log_text

@@ -1,3 +1,13 @@
+mutable struct TBLogger <: AbstractLogger
+    logdir::String
+    file::IOStream
+    all_files::Dict{String, IOStream}
+    global_step::Int
+
+	min_level::LogLevel
+end
+
+
 """
     InitPolicy
 
@@ -201,3 +211,4 @@ function preprocess(name, val::T, data) where T
     end
     data
 end
+
