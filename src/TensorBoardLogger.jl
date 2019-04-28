@@ -42,7 +42,7 @@ mutable struct TBLogger <: AbstractLogger
 	min_level::LogLevel
 end
 
-include("logging.jl")
+include("event.jl")
 include("Loggers/LogValue.jl")
 include("Loggers/LogText.jl")
 include("Loggers/LogHistograms.jl")
