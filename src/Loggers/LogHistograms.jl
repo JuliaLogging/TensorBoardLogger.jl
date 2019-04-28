@@ -50,17 +50,3 @@ function histogram_summary(name::AbstractString, edges::AbstractVector{<:Number}
                         bucket=hist_vals)
     Summary_Value(tag=name, histo=hp)
 end
-
-
-## Logger Interface
-
-# Define the type(s) that can be serialized to TensorBoard
-preprocess(name,   val::AbstractVector{<:Real}, data) = push!(data, name=>val)
-summary_impl(name, val::AbstractVector{<:Real}) = histogram_summary(name, collect(0:length(val)),val)
-
-preprocess(name,   (bins,weights)::Tuple{AbstractVector,AbstractVector}, data) = push!(data, name=>(bins, weights))
-summary_impl(name, (bins,weights)::Tuple{AbstractVector,AbstractVector}) = histogram_summary(name, bins, weights)
-
-# Split complex numbers into real/complex pairs
-preprocess(name, val::AbstractVector{<:Complex}, data) = push!(data, name*"/re"=>real.(val), name*"/im"=>imag.(val))
-preprocess(name, val::AbstractArray, data) = push!(data, name=>vec(val))

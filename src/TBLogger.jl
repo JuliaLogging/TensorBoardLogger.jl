@@ -1,3 +1,13 @@
+mutable struct TBLogger <: AbstractLogger
+    logdir::String
+    file::IOStream
+    all_files::Dict{String, IOStream}
+    global_step::Int
+
+	min_level::LogLevel
+end
+
+
 """
     InitPolicy
 
@@ -174,30 +184,4 @@ function handle_message(lg::TBLogger, level, message, _module, group, id, file, 
     end
     iter = increment_step(lg, i_step)
     write_event(lg.file, make_event(lg, summ, step=iter))
-end
-
-"""
-    preprocess(name, val, data)
-
-This method takes a tag `name` and the value `val::T` pair. If type `T` can be
-serialized to TensorBoard then the pair is pushed to `data`, otherwise it should
-call `preprocess` recursively with some simpler types, until a serializable
-type is finally hit.
-
-For a struct, it calls preprocess on every field.
-"""
-function preprocess(name, val::T, data) where T
-    if isstructtype(T)
-        fn = fieldnames(T)
-        for f=fn
-            prop = getfield(val, f)
-            preprocess(name*"/$f", prop, data)
-        end
-
-    #TODO If you encounter something that can't be logged, silently drop it.
-    # When String/text logging will be implemented we should use it as a fallback.
-    #else
-    #    throw(ErrorException("Can't log type $T, but can't preprocess it either.\n You should define preprocess(name, val::$T, data)."))
-    end
-    data
 end
