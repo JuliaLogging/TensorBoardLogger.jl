@@ -2,21 +2,8 @@ using TensorBoardLogger, Logging
 using TensorBoardLogger: preprocess, summary_impl
 using Test
 
-@testset "Initialization" begin
-    isdir("test_logs/") && rm("test_logs", force=true, recursive=true)
-
-    # Check tb_append
-    TBLogger("test_logs/run")
-    @test isdir("test_logs/run")
-    TBLogger("test_logs/run") #tb_append by default
-    @test isdir("test_logs/run_1")
-    TBLogger("test_logs/run", tb_increment)
-    @test isdir("test_logs/run_2")
-
-    # check tb_overwrite
-    close(open("test_logs/run_2/testfile", "w"))
-    TBLogger("test_logs/run_2", tb_overwrite)
-    @test !isfile("test_logs/run_2/testfile")
+@testset "TBLogger" begin
+    include("test_TBLogger.jl")
 end
 
 @testset "Scalar Value Logger" begin

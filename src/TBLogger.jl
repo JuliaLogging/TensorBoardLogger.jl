@@ -124,23 +124,18 @@ end
 
 # Accessors
 """
-    logdir(lg::Logger) -> String
+    logdir(lg::TBLogger) -> String
 
-Returns the directory to which Logger `lg` is writing data.
+Returns the directory where `lg` is writing events data.
 """
 logdir(lg::TBLogger)   = lg.logdir
 
 """
-    get_file(lg::Logger) -> IOS
+    get_file(lg::TBLogger) -> IOS
 
 Returns the main `file` IOStream object of Logger `lg`.
 """
 get_file(lg::TBLogger) = lg.file
-function add_log_file(lg::TBLogger, path::String)
-    file = open(path, "w")
-    lg.all_files[path] = file
-    return file
-end
 
 """
     get_file(lg, tags::String...) -> IOS
@@ -149,50 +144,55 @@ Returns the `file` IOStream object of Logger `lg` writing to the tag
 `tags1/tags2.../tagsN`.
 """
 function get_file(lg::TBLogger, tags::String...)
-    key = joinpath(logdir(lg), tags...)
-    if key ∈ lg.all_files
+    key = joinpath(tags...)
+    if key ∈ keys(lg.all_files)
         return lg.all_files[key]
     else
-        return add_log_file(lg, key)
+        return add_eventfile(lg, key)
     end
 end
 
 """
-    set_step(lg, iter::Int)
+    set_step!(lg, step) -> Int
 
-Sets the iteration counter in the logger to `iter`. This counter is used by the
+Sets the iteration counter in the logger to `step`. This counter is used by the
 logger when no value is passed by the user.
 """
-set_step(lg::TBLogger, iter::Int) = lg.global_step = iter
-
-increment_step(lg::TBLogger, iter::Int) = lg.global_step += iter
+set_step!(lg::TBLogger, step) = lg.global_step = step
 
 """
-    step(lg)
+	increment_step!(lg, Δ_Step) -> Int
 
-Returns the internal iteration counter of the logger. When no step keyword
-is provided to the loggers, it will use this value.
+Increments the step counter in the logger by `Δ_Step` and returns the new value.
+"""
+increment_step!(lg::TBLogger, Δ_Step) = lg.global_step += Δ_Step
+
+"""
+    step(lg) -> Int
+
+Returns the internal step counter of the logger.
 """
 step(lg::TBLogger) = lg.global_step
 
+"""
+    reset!(lg)
 
-# Additional things
+Reset the TBLogger `lg`, deleting everything in it's log directory.
+"""
+function reset!(lg::TBLogger)
+	# close open streams
+	for k=keys(lg.all_files)
+		close(lg.all_files[k])
+		delete!(lg.all_files, k)
+	end
 
-"""
-    set_tb_logdir(logdir, overwrite=false)
-Start a new log in the given directory
-"""
-function set_tb_logdir(logdir, overwrite=false)
-    default_logging_session[] = Logger(logdir, overwrite=overwrite)
-end
+	# Overwrite the logdirectoy and create a new base event file
+	init_logdir(logdir(lg), tb_overwrite)
+	fname   = add_eventfile(lg, "")
+	lg.file = get_file(lg, fname)
+	set_step!(lg, 0)
 
-"""
-    reset_tb_logs()
-Reset the current log, deleteing all information
-"""
-function reset_tb_logs()
-    logdir = default_logging_session[].logdir
-    default_logging_session[] = Logger(logdir, overwrite=true)
+	return lg
 end
 
 
@@ -229,6 +229,6 @@ function handle_message(lg::TBLogger, level, message, _module, group, id, file, 
             push!(summ.value, summary_impl(name, val))
         end
     end
-    iter = increment_step(lg, i_step)
+    iter = increment_step!(lg, i_step)
     write_event(lg.file, make_event(lg, summ, step=iter))
 end
