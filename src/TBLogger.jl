@@ -31,8 +31,31 @@ by tensorboard (usefull in the case of restarting a crashed computation).
 `min_level=Logging.Info` specifies the minimum level of messages logged to
 tensorboard
 """
-function TBLogger(logdir="tensorboard_logs/run", overwrite=tb_increment; time=time(), purge_step::Union{Int,Nothing}=nothing, min_level::LogLevel=Info)
-    if overwrite == tb_overwrite
+function TBLogger(logdir="tensorboard_logs/run", overwrite=tb_increment;
+				  time=time(), purge_step::Union{Int,Nothing}=nothing,
+				  min_level::LogLevel=Info)
+
+	logdir 		  = init_logdir(logdir, overwrite)
+	fpath, evfile = create_eventfile(logdir, purge_step, time)
+
+    all_files  = Dict(fpath => evfile)
+	start_step = isnothing(purge_step) ? 0 : purge_step
+
+	TBLogger(logdir, evfile, all_files, start_step, min_level)
+end
+
+"""
+	init_logdir(logdir, [overwrite=tb_increment])
+
+Creates a folder at path `logdir`. If the folder already exhists the behaviour
+is determined by `overwrite`.
+
+ - `overwrite=tb_increment` appends an increasing number 1,2... to logdir.
+ - `overwrite=tb_overwrite` overwrites the folder, deleting it's content.
+ - `overwrite=tb_append` appends to it's previous content.
+"""
+function init_logdir(logdir, overwrite=tb_increment)
+	if overwrite == tb_overwrite
         rm(logdir; force=true, recursive=true)
     elseif overwrite == tb_append
         # do nothing
@@ -51,28 +74,52 @@ function TBLogger(logdir="tensorboard_logs/run", overwrite=tb_increment; time=ti
     end
     mkpath(logdir)
 
-    hostname = gethostname()
-    fname    = "events.out.tfevents.$time.$hostname"
-    fpath    = joinpath(logdir, fname)
-    file     = open(fpath, "w")
+	return realpath(logdir)
+end
 
-    all_files = Dict(fpath => file)
+"""
+	create_eventfile(logdir, [purge_step=nothing; time=time()]) -> IOStream
+
+Creates a protobuffer events file in the logdir and returns the IO buffer for
+writing to it. If `purge_step::Int` is passed then a special event is written
+that makes TensorBoard ignore all events before that step (usefull to ignore
+part of a calculation that crashed).
+
+Optional keyword argument `prepend` can be passed to prepend a path to the file
+name.
+"""
+function create_eventfile(logdir, purge_step=nothing, time=time(); prepend="")
+	hostname = gethostname()
+    fname    = prepend*"events.out.tfevents.$time.$hostname"
+    fpath    = joinpath(logdir, fname)
+
+	mkpath(dirname(fpath))
+    file     = open(fpath, "w")
 
     # Create the initial log
     if purge_step != nothing
-        start_step = purge_step
-        ev_0 = Event(wall_time=time, step=start_step, file_version="brain.Event:2")
+        ev_0 = Event(wall_time=time, step=purge_step, file_version="brain.Event:2")
         write_event(file, ev_0)
         sess_log = TensorBoardLogger.SessionLog(status=TensorBoardLogger.SessionLog_SessionStatus.START)
-        ev_0 = Event(wall_time=time, step=start_step, session_log=sess_log)
+        ev_0 = Event(wall_time=time, step=purge_step, session_log=sess_log)
         write_event(file, ev_0)
     else
-        start_step = 0
-        ev_0 = Event(wall_time=time, step=start_step, file_version="brain.Event:2")
+        ev_0 = Event(wall_time=time, step=0, file_version="brain.Event:2")
         write_event(file, ev_0)
     end
+	return fname, file
+end
 
-    TBLogger(realpath(logdir), file, all_files, start_step, min_level)
+"""
+	add_eventfile(lg::TBLogger, path::String)
+
+Adds an event file to `lg` with `path` prepended to it's name. It can be used
+to create sub-event collection in a single event collection.
+"""
+function add_eventfile(lg::TBLogger, path="")
+	fname, file = create_eventfile(logdir(lg), prepend=path)
+	lg.all_files[fname] = file
+    return fname
 end
 
 # Accessors
