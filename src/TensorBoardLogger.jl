@@ -12,6 +12,8 @@ export scalar_summary, histogram_summary, text_summary, make_event
 export TBLogger
 export reset!, set_step!, increment_step!
 
+# Wrapper types
+export TBText, TBVector, TBHistogram
 
 # Protobuffer definitions for tensorboard
 include("protojl/tensorflow.jl")
@@ -36,4 +38,5 @@ include("Loggers/LogValue.jl")
 include("Loggers/LogText.jl")
 include("Loggers/LogHistograms.jl")
 include("logger_dispatch.jl")
+include("logger_dispatch_overrides.jl")
 end # module
