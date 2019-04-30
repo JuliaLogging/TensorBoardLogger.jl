@@ -18,18 +18,19 @@ function preprocess(name, val::T, data) where T
             prop = getfield(val, f)
             preprocess(name*"/$f", prop, data)
         end
-
-    #TODO If you encounter something that can't be logged, silently drop it.
-    # When String/text logging will be implemented we should use it as a fallback.
-    #else
-    #    throw(ErrorException("Can't log type $T, but can't preprocess it either.\n You should define preprocess(name, val::$T, data)."))
+    else
+        # If we do not know how to serialize a type, then
+        # it will be simply logged as text
+        push!(data, name=>val)
     end
     data
 end
 
+## Default behaviours
+
 ########## For things going to LogText ##############################
-preprocess(name, val::String, data) where T<:String = push!(data, name=>val)
-summary_impl(name, value::String) = text_summary(name, value)
+preprocess(name, val::AbstractString, data) where T<:String = push!(data, name=>val)
+summary_impl(name, value::Any) = text_summary(name, value)
 
 
 ########## For things going to LogHistograms ########################
