@@ -3,7 +3,7 @@
 const SummaryCollection(;kwargs...) = Summary(value=Base.Vector{Summary_Value}(); kwargs...)
 
 function make_event(logger::TBLogger, summary::Summary;
-                    step:Int=TensorBoardLogger.step(logger))
+                    step::Int=TensorBoardLogger.step(logger))
     return Event(wall_time=time(), summary=summary, step=step)
 end
 
