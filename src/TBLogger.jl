@@ -39,7 +39,7 @@ function TBLogger(logdir="tensorboard_logs/run", overwrite=tb_increment;
 	fpath, evfile = create_eventfile(logdir, purge_step, time)
 
     all_files  = Dict(fpath => evfile)
-	start_step = purge_step == nothing ? 0 : purge_step
+	start_step = something(purge_step, 0)
 
 	TBLogger(logdir, evfile, all_files, start_step, min_level)
 end
