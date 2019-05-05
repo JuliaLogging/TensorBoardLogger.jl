@@ -3,12 +3,8 @@
 const SummaryCollection(;kwargs...) = Summary(value=Base.Vector{Summary_Value}(); kwargs...)
 
 function make_event(logger::TBLogger, summary::Summary;
-                    step::Union{Nothing, Int}=nothing)
-    # If the step is not set explicitly, get it from the logger
-    if isnothing(step)
-        step = TensorBoardLogger.step(logger)
-    end
-    Event(wall_time=time(), summary=summary, step=step)
+                    step:Int=TensorBoardLogger.step(logger))
+    return Event(wall_time=time(), summary=summary, step=step)
 end
 
 function write_event(file::IOStream, event::Event)
