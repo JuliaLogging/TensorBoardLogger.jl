@@ -5,9 +5,7 @@ const SummaryCollection(;kwargs...) = Summary(value=Base.Vector{Summary_Value}()
 function make_event(logger::TBLogger, summary::Summary;
                     step::Union{Nothing, Int}=nothing)
     # If the step is not set explicitly, get it from the logger
-    if isnothing(step)
-        step = TensorBoardLogger.step(logger)
-    end
+    step = something(step, TensorBoardLogger.step(logger))
     Event(wall_time=time(), summary=summary, step=step)
 end
 
