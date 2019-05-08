@@ -1,13 +1,14 @@
 module TensorBoardLogger
 using ProtoBuf
 using CRC32c
+using Base64
 using StatsBase  #TODO: remove this. Only needed to compute histogram bins.
 using Base.CoreLogging: global_logger, LogLevel, Info
 import Base.CoreLogging:
     AbstractLogger, handle_message, shouldlog, min_enabled_level,
 	catch_exceptions
 
-export log_histogram, log_value, log_vector, log_text
+export log_histogram, log_value, log_vector, log_text, log_image
 export scalar_summary, histogram_summary, text_summary, make_event
 export TBLogger
 export reset!, set_step!, increment_step!
@@ -35,5 +36,7 @@ include("event.jl")
 include("Loggers/LogValue.jl")
 include("Loggers/LogText.jl")
 include("Loggers/LogHistograms.jl")
+include("Loggers/LogImage.jl")
+
 include("logger_dispatch.jl")
 end # module
