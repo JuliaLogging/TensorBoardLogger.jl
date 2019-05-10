@@ -7,7 +7,7 @@ version = "0.1.0"
 Base64 = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 CRC32c = "8bf52ea8-c179-5cab-976a-9e18b702a9bc"
 FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
-Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
+ImageCore = "a09fc81d-aa75-5fe9-8630-4744c3626534"
 ProtoBuf = "3349acd9-ac6a-5e09-bcdb-63829b23a429"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 

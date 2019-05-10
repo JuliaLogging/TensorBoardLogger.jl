@@ -2,8 +2,9 @@ module TensorBoardLogger
 using ProtoBuf
 using CRC32c
 using Base64
-using Images
+using ImageCore
 using FileIO
+using FileIO: @format_str
 using StatsBase  #TODO: remove this. Only needed to compute histogram bins.
 using Base.CoreLogging: global_logger, LogLevel, Info
 import Base.CoreLogging:

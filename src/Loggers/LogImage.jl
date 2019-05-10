@@ -15,14 +15,9 @@ function image_summary(name::AbstractString, img::Array)
     height, width, channel = size(img)
     #Encode image to string
     Img = colorview(Gray, img)
-    #TODO Poor implementation, MUST not save as file
-    #use something like PipeBuffer 
-    save("temp.png", Img)
-    ImgFile = open("temp.png")
-    Img = read(ImgFile, String)
-    close(ImgFile)
-    rm("temp.png")
-    eis = Vector{UInt8}(Img)
+    io = IOBuffer()
+    save(Stream(format"PNG", io), Img)
+    eis = io.data
     imgsumm = Summary_Image(height = height, width = width, colorspace = channel, encoded_image_string = eis)
     Summary_Value(tag = name, image = imgsumm)
 end
