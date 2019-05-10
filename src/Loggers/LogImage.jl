@@ -21,13 +21,3 @@ function image_summary(name::AbstractString, img::Array)
     imgsumm = Summary_Image(height = height, width = width, colorspace = channel, encoded_image_string = eis)
     Summary_Value(tag = name, image = imgsumm)
 end
-
-
-"""
-import TensorBoardLogger
-using .TensorBoardLogger
-lgr = TBLogger("/home/shashi/run")
-img = rand(16, 16, 1)
-log_value(lgr, "testval", 16, step = 0)
-log_image(lgr, "testimage", img, step = 0)
-"""
