@@ -162,7 +162,10 @@ function image_summary(name::AbstractString, imgArray::AbstractArray{Float64, 3}
     imgsumm = Summary_Image(height = height, width = width, colorspace = 1, encoded_image_string = eis)
     Summary_Value(tag = name, image = imgsumm)
 end
+<<<<<<< HEAD
 """
 TODO:
 - TestCases
 """
+=======
+>>>>>>> da54209ceaa817d811d7eaf7cccad291774a4317
