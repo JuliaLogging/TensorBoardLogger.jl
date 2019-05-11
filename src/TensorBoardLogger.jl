@@ -1,7 +1,6 @@
 module TensorBoardLogger
 using ProtoBuf
 using CRC32c
-using Base64
 using ImageCore
 using FileIO
 using FileIO: @format_str
