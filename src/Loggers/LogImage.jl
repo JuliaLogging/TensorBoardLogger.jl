@@ -67,7 +67,7 @@ function log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArr
         imgArray[N:N, :, :]
     end,
     NWH => function(imgArray)
-        @assert ndims(imgArray) == 4
+        @assert ndims(imgArray) == 3
         N = size(imgArray, 1)
         for n in 1:N-1
             log_image(logger, name*"/$n", imgArray[n, :, :], WH, step = step)
