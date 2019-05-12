@@ -133,6 +133,7 @@ end
     ss = TensorBoardLogger.image_summary("test", rand(3, 16, 16))
     @test isa(ss, TensorBoardLogger.Summary_Value)
     @test ss.tag == "test"
+    using Pkg
     Pkg.add("Flux")
     Pkg.add("Metalhead")
     using Flux.Data.MNIST
