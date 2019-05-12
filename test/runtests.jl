@@ -3,7 +3,6 @@ using TensorBoardLogger: preprocess, summary_impl
 using Test
 using Flux.Data.MNIST
 using Metalhead
-using Metalhead: trainimgs, CIFAR10
 
 @testset "TBLogger" begin
     include("test_TBLogger.jl")
@@ -147,7 +146,7 @@ end
     sample = permutedims(sample, (1, 3, 2))
     log_image(logger, "mnist/NWH", sample, NWH, step = step)
 
-    sample = trainimgs(CIFAR10)
+    sample = Metalhead.trainimgs(Metalhead.CIFAR10)
     sample = [sample[i].img for i in 1:8]
     sample = hcat(sample...)
     sample = reshape(sample, (32, 32, 8))
