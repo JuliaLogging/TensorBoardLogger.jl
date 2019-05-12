@@ -133,7 +133,8 @@ end
     ss = TensorBoardLogger.image_summary("test", rand(3, 16, 16))
     @test isa(ss, TensorBoardLogger.Summary_Value)
     @test ss.tag == "test"
-
+    Pkg.add("Flux")
+    Pkg.add("Metalhead")
     using Flux.Data.MNIST
     sample = MNIST.images()[1:3]
     sample = hcat(sample...)
