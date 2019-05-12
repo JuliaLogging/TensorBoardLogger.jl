@@ -12,6 +12,8 @@ ProtoBuf = "3349acd9-ac6a-5e09-bcdb-63829b23a429"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [extras]
+Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
+Metalhead = "dbeba491-748d-5e0e-a39e-b530a07fa0cc"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]

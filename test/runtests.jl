@@ -1,11 +1,14 @@
 using TensorBoardLogger, Logging
 using TensorBoardLogger: preprocess, summary_impl
 using Test
+using Flux.Data.MNIST
+using Metalhead
+using Metalhead: trainimgs, CIFAR10
+using ImageCore
+
 @testset "TBLogger" begin
     include("test_TBLogger.jl")
 end
-Pkg.add("Flux")
-Pkg.add("Metalhead")
 @testset "Scalar Value Logger" begin
     logger = TBLogger("test_logs/t", tb_overwrite)
     step = 1
@@ -134,7 +137,6 @@ end
     @test isa(ss, TensorBoardLogger.Summary_Value)
     @test ss.tag == "test"
 
-    using Flux.Data.MNIST
     sample = MNIST.images()[1:3]
     sample = hcat(sample...)
     sample = reshape(sample, (28, 28, 3))
@@ -146,9 +148,6 @@ end
     sample = permutedims(sample, (1, 3, 2))
     log_image(logger, "mnist/NWH", sample, NWH, step = step)
 
-    using Metalhead
-    using Metalhead: trainimgs, CIFAR10
-    using ImageCore
     sample = trainimgs(CIFAR10)
     sample = [sample[i].img for i in 1:8]
     sample = hcat(sample...)
