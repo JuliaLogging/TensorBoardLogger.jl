@@ -4,7 +4,6 @@ using Test
 using Flux.Data.MNIST
 using Metalhead
 using Metalhead: trainimgs, CIFAR10
-using ImageCore
 
 @testset "TBLogger" begin
     include("test_TBLogger.jl")
