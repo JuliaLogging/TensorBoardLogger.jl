@@ -1,7 +1,6 @@
 using TensorBoardLogger, Logging
 using TensorBoardLogger: preprocess, summary_impl
 using Test
-import Pkg; using Pkg; Pkg.add("Flux"); Pkg.add("Metalhead")
 @testset "TBLogger" begin
     include("test_TBLogger.jl")
 end
