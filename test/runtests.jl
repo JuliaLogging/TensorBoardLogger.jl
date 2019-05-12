@@ -3,6 +3,7 @@ using TensorBoardLogger: preprocess, summary_impl
 using Test
 using Flux.Data.MNIST
 using Metalhead
+using ImageCore
 
 @testset "TBLogger" begin
     include("test_TBLogger.jl")
