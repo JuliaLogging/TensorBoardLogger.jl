@@ -2,6 +2,7 @@ module TensorBoardLogger
 using ProtoBuf
 using CRC32c
 using ImageCore
+using ColorTypes
 using FileIO
 using FileIO: @format_str
 using StatsBase  #TODO: remove this. Only needed to compute histogram bins.
