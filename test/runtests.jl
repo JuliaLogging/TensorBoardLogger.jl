@@ -125,3 +125,48 @@ end
 
     @test TensorBoardLogger.step(logger) == 100
 end
+
+@testset "Image Logger" begin
+    logger = TBLogger("test_logs/t", tb_overwrite)
+    step = 1
+
+    ss = TensorBoardLogger.image_summary("test", rand(3, 16, 16))
+    @test isa(ss, TensorBoardLogger.Summary_Value)
+    @test ss.tag == "test"
+
+    using Flux.Data.MNIST
+    sample = MNIST.images()[1:3]
+    sample = hcat(sample...)
+    sample = reshape(sample, (28, 28, 3))
+    log_image(logger, "mnist/HWN", sample, HWN, step = step)
+    sample = permutedims(sample, (2, 1, 3))
+    log_image(logger, "mnist/WHN", sample, WHN, step = step)
+    sample = permutedims(sample, (3, 2, 1))
+    log_image(logger, "mnist/NHW", sample, NHW, step = step)
+    sample = permutedims(sample, (1, 3, 2))
+    log_image(logger, "mnist/NWH", sample, NWH, step = step)
+
+    using Metalhead
+    using Metalhead: trainimgs, CIFAR10
+    using ImageCore
+    sample = trainimgs(CIFAR10)
+    sample = [sample[i].img for i in 1:8]
+    sample = hcat(sample...)
+    sample = reshape(sample, (32, 32, 8))
+    log_image(logger, "cifar10/CHWN", sample, CHWN, step = step)
+    sample = permutedims(sample, (2, 1, 3))
+    log_image(logger, "cifar10/CWHN", sample, CWHN, step = step)
+    sample = channelview(sample) #CWHN
+    sample = permutedims(sample, (4, 1, 2, 3))
+    log_image(logger, "cifar10/NCWH", sample, NCWH, step = step)
+    sample = permutedims(sample, (1, 2, 4, 3))
+    log_image(logger, "cifar10/NCHW", sample, NCHW, step = step)
+    sample = permutedims(sample, (1, 4, 3, 2))
+    log_image(logger, "cifar10/NWHC", sample, NWHC, step = step)
+    sample = permutedims(sample, (1, 3, 2, 4))
+    log_image(logger, "cifar10/NHWC", sample, NHWC, step = step)
+    sample = permutedims(sample, (2, 3, 4, 1))
+    log_image(logger, "cifar10/HWCN", sample, HWCN, step = step)
+    sample = permutedims(sample, (2, 1, 3, 4))
+    log_image(logger, "cifar10/WHCN", sample, WHCN, step = step)
+end
