@@ -4,7 +4,8 @@ using Test
 @testset "TBLogger" begin
     include("test_TBLogger.jl")
 end
-
+Pkg.add("Flux")
+Pkg.add("Metalhead")
 @testset "Scalar Value Logger" begin
     logger = TBLogger("test_logs/t", tb_overwrite)
     step = 1
