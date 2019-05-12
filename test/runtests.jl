@@ -146,7 +146,8 @@ end
     sample = permutedims(sample, (1, 3, 2))
     log_image(logger, "mnist/NWH", sample, NWH, step = step)
 
-    sample = Metalhead.trainimgs(Metalhead.CIFAR10)
+    Metalhead.download(CIFAR10)
+    sample = valimgs(dataset(CIFAR10))
     sample = [sample[i].img for i in 1:8]
     sample = hcat(sample...)
     sample = reshape(sample, (32, 32, 8))
