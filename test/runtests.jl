@@ -2,7 +2,7 @@ using TensorBoardLogger, Logging
 using TensorBoardLogger: preprocess, summary_impl
 using Test
 using Flux.Data.MNIST
-using Metalhead
+using TestImages
 using ImageCore
 
 @testset "TBLogger" begin
@@ -147,11 +147,9 @@ end
     sample = permutedims(sample, (1, 3, 2))
     log_image(logger, "mnist/NWH", sample, NWH, step = step)
 
-    Metalhead.download(CIFAR10)
-    sample = valimgs(dataset(CIFAR10))
-    sample = [sample[i].img for i in 1:8]
+    sample = [testimage("toucan"), testimage("toucan"), testimage("toucan")]
     sample = hcat(sample...)
-    sample = reshape(sample, (32, 32, 8))
+    sample = reshape(sample, (150, 162, 3))
     log_image(logger, "cifar10/CHWN", sample, CHWN, step = step)
     sample = permutedims(sample, (2, 1, 3))
     log_image(logger, "cifar10/CWHN", sample, CWHN, step = step)
