@@ -1,9 +1,8 @@
 # TensorBoardLogger
 [![Build Status](https://travis-ci.org/PhilipVinc/TensorBoardLogger.jl.svg?branch=master)](https://travis-ci.org/PhilipVinc/TensorBoardLogger.jl) [![codecov](https://codecov.io/gh/PhilipVinc/TensorBoardLogger.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/PhilipVinc/TensorBoardLogger.jl)
 
-**TensorBoardLogger.jl** is a library for logging arbitrary data to
-[Tensorboard](https://www.tensorflow.org/guide/summaries_and_tensorboard)
-with few lightweight dependencies, extending Julia's standard Logging framework.
+**TensorBoardLogger.jl** is a native library for logging arbitrary data to
+[Tensorboard](https://www.tensorflow.org/guide/summaries_and_tensorboard), extending Julia's standard Logging framework.
 
 Many ideas are taken from [UniversalTensorBoard](https://github.com/oxinabox/UniversalTensorBoard.jl)
 and from [TensorBoardX](https://tensorboardx.readthedocs.io/en/latest/). It is based on 
@@ -13,7 +12,7 @@ and from [TensorBoardX](https://tensorboardx.readthedocs.io/en/latest/). It is b
 
 To install run the following command in the julia REPL:
 ```
-] add https://github.com/PhilipVinc/TensorBoardLogger.jl
+] add TensorBoardLogger
 ```
 
 ## Usage
@@ -28,9 +27,9 @@ increasing number will be appended).
 
 ### Using the standard Logging interface
 
-`TBLogger` can be used as any other standard logger because it implements the [`AbstractLogger`](https://docs.julialang.org/en/v1/stdlib/Logging/index.html#AbstractLogger-interface-1) interface. It can also be composed with other
-loggers using [LoggingExtras.jl](https://github.com/oxinabox/LoggingExtras.jl). 
-To set `TBLogger` as the current logger you must load the Logging package as well and use the
+`TBLogger` can be used like any other logger because it implements the [`AbstractLogger`](https://docs.julialang.org/en/v1/stdlib/Logging/index.html#AbstractLogger-interface-1) interface. It can also be composed with other
+loggers using [LoggingExtras.jl](https://github.com/oxinabox/LoggingExtras.jl).
+To set `TBLogger` as the current logger you must first load the `Logging` package and then use the
 command `global_logger`:
 ```
 using TensorBoardLogger, Logging
@@ -39,8 +38,7 @@ my_logger = TBLogger("example")
 global_logger(my_logger)
 ```
 
-You can also use `TBLogger` only in a given scope by using the `with_logger` function from
-`Logging`:
+You can also set `TBLogger` to be the current logger in a limited scope with the `with_logger` function:
 ```
 with_logger(my_logger) begin
   # compute things
