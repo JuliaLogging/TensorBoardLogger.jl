@@ -8,6 +8,11 @@ CRC32c = "8bf52ea8-c179-5cab-976a-9e18b702a9bc"
 ProtoBuf = "3349acd9-ac6a-5e09-bcdb-63829b23a429"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
+[compat]
+julia = "0.7, 1"
+ProtoBuf = ">= 0.7"
+StatsBase = ">= 0.27"
+
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
