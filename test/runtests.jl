@@ -168,3 +168,7 @@ end
     sample = permutedims(sample, (2, 1, 3, 4))
     log_image(logger, "toucan/WHCN", sample, WHCN, step = step)
 end
+
+@testset "Logger dispatch overrides" begin
+    include("test_logger_dispatch_overrides.jl")
+end

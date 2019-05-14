@@ -50,19 +50,21 @@ end
 end
 
 @testset "stepping" begin
-    import TensorBoardLogger.step
-
+    # workaround step being already exported in julia 1.0
+    #import TensorBoardLogger.step
+    tb_step = TensorBoardLogger.step
+    
     tbl = TBLogger("test_logs/run", tb_overwrite)
-    @test step(tbl) == 0
+    @test tb_step(tbl) == 0
 
     tbl = TBLogger("test_logs/run", purge_step=12)
-    @test step(tbl) == 12
+    @test tb_step(tbl) == 12
 
     @test increment_step!(tbl, 1) == 13
-    @test step(tbl) == 13
+    @test tb_step(tbl) == 13
 
     @test set_step!(tbl, 1) == 1
-    @test step(tbl) == 1
+    @test tb_step(tbl) == 1
 end
 
 @testset "resetting" begin

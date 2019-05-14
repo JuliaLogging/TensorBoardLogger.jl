@@ -17,6 +17,8 @@ export TBLogger
 export reset!, set_step!, increment_step!
 export ImageFormat, HW, WH, HWC, WHC, CHW, CWH, HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH
 
+# Wrapper types
+export TBText, TBVector, TBHistogram
 
 # Protobuffer definitions for tensorboard
 include("protojl/tensorflow.jl")
@@ -43,4 +45,5 @@ include("Loggers/LogHistograms.jl")
 include("Loggers/LogImage.jl")
 
 include("logger_dispatch.jl")
+include("logger_dispatch_overrides.jl")
 end # module
