@@ -42,9 +42,6 @@ into two real value ones
 """
 abstract type RealArrayWrapperLogType{T,N} <: WrapperLogType end
 
-preprocess(name, val::RealArrayWrapperLogType{T,N}, data) where {T<:Complex,N} =
-    push!(data, name*"/re"=>real.(content(val)), name*"/im"=>imag.(content(val)))
-
 ########## For things going to LogHistograms ########################
 """
     TBHistogram(data)
@@ -53,6 +50,8 @@ Forces `data` to be serialized as an histogram to TensorBoard.
 """
 struct TBHistogram{T,N} <: RealArrayWrapperLogType{T,N} data::AbstractArray{T,N}; end
 content(x::TBHistogram) = x.data
+preprocess(name, val::TBHistogram{T,N}, data) where {T<:Complex,N} =
+    push!(data, name*"/re"=>TBHistogram(real.(content(val))), name*"/im"=>TBHistogram(imag.(content(val))))
 function summary_impl(name, val::TBHistogram)
     hvals = fit(Histogram, val.data)
     return histogram_summary(name, collect(hvals.edges[1]), hvals.weights)
@@ -66,5 +65,7 @@ TensorBoard.
 """
 struct TBVector{T,N} <: RealArrayWrapperLogType{T,N} data::AbstractArray{T,N}; end
 content(x::TBVector) = x.data
+preprocess(name, val::TBVector{T,N}, data) where {T<:Complex,N} =
+    push!(data, name*"/re"=>TBVector(real.(content(val))), name*"/im"=>TBVector(imag.(content(val))))
 summary_impl(name, val::TBVector) = histogram_summary(name, collect(0:length(val.data)),
                                                             val.data)
