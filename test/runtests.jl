@@ -1,11 +1,13 @@
 using TensorBoardLogger, Logging
 using TensorBoardLogger: preprocess, summary_impl
 using Test
+using Flux.Data.MNIST
+using TestImages
+using ImageCore
 
 @testset "TBLogger" begin
     include("test_TBLogger.jl")
 end
-
 @testset "Scalar Value Logger" begin
     logger = TBLogger("test_logs/t", tb_overwrite)
     step = 1
@@ -126,6 +128,47 @@ end
     end
 
     @test TensorBoardLogger.step(logger) == 100
+end
+
+@testset "Image Logger" begin
+    logger = TBLogger("test_logs/t", tb_overwrite)
+    step = 1
+
+    ss = TensorBoardLogger.image_summary("test", rand(3, 16, 16))
+    @test isa(ss, TensorBoardLogger.Summary_Value)
+    @test ss.tag == "test"
+
+    sample = MNIST.images()[1:3]
+    sample = hcat(sample...)
+    sample = reshape(sample, (28, 28, 3))
+    log_image(logger, "mnist/HWN", sample, HWN, step = step)
+    sample = permutedims(sample, (2, 1, 3))
+    log_image(logger, "mnist/WHN", sample, WHN, step = step)
+    sample = permutedims(sample, (3, 2, 1))
+    log_image(logger, "mnist/NHW", sample, NHW, step = step)
+    sample = permutedims(sample, (1, 3, 2))
+    log_image(logger, "mnist/NWH", sample, NWH, step = step)
+
+    sample = [testimage("toucan"), testimage("toucan"), testimage("toucan")]
+    log_images(logger, "toucans", sample, CHW, step = step)
+    sample = hcat(sample...)
+    sample = reshape(sample, (150, 162, 3))
+    log_image(logger, "toucan/CHWN", sample, CHWN, step = step)
+    sample = permutedims(sample, (2, 1, 3))
+    log_image(logger, "toucan/CWHN", sample, CWHN, step = step)
+    sample = channelview(sample) #CWHN
+    sample = permutedims(sample, (4, 1, 2, 3))
+    log_image(logger, "toucan/NCWH", sample, NCWH, step = step)
+    sample = permutedims(sample, (1, 2, 4, 3))
+    log_image(logger, "toucan/NCHW", sample, NCHW, step = step)
+    sample = permutedims(sample, (1, 4, 3, 2))
+    log_image(logger, "toucan/NWHC", sample, NWHC, step = step)
+    sample = permutedims(sample, (1, 3, 2, 4))
+    log_image(logger, "toucan/NHWC", sample, NHWC, step = step)
+    sample = permutedims(sample, (2, 3, 4, 1))
+    log_image(logger, "toucan/HWCN", sample, HWCN, step = step)
+    sample = permutedims(sample, (2, 1, 3, 4))
+    log_image(logger, "toucan/WHCN", sample, WHCN, step = step)
 end
 
 @testset "Logger dispatch overrides" begin
