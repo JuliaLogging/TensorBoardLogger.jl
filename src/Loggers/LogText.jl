@@ -1,23 +1,46 @@
 """
-    log_text(logger, name, text, step)
+    log_text(logger::TBLogger, name::String, text::Any, step = nothing)
 
 Logs text with name `name` at step `step`
+- text: If text is a 2-D or 3-D `Array`, it will be rendered as a table or a list. Any other data will be represented as string
 """
-function log_text(logger::TBLogger, name::String, text::Any; step=nothing)
+function log_text(logger::TBLogger, name::String, text::Any; step = nothing)
     summ = SummaryCollection()
     push!(summ.value, text_summary(name, text))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
 
 function text_summary(name::String, text::Any)
-    text = markdown_repr(text)
-    textstringval = [Vector{UInt8}(text)]
-    texttensorshape = TensorShapeProto(dim = Vector([TensorShapeProto_Dim(size = 1)]))
+    #Create a string tensor
+    #shape of the tensor
+    dims = Array{TensorShapeProto_Dim, 1}()
+    if isa(text, AbstractArray)
+        for dim in size(text)
+            push!(dims, TensorShapeProto_Dim(size = dim))
+        end
+    else
+        push!(dims, TensorShapeProto_Dim(size = 1))
+    end
+    texttensorshape = TensorShapeProto(dim = Vector(dims))
+
+    #content of the tensor
+    textstringval = Vector{Array{UInt8, 1}}()
+    if isa(text, AbstractArray)
+        for string in text
+            string = markdown_repr(string)
+            push!(textstringval, Array{UInt8, 1}(string))
+        end
+    else
+        text = markdown_repr(text)
+        push!(textstringval, Array{UInt8, 1}(text))
+    end
+    #metadata for the text
     textcontent = serialize_proto(TextPluginData(version = 0))
     plugindata = SummaryMetadata_PluginData(plugin_name = "text", content = textcontent)
     smd = SummaryMetadata(plugin_data = plugindata)
+    #create tensor
     texttensor = TensorProto(dtype = _DataType.DT_STRING, string_val = textstringval, tensor_shape = texttensorshape)
-    return Summary_Value(tag = name, metadata = smd, tensor = texttensor)
+    Summary_Value(tag = name, metadata = smd, tensor = texttensor)
 end
 
 """
@@ -39,4 +62,3 @@ function markdown_repr(x)
     end
     return repr(x)
 end
-

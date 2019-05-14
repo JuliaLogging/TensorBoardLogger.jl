@@ -93,6 +93,8 @@ end
     log_text(logger, "markdown", "**This** is the *power*  of >>>markdown", step = step)
     log_text(logger, "html", "<p> HTML is a programming language</p>", step = step)
     log_text(logger, "docstring", """This should work too""", step = step)
+    log_text(logger, "Array", collect(1:10), step = step)
+    log_text(logger, "Matrix", rand(4, 4), step = step)
 end
 
 @testset "Text processing interface" begin
