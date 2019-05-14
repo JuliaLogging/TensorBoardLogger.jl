@@ -11,7 +11,7 @@ import Base.CoreLogging:
     AbstractLogger, handle_message, shouldlog, min_enabled_level,
 	catch_exceptions
 
-export log_histogram, log_value, log_vector, log_text, log_image
+export log_histogram, log_value, log_vector, log_text, log_image, log_images
 export scalar_summary, histogram_summary, text_summary, make_event
 export TBLogger
 export reset!, set_step!, increment_step!
