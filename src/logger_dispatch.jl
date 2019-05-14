@@ -13,7 +13,7 @@ For a struct, it calls preprocess on every field.
 """
 function preprocess(name, val::T, data) where T
     if isstructtype(T)
-        fn = fieldnames(T)
+        fn = logable_propertynames(val)
         for f=fn
             prop = getfield(val, f)
             preprocess(name*"/$f", prop, data)
@@ -25,6 +25,18 @@ function preprocess(name, val::T, data) where T
     end
     data
 end
+
+"""
+    logable_propertynames(val::Any)
+
+Returns a tuple with the name of the fields of the structure `val` that 
+should be logged to TensorBoard. This function should be overridden when
+you want TensorBoard to ignore some fields in a structure when logging 
+it. The default behaviour is to return the  same result as `propertynames`. 
+
+See also: [`Base.propertynames`](@ref)
+"""
+logable_propertynames(val::Type) = propertynames(val)
 
 ## Default behaviours
 
@@ -43,6 +55,7 @@ summary_impl(name, (bins,weights)::Tuple{AbstractVector,AbstractVector}) = histo
 # Split complex numbers into real/complex pairs
 preprocess(name, val::AbstractVector{<:Complex}, data) = push!(data, name*"/re"=>real.(val), name*"/im"=>imag.(val))
 preprocess(name, val::AbstractArray, data) = push!(data, name=>vec(val))
+
 
 ########## For things going to LogValue #############################
 preprocess(name, val::Real, data) = push!(data, name=>val)

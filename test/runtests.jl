@@ -125,3 +125,7 @@ end
 
     @test TensorBoardLogger.step(logger) == 100
 end
+
+@testset "Logger dispatch overrides" begin
+    include("test_logger_dispatch_overrides.jl")
+end
