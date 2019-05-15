@@ -15,7 +15,7 @@ export log_histogram, log_value, log_vector, log_text, log_image, log_images
 export scalar_summary, histogram_summary, text_summary, make_event
 export TBLogger
 export reset!, set_step!, increment_step!
-export ImageFormat, HW, WH, HWC, WHC, CHW, CWH, HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH
+export ImageFormat, L, CL, LC, HW, WH, HWC, WHC, CHW, CWH, HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH
 
 # Wrapper types
 export TBText, TBVector, TBHistogram

@@ -1,11 +1,11 @@
 
-@enum ImageFormat HW WH HWC WHC CHW CWH HWN WHN NHW NWH HWCN WHCN CHWN CWHN NHWC NWHC NCHW NCWH
+@enum ImageFormat L CL LC HW WH HWC WHC CHW CWH HWN WHN NHW NWH HWCN WHCN CHWN CWHN NHWC NWHC NCHW NCWH
 """
     log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray, format::ImageFormat; step = nothing)
 
 Log multiple images using `Array` of images and format
 - imgArrays: `Array` of images, e.g. Array{Array{Float64, 3}, 1}. `Array` of images can be multidimensional.
-- format: format which applies to each image in the `Array` of images. It can be one of {HW, WH, HWC, WHC, CHW, CWH, HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH}
+- format: format which applies to each image in the `Array` of images. It can be one of {L, CL, LC, HW, WH, HWC, WHC, CHW, CWH, HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH}
 """
 function log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray, format::ImageFormat; step = nothing)
     n = 1
@@ -18,8 +18,8 @@ end
     log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArray, format::ImageFormat, step = nothing)
 
 Log an image using image data and format
-- imgArray: image data. A 2-D or 3-D `Array` of pixel values. pixel values can be Real [0, 1] or Integer[0, 255]
-- format: format of the image. It can be one of {HW, WH, HWC, WHC, CHW, CWH, HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH}
+- imgArray: image data. A 1-D, 2-D or 3-D `Array` of pixel values. pixel values can be Real [0, 1] or Integer[0, 255]
+- format: format of the image. It can be one of {L, CL, LC, HW, WH, HWC, WHC, CHW, CWH, HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH}
 """
 function log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArray, format::ImageFormat; step=nothing)
     #unpack RGB, RGBA value to channels using channelview
@@ -30,9 +30,27 @@ function log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArr
     end
     #convert all values to Float64 for uniformity
     imgArray = Float64.(imgArray)
+    #scale all values to 0-1
+    imgArray = (imgArray./(max(maximum(imgArray), 1)))
     #dictionary containing functions to perform for the given format
     #goal is to convert any format to CHW
     formatdict = Dict(
+    L => function(imgArray)
+        @assert ndims(imgArray) == 1
+        W = size(imgArray, 1)
+        reshape(imgArray,(1, 1, W))
+    end,
+    CL => function(imgArray)
+        @assert ndims(imgArray) == 2
+        C, W = size(imgArray)
+        reshape(imgArray, (C, 1, W))
+    end,
+    LC => function(imgArray)
+        @assert ndims(imgArray) == 2
+        imgArray = transpose(imgArray)
+        C, W = size(imgArray)
+        reshape(imgArray, (C, 1, W))
+    end,
     HW => function(imgArray)
         @assert ndims(imgArray) == 2
         H, W = size(imgArray)

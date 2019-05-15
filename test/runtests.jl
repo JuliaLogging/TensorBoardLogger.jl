@@ -4,6 +4,7 @@ using Test
 using Flux.Data.MNIST
 using TestImages
 using ImageCore
+using ColorTypes
 
 @testset "TBLogger" begin
     include("test_TBLogger.jl")
@@ -138,6 +139,13 @@ end
     @test isa(ss, TensorBoardLogger.Summary_Value)
     @test ss.tag == "test"
 
+    sample = colorview(Gray, rand(10))
+    log_image(logger, "Vector", sample, L, step = step)
+    sample = colorview(RGB, rand(3,10))
+    log_image(logger, "CVector", sample, CL, step = step)
+    sample = channelview(sample)
+    sample = transpose(sample)
+    log_image(logger, "VectorC", sample, LC, step = step)
     sample = MNIST.images()[1:3]
     sample = hcat(sample...)
     sample = reshape(sample, (28, 28, 3))
