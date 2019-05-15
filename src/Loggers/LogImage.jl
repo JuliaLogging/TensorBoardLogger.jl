@@ -20,6 +20,11 @@ end
 Log an image using image data and format
 - imgArray: image data. A 1-D, 2-D or 3-D `Array` of pixel values. pixel values can be Real [0, 1] or Integer[0, 255]
 - format: format of the image. It can be one of {L, CL, LC, HW, WH, HWC, WHC, CHW, CWH, HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH}
+  - L: Length
+  - C: Channel/Color
+  - H: Height
+  - W: Width
+  - N: Observation  
 """
 function log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArray, format::ImageFormat; step=nothing)
     #unpack RGB, RGBA value to channels using channelview
