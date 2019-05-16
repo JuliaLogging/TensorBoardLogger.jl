@@ -3,8 +3,7 @@ mutable struct TBLogger <: AbstractLogger
     file::IOStream
     all_files::Dict{String, IOStream}
     global_step::Int
-
-	min_level::LogLevel
+    min_level::LogLevel
 end
 
 
@@ -32,16 +31,16 @@ by tensorboard (usefull in the case of restarting a crashed computation).
 tensorboard
 """
 function TBLogger(logdir="tensorboard_logs/run", overwrite=tb_increment;
-				  time=time(), purge_step::Union{Int,Nothing}=nothing,
-				  min_level::LogLevel=Info)
+                  time=time(), purge_step::Union{Int,Nothing}=nothing,
+                  min_level::LogLevel=Info)
 
-	logdir 		  = init_logdir(logdir, overwrite)
-	fpath, evfile = create_eventfile(logdir, purge_step, time)
+    logdir = init_logdir(logdir, overwrite)
+    fpath, evfile = create_eventfile(logdir, purge_step, time)
 
     all_files  = Dict(fpath => evfile)
-	start_step = something(purge_step, 0)
+    start_step = something(purge_step, 0)
 
-	TBLogger(logdir, evfile, all_files, start_step, min_level)
+    TBLogger(logdir, evfile, all_files, start_step, min_level)
 end
 
 """
@@ -55,7 +54,7 @@ is determined by `overwrite`.
  - `overwrite=tb_append` appends to it's previous content.
 """
 function init_logdir(logdir, overwrite=tb_increment)
-	if overwrite == tb_overwrite
+    if overwrite == tb_overwrite
         rm(logdir; force=true, recursive=true)
     elseif overwrite == tb_append
         # do nothing
@@ -74,7 +73,7 @@ function init_logdir(logdir, overwrite=tb_increment)
     end
     mkpath(logdir)
 
-	return realpath(logdir)
+    return realpath(logdir)
 end
 
 """
@@ -89,11 +88,11 @@ Optional keyword argument `prepend` can be passed to prepend a path to the file
 name.
 """
 function create_eventfile(logdir, purge_step=nothing, time=time(); prepend="")
-	hostname = gethostname()
+    hostname = gethostname()
     fname    = prepend*"events.out.tfevents.$time.$hostname"
     fpath    = joinpath(logdir, fname)
 
-	mkpath(dirname(fpath))
+    mkpath(dirname(fpath))
     file     = open(fpath, "w")
 
     # Create the initial log
@@ -117,8 +116,8 @@ Adds an event file to `lg` with `path` prepended to it's name. It can be used
 to create sub-event collection in a single event collection.
 """
 function add_eventfile(lg::TBLogger, path="")
-	fname, file = create_eventfile(logdir(lg), prepend=path)
-	lg.all_files[fname] = file
+    fname, file = create_eventfile(logdir(lg), prepend=path)
+    lg.all_files[fname] = file
     return fname
 end
 
@@ -180,19 +179,19 @@ step(lg::TBLogger) = lg.global_step
 Reset the TBLogger `lg`, deleting everything in it's log directory.
 """
 function reset!(lg::TBLogger)
-	# close open streams
-	for k=keys(lg.all_files)
-		close(lg.all_files[k])
-		delete!(lg.all_files, k)
-	end
+    # close open streams
+    for k=keys(lg.all_files)
+        close(lg.all_files[k])
+        delete!(lg.all_files, k)
+    end
 
-	# Overwrite the logdirectoy and create a new base event file
-	init_logdir(logdir(lg), tb_overwrite)
-	fname   = add_eventfile(lg, "")
-	lg.file = get_file(lg, fname)
-	set_step!(lg, 0)
+    # Overwrite the logdirectoy and create a new base event file
+    init_logdir(logdir(lg), tb_overwrite)
+    fname   = add_eventfile(lg, "")
+    lg.file = get_file(lg, fname)
+    set_step!(lg, 0)
 
-	return lg
+    return lg
 end
 
 
