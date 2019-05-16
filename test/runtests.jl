@@ -111,26 +111,6 @@ end
     @test last(data[2])=="""helloworld"""
 end
 
-@testset "LogInterface" begin
-    logger = TBLogger("log/")
-
-    with_logger(logger) do
-        for i=1:100
-            x0 = 0.5+i/30; s0 = 0.5/(i/20);
-            edges = collect(-5:0.1:5)
-            centers = collect(edges[1:end-1] .+0.05)
-            histvals = [exp(-((c-x0)/s0)^2) for c=centers]
-            data_tuple = (edges, histvals)
-
-
-            @info "test" i=i j=i^2 dd=rand(10).+0.1*i hh=data_tuple
-            @info "test2" i=i j=2^i dd=rand(10).-0.1*i hh=data_tuple log_step_increment=0
-        end
-    end
-
-    @test TensorBoardLogger.step(logger) == 100
-end
-
 @testset "Image Logger" begin
     logger = TBLogger("test_logs/t", tb_overwrite)
     step = 1
@@ -180,6 +160,33 @@ end
     sample = permutedims(sample, (2, 1, 3, 4))
     log_image(logger, "toucan/WHCN", sample, WHCN, step = step)
 
+end
+
+@testset "Image processing interface" begin
+    data = Vector{Pair{String,Any}}()
+    @test data == preprocess("test1", testimage("lighthouse"), data)
+    @test first(data[1])=="test1"
+    @test last(data[1])==testimage("lighthouse")
+
+end
+
+@testset "LogInterface" begin
+    logger = TBLogger("log/")
+
+    with_logger(logger) do
+        for i=1:100
+            x0 = 0.5+i/30; s0 = 0.5/(i/20);
+            edges = collect(-5:0.1:5)
+            centers = collect(edges[1:end-1] .+0.05)
+            histvals = [exp(-((c-x0)/s0)^2) for c=centers]
+            data_tuple = (edges, histvals)
+
+            @info "test" i=i j=i^2 dd=rand(10).+0.1*i hh=data_tuple woman=testimage("woman_blonde")
+            @info "test2" i=i j=2^i dd=rand(10).-0.1*i hh=data_tuple log_step_increment=0
+        end
+    end
+
+    @test TensorBoardLogger.step(logger) == 100
 end
 
 @testset "Logger dispatch overrides" begin
