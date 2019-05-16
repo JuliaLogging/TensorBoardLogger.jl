@@ -46,6 +46,17 @@ Log an image using image data and format
   - N: Observation
 """
 function log_image(logger::TBLogger, name::AbstractString, img::AbstractArray{<:Colorant}; step = nothing)
+    dimensions = ndims(img)
+    #if it has 3 dimensions, eg MRI image, log each channel vth same name
+    #so that one can slide through channels
+    if dimensions == 3
+        #3rd d is channel dim as observed in testimages
+        channels = size(img, 3)
+        for c in 1:channels-1
+            log_image(logger, name, img[:, :, c], step = step)
+        end
+        img = img[:, :, channels]
+    end
     summ = SummaryCollection()
     push!(summ.value, image_summary(name, img))
     write_event(logger.file, make_event(logger, summ, step=step))

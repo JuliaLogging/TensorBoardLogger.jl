@@ -41,7 +41,20 @@ logable_propertynames(val::Type) = propertynames(val)
 ## Default behaviours
 
 ########## For things going to LogImage ##############################
-preprocess(name,   img::AbstractArray{<:Colorant}, data) = push!(data, name=>img)
+function preprocess(name,   img::AbstractArray{<:Colorant}, data)
+    dimensions = ndims(img)
+    #if it has 3 dimensions, eg MRI image, log each channel vth same name
+    #so that one can slide through channels
+    if dimensions == 3
+        #3rd is channel dim as observed in testimages
+        channels = size(img, 3)
+        for c in 1:channels
+            push!(data, name=>img[:, :, c])
+        end
+    else
+        push!(data, name=>img)
+    end
+end
 summary_impl(name, img::AbstractArray{<:Colorant}) = image_summary(name, img)
 
 
