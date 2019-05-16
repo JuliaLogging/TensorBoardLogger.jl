@@ -135,7 +135,7 @@ end
     logger = TBLogger("test_logs/t", tb_overwrite)
     step = 1
 
-    ss = TensorBoardLogger.image_summary("test", rand(3, 16, 16))
+    ss = TensorBoardLogger.image_summary("test", colorview(Gray, rand(16, 16)))
     @test isa(ss, TensorBoardLogger.Summary_Value)
     @test ss.tag == "test"
 
@@ -158,6 +158,8 @@ end
     log_image(logger, "mnist/NWH", sample, NWH, step = step)
 
     sample = [testimage("toucan"), testimage("toucan"), testimage("toucan")]
+    log_image(logger, "toucan/auto", sample[1], step = step)
+    log_images(logger, "toucans/auto", sample, step = step)
     log_images(logger, "toucans", sample, CHW, step = step)
     sample = hcat(sample...)
     sample = reshape(sample, (150, 162, 3))
@@ -177,6 +179,7 @@ end
     log_image(logger, "toucan/HWCN", sample, HWCN, step = step)
     sample = permutedims(sample, (2, 1, 3, 4))
     log_image(logger, "toucan/WHCN", sample, WHCN, step = step)
+
 end
 
 @testset "Logger dispatch overrides" begin

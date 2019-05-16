@@ -7,6 +7,14 @@ Log multiple images using `Array` of images and format
 - imgArrays: `Array` of images, e.g. Array{Array{Float64, 3}, 1}. `Array` of images can be multidimensional.
 - format: format which applies to each image in the `Array` of images. It can be one of {L, CL, LC, HW, WH, HWC, WHC, CHW, CWH, HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH}
 """
+function log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray; step = nothing)
+    n = 1
+    @assert isa(first(imgArrays), AbstractArray{<:Colorant}) "Please specify format"
+    for imgArray in imgArrays
+        log_image(logger, name*"/$n", imgArray, step = step)
+        n += 1
+    end
+end
 function log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray, format::ImageFormat; step = nothing)
     n = 1
     for imgArray in imgArrays
@@ -24,8 +32,13 @@ Log an image using image data and format
   - C: Channel/Color
   - H: Height
   - W: Width
-  - N: Observation  
+  - N: Observation
 """
+function log_image(logger::TBLogger, name::AbstractString, img::AbstractArray{<:Colorant}; step = nothing)
+    summ = SummaryCollection()
+    push!(summ.value, image_summary(name, img))
+    write_event(logger.file, make_event(logger, summ, step=step))
+end
 function log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArray, format::ImageFormat; step=nothing)
     #unpack RGB, RGBA value to channels using channelview
     imgArray = channelview(imgArray)
@@ -193,13 +206,6 @@ function log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArr
     end
     )
     imgArray = formatdict[format](imgArray)
-    summ = SummaryCollection()
-    push!(summ.value, image_summary(name, imgArray))
-    write_event(logger.file, make_event(logger, summ, step=step))
-end
-
-function image_summary(name::AbstractString, imgArray::AbstractArray{Float64, 3})
-    #image is strictly an Array of type Float64 format CHW
     channelcolordict = Dict(1 => Gray, 2 => GrayA, 3 => RGB, 4 => RGBA)
     channels, height, width = size(imgArray)
     @assert channels ∈ channelcolordict.keys
@@ -209,10 +215,54 @@ function image_summary(name::AbstractString, imgArray::AbstractArray{Float64, 3}
     end
     #convert Array to PNG and save in a buffer
     img = colorview(channelcolordict[channels], imgArray)
+    summ = SummaryCollection()
+    push!(summ.value, image_summary(name, img))
+    write_event(logger.file, make_event(logger, summ, step=step))
+end
+function image_summary(name::AbstractString, img::AbstractArray{<:Colorant})
+    #image is of type AbstractArray{<:Colorant}
+    dimensions = ndims(img)
+    if dimensions == 1
+        #Grayscale/color array
+        if isa(first(img), Gray)
+            colorspace = 1
+        elseif isa(first(img), GrayA)
+            colorspace = 2
+        elseif isa(first(img), RGB)
+            colorspace = 3
+        elseif isa(first(img), RGBA)
+            colorspace = 4
+        elseif isa(first(img), BGRA)
+            colorspace = 6
+        else
+            throw("Unknown Colorspace")
+        end
+        height = 1
+        width = size(img, 1)
+    elseif dimensions == 2
+        #Grayscale/color matrix
+        if isa(first(img), Gray)
+            colorspace = 1
+        elseif isa(first(img), GrayA)
+            colorspace = 2
+        elseif isa(first(img), RGB)
+            colorspace = 3
+        elseif isa(first(img), RGBA)
+            colorspace = 4
+        elseif isa(first(img), BGRA)
+            colorspace = 6
+        else
+            throw("Unknown Colorspace")
+        end
+        height,width = size(img)
+    else
+        throw("Unknown Dimensions")
+    end
+    #save image in a buffer
     io = IOBuffer()
     save(Stream(format"PNG", io), img)
     #read from buffer to obtain encoded string of the image
     eis = io.data
-    imgsumm = Summary_Image(height = height, width = width, colorspace = 1, encoded_image_string = eis)
+    imgsumm = Summary_Image(height = height, width = width, colorspace = colorspace, encoded_image_string = eis)
     Summary_Value(tag = name, image = imgsumm)
 end
