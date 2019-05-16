@@ -20,6 +20,7 @@ function log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractA
         n += 1
     end
 end
+
 function log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray, format::ImageFormat; step = nothing)
     n = 1
     for imgArray in imgArrays
@@ -49,21 +50,59 @@ function log_image(logger::TBLogger, name::AbstractString, img::AbstractArray{<:
     push!(summ.value, image_summary(name, img))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
+
 function log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArray, format::ImageFormat; step=nothing)
     summ = SummaryCollection()
     #passing logger and step to image_summary because,
-    #format containing N will have to use them
+    #format containing N will have to use them to call `log_image`
     push!(summ.value, image_summary(name, imgArray, format, logger = logger, step = step))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
+
+function image_summary(name::AbstractString, img::AbstractArray{<:Colorant})
+    #image is of type AbstractArray{<:Colorant}
+    dimensions = ndims(img)
+    if isa(first(img), Gray)
+        colorspace = 1
+    elseif isa(first(img), GrayA)
+        colorspace = 2
+    elseif isa(first(img), RGB)
+        colorspace = 3
+    elseif isa(first(img), RGBA)
+        colorspace = 4
+    elseif isa(first(img), BGRA)
+        colorspace = 6
+    else
+        throw("Unknown Colorspace")
+    end
+    if dimensions == 1
+        #Grayscale/color array
+        height = 1
+        width = size(img, 1)
+    elseif dimensions == 2
+        #Grayscale/color matrix
+        height, width = size(img)
+    else
+        throw("Unknown Dimensions")
+    end
+    #save image in a buffer
+    io = IOBuffer()
+    save(Stream(format"PNG", io), img)
+    #read from buffer to obtain encoded string of the image
+    eis = io.data
+    imgsumm = Summary_Image(height = height, width = width, colorspace = colorspace, encoded_image_string = eis)
+    Summary_Value(tag = name, image = imgsumm)
+end
+
 function image_summary(name::AbstractString, imgArray::AbstractArray, format::ImageFormat; logger = nothing, step = nothing, data = nothing)
+    #logger and step are only relevant when using explicit function `log_image` and format contains N
     #unpack RGB, RGBA value to channels using channelview
     imgArray = channelview(imgArray)
-    #if data contains integer numbers, scale them to 0-255 and convert to `Float64`
+    #if data contains integer numbers, scale them to 0-255
     if isa(first(imgArray), Integer)
         imgArray = (imgArray./255)
     end
-    #convert all values to Float64 for uniformity
+    #convert all values to `Float64` for uniformity
     imgArray = Float64.(imgArray)
     #scale all values to 0-1
     imgArray = (imgArray./(max(maximum(imgArray), 1)))
@@ -287,51 +326,4 @@ function image_summary(name::AbstractString, imgArray::AbstractArray, format::Im
     #convert Array to PNG and save in a buffer
     img = colorview(channelcolordict[channels], imgArray)
     image_summary(name, img)
-end
-function image_summary(name::AbstractString, img::AbstractArray{<:Colorant})
-    #image is of type AbstractArray{<:Colorant}
-    dimensions = ndims(img)
-    if dimensions == 1
-        #Grayscale/color array
-        if isa(first(img), Gray)
-            colorspace = 1
-        elseif isa(first(img), GrayA)
-            colorspace = 2
-        elseif isa(first(img), RGB)
-            colorspace = 3
-        elseif isa(first(img), RGBA)
-            colorspace = 4
-        elseif isa(first(img), BGRA)
-            colorspace = 6
-        else
-            throw("Unknown Colorspace")
-        end
-        height = 1
-        width = size(img, 1)
-    elseif dimensions == 2
-        #Grayscale/color matrix
-        if isa(first(img), Gray)
-            colorspace = 1
-        elseif isa(first(img), GrayA)
-            colorspace = 2
-        elseif isa(first(img), RGB)
-            colorspace = 3
-        elseif isa(first(img), RGBA)
-            colorspace = 4
-        elseif isa(first(img), BGRA)
-            colorspace = 6
-        else
-            throw("Unknown Colorspace")
-        end
-        height,width = size(img)
-    else
-        throw("Unknown Dimensions")
-    end
-    #save image in a buffer
-    io = IOBuffer()
-    save(Stream(format"PNG", io), img)
-    #read from buffer to obtain encoded string of the image
-    eis = io.data
-    imgsumm = Summary_Image(height = height, width = width, colorspace = colorspace, encoded_image_string = eis)
-    Summary_Value(tag = name, image = imgsumm)
 end

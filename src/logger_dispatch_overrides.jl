@@ -26,9 +26,9 @@ Base.show(io::IO, mime::AbstractString, x::WrapperLogType) =
 
 ########## For things going to LogImage ########################
 """
-    TBImage(data)
+    TBImage(data, format)
 
-Forces `data` to be serialized as an histogram to TensorBoard.
+Forces `data` to be serialized as an Image to TensorBoard.
 """
 struct TBImages <:WrapperLogType
     data::AbstractArray
@@ -49,10 +49,26 @@ end
 content(x::TBImage) = x.data
 function preprocess(name, val::TBImage, data)
     imgArray = val.data
+    #formatdict asserts size & format and pushes object into `data`
+    #if format contains `N` then push `N` objects into `data`
     formatdict = Dict(
     L => function(imgArray)
         @assert ndims(imgArray) == 1
         push!(data, name=>TBImage(imgArray, val.format))
+    end,
+    LN => function(imgArray)
+        @assert ndims(imgArray) == 2
+        N = size(imgArray, 2)
+        for n in 1:N
+            push!(data, name*"/n"=>TBImage(imgArray[:, n], L))
+        end
+    end,
+    NL => function(imgArray)
+        @assert ndims(imgArray) == 2
+        N = size(imgArray, 1)
+        for n in 1:N
+            push!(data, name*"/n"=>TBImage(imgArray[n, :], L))
+        end
     end,
     CL => function(imgArray)
         @assert ndims(imgArray) == 2
@@ -61,6 +77,34 @@ function preprocess(name, val::TBImage, data)
     LC => function(imgArray)
         @assert ndims(imgArray) == 2
         push!(data, name=>TBImage(imgArray, val.format))
+    end,
+    CLN => function(imgArray)
+        @assert ndims(imgArray) == 3
+        N = size(imgArray, 3)
+        for n in 1:N
+            push!(data, name*"/n"=>TBImage(imgArray[:, :, N], CL))
+        end
+    end,
+    LCN => function(imgArray)
+        @assert ndims(imgArray) == 3
+        N = size(imgArray, 3)
+        for n in 1:N
+            push!(data, name*"/n"=>TBImage(imgArray[:, :, N], LC))
+        end
+    end,
+    NCL => function(imgArray)
+        @assert ndims(imgArray) == 3
+        N = size(imgArray, 1)
+        for n in 1:N
+            push!(data, name*"/n"=>TBImage(imgArray[N, :, :], CL))
+        end
+    end,
+    NLC => function(imgArray)
+        @assert ndims(imgArray) == 3
+        N = size(imgArray, 1)
+        for n in 1:N
+            push!(data, name*"/n"=>TBImage(imgArray[N, :, :], LC))
+        end
     end,
     HW => function(imgArray)
         @assert ndims(imgArray) == 2
