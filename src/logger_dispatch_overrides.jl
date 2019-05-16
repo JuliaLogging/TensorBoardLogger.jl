@@ -33,6 +33,7 @@ Forces `data` to be serialized as an histogram to TensorBoard.
 struct TBImages <:WrapperLogType
     data::AbstractArray
     format::ImageFormat
+end
 content(x::TBImages) = x.data
 function preprocess(name, val::TBImages, data)
     n = 1
