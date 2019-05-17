@@ -127,7 +127,7 @@ function image_summary(name::AbstractString, imgArray::AbstractArray, format::Im
     end,
     LN => function(imgArray)
         @assert ndims(imgArray) == 2
-        W, N = size(imgArray, 2)
+        W, N = size(imgArray)
         for n in 1:N-1
             log_image(logger, name*"/$n", imgArray[:, n], L, step = step)
         end

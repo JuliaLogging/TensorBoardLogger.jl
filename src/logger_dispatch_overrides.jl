@@ -60,14 +60,14 @@ function preprocess(name, val::TBImage, data)
         @assert ndims(imgArray) == 2
         N = size(imgArray, 2)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[:, n], L))
+            push!(data, name*"/$n"=>TBImage(imgArray[:, n], L))
         end
     end,
     NL => function(imgArray)
         @assert ndims(imgArray) == 2
         N = size(imgArray, 1)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[n, :], L))
+            push!(data, name*"/$n"=>TBImage(imgArray[n, :], L))
         end
     end,
     CL => function(imgArray)
@@ -82,28 +82,28 @@ function preprocess(name, val::TBImage, data)
         @assert ndims(imgArray) == 3
         N = size(imgArray, 3)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[:, :, N], CL))
+            push!(data, name*"/$n"=>TBImage(imgArray[:, :, N], CL))
         end
     end,
     LCN => function(imgArray)
         @assert ndims(imgArray) == 3
         N = size(imgArray, 3)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[:, :, N], LC))
+            push!(data, name*"/$n"=>TBImage(imgArray[:, :, N], LC))
         end
     end,
     NCL => function(imgArray)
         @assert ndims(imgArray) == 3
         N = size(imgArray, 1)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[N, :, :], CL))
+            push!(data, name*"/$n"=>TBImage(imgArray[N, :, :], CL))
         end
     end,
     NLC => function(imgArray)
         @assert ndims(imgArray) == 3
         N = size(imgArray, 1)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[N, :, :], LC))
+            push!(data, name*"/$n"=>TBImage(imgArray[N, :, :], LC))
         end
     end,
     HW => function(imgArray)
@@ -134,84 +134,84 @@ function preprocess(name, val::TBImage, data)
         @assert ndims(imgArray) == 3
         N = size(imgArray, 3)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[:, :, n], HW))
+            push!(data, name*"/$n"=>TBImage(imgArray[:, :, n], HW))
         end
     end,
     WHN => function(imgArray)
         @assert ndims(imgArray) == 3
         N = size(imgArray, 3)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[:, :, n], WH))
+            push!(data, name*"/$n"=>TBImage(imgArray[:, :, n], WH))
         end
     end,
     NHW => function(imgArray)
         @assert ndims(imgArray) == 3
         N = size(imgArray, 1)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[n, :, :], HW))
+            push!(data, name*"/$n"=>TBImage(imgArray[n, :, :], HW))
         end
     end,
     NWH => function(imgArray)
         @assert ndims(imgArray) == 3
         N = size(imgArray, 1)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[n, :, :], WH))
+            push!(data, name*"/$n"=>TBImage(imgArray[n, :, :], WH))
         end
     end,
     HWCN => function(imgArray)
         @assert ndims(imgArray) == 4
         N = size(imgArray, 4)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[:, :, :, n], HWC))
+            push!(data, name*"/$n"=>TBImage(imgArray[:, :, :, n], HWC))
         end
     end,
     WHCN => function(imgArray)
         @assert ndims(imgArray) == 4
         N = size(imgArray, 4)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[:, :, :, n], WHC))
+            push!(data, name*"/$n"=>TBImage(imgArray[:, :, :, n], WHC))
         end
     end,
     CHWN => function(imgArray)
         @assert ndims(imgArray) == 4
         N = size(imgArray, 4)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[:, :, :, n], CHW))
+            push!(data, name*"/$n"=>TBImage(imgArray[:, :, :, n], CHW))
         end
     end,
     CWHN => function(imgArray)
         @assert ndims(imgArray) == 4
         N = size(imgArray, 4)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[:, :, :, n], CWH))
+            push!(data, name*"/$n"=>TBImage(imgArray[:, :, :, n], CWH))
         end
     end,
     NHWC => function(imgArray)
         @assert ndims(imgArray) == 4
         N = size(imgArray, 1)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[n, :, :, :], HWC))
+            push!(data, name*"/$n"=>TBImage(imgArray[n, :, :, :], HWC))
         end
     end,
     NWHC => function(imgArray)
         @assert ndims(imgArray) == 4
         N = size(imgArray, 1)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[n, :, :, :], WHC))
+            push!(data, name*"/$n"=>TBImage(imgArray[n, :, :, :], WHC))
         end
     end,
     NCHW => function(imgArray)
         @assert ndims(imgArray) == 4
         N = size(imgArray, 1)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[n, :, :, :], CHW))
+            push!(data, name*"/$n"=>TBImage(imgArray[n, :, :, :], CHW))
         end
     end,
     NCWH => function(imgArray)
         @assert ndims(imgArray) == 4
         N = size(imgArray, 1)
         for n in 1:N
-            push!(data, name*"/n"=>TBImage(imgArray[n, :, :, :], CWH))
+            push!(data, name*"/$n"=>TBImage(imgArray[n, :, :, :], CWH))
         end
     end
     )

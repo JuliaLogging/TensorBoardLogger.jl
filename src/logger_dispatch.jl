@@ -54,6 +54,7 @@ function preprocess(name,   img::AbstractArray{<:Colorant}, data)
     else
         push!(data, name=>img)
     end
+    data
 end
 summary_impl(name, img::AbstractArray{<:Colorant}) = image_summary(name, img)
 
