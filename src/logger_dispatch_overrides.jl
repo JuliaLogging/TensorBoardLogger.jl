@@ -36,10 +36,8 @@ struct TBImages <:WrapperLogType
 end
 content(x::TBImages) = x.data
 function preprocess(name, val::TBImages, data)
-    n = 1
-    for img in val.data
+    for (n, img) in enumerate(val.data)
         preprocess(name*"/$n", TBImage(img, val.format), data)
-        n += 1
     end
 end
 

@@ -13,19 +13,15 @@ Log multiple images using `Array` of images and format
    HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH}
 """
 function log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray; step = nothing)
-    n = 1
     @assert isa(first(imgArrays), AbstractArray{<:Colorant}) "Please specify format"
-    for imgArray in imgArrays
+    for (n, imgArray) in enumerate(imgArrays)
         log_image(logger, name*"/$n", imgArray, step = step)
-        n += 1
     end
 end
 
 function log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray, format::ImageFormat; step = nothing)
-    n = 1
-    for imgArray in imgArrays
+    for (n, imgArray) in enumerate(imgArrays)
         log_image(logger, name*"/$n", imgArray, format, step = step)
-        n += 1
     end
 end
 """
