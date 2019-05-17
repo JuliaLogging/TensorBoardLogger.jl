@@ -39,6 +39,7 @@ function preprocess(name, val::TBImages, data)
     n = 1
     for img in val.data
         preprocess(name*"/$n", TBImage(img, val.format), data)
+        n += 1
     end
 end
 
