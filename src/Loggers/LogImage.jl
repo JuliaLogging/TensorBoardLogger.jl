@@ -68,20 +68,13 @@ end
 
 function image_summary(name::AbstractString, img::AbstractArray{<:Colorant})
     #image is of type AbstractArray{<:Colorant}
+    getcolorspaceid(::Type{<:Gray}) = 1
+    getcolorspaceid(::Type{<:GrayA}) = 2
+    getcolorspaceid(::Type{<:RGB}) = 3
+    getcolorspaceid(::Type{<:RGBA}) = 4
+    getcolorspaceid(::Type{<:BGRA}) = 6
+    colorspace = getcolorspaceid(eltype(img))
     dimensions = ndims(img)
-    if isa(first(img), Gray)
-        colorspace = 1
-    elseif isa(first(img), GrayA)
-        colorspace = 2
-    elseif isa(first(img), RGB)
-        colorspace = 3
-    elseif isa(first(img), RGBA)
-        colorspace = 4
-    elseif isa(first(img), BGRA)
-        colorspace = 6
-    else
-        throw("Unknown Colorspace")
-    end
     if dimensions == 1
         #Grayscale/color array
         height = 1
