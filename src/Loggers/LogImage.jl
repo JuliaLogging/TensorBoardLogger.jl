@@ -113,7 +113,7 @@ function image_summary(name::AbstractString, img::AbstractArray{<:Colorant})
         #Grayscale/color matrix
         height, width = size(img)
     else
-        throw("Unknown Dimensions")
+        throw("Too many dimensions")
     end
     #save image in a buffer
     io = IOBuffer()
