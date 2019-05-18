@@ -9,10 +9,10 @@ end
 
 expected_ndims(x::ImageFormat) = Int(x) ÷ 100 # get the 100's digit
 obs_dim(x::ImageFormat) = (Int(x) % 100) ÷ 10 # get the 10's digit
-strip_obs = Dict(
-NL=>L, LN=>L, NCL=>CL, CLN=>CL, NLC=>LC, LCN=>LC,
-NHW=>HW, HWN=>HW, NWH=>WH, WHN=>WH,
-NHWC=>HWC, NWHC=>WHC, NCHW=>CHW, NCWH=>CWH, HWCN=>HWC, WHCN=>WHC, CHWN=>CHW, CWHN=>CWH
+const strip_obs = Dict(
+    NL=>L, LN=>L, NCL=>CL, CLN=>CL, NLC=>LC, LCN=>LC,
+    NHW=>HW, HWN=>HW, NWH=>WH, WHN=>WH,
+    NHWC=>HWC, NWHC=>WHC, NCHW=>CHW, NCWH=>CWH, HWCN=>HWC, WHCN=>WHC, CHWN=>CHW, CWHN=>CWH
 )
 
 """
@@ -136,28 +136,30 @@ function image_summary(name::AbstractString, imgArray::AbstractArray, format::Im
     imgArray = Float64.(imgArray)
     #scale all values to 0-1
     imgArray = (imgArray./(max(maximum(imgArray), 1)))
-    #dictionary containing functions to perform for the given format
-    #goal is to convert any format to CHW
-    formatdict = Dict(
-    L => img ->  reshape(img, (1, 1, size(img, 1))),
-    CL => img ->  reshape(img, (size(img, 1), 1, size(img, 2))),
-    LC => img ->  reshape(transpose(img), (size(img, 2), 1, size(img, 1))),
-    HW => img ->  reshape(img, (1, size(img, 1), size(img, 2))),
-    WH => img ->  reshape(transpose(img), (1, size(img, 2), size(img, 1))),
-    HWC => img ->  permutedims(img, (3, 1, 2)),
-    WHC => img ->  permutedims(img, (3, 2, 1)),
-    CHW => img ->  img,
-    CWH => img ->  permutedims(img, (1, 3, 2))
-    )
-    imgArray = formatdict[format](imgArray)
-    channelcolordict = Dict(1 => Gray, 2 => GrayA, 3 => RGB, 4 => RGBA)
+    #convert any format to CHW
+    imgArray =
+    format == L   ? reshape(imgArray, (1, 1, size(imgArray, 1))) :
+    format == CL  ? reshape(imgArray, (size(imgArray, 1), 1, size(imgArray, 2))) :
+    format == LC  ? reshape(transpose(imgArray), (size(imgArray, 2), 1, size(imgArray, 1))) :
+    format == HW  ? reshape(imgArray, (1, size(imgArray, 1), size(imgArray, 2))) :
+    format == WH  ? reshape(transpose(imgArray), (1, size(imgArray, 2), size(imgArray, 1))) :
+    format == HWC ? permutedims(imgArray, (3, 1, 2)) :
+    format == WHC ? permutedims(imgArray, (3, 2, 1)) :
+    format == CHW ? imgArray :
+    format == CWH ? permutedims(imgArray, (1, 3, 2)) :
+    #== else ==#    throw("Invalid format")
     channels, height, width = size(imgArray)
-    @assert channels ∈ channelcolordict.keys
+    color =
+    channels == 1 ? Gray :
+    channels == 2 ? GrayA :
+    channels == 3 ? RGB :
+    channels == 4 ? RGBA :
+    #== else ==#    throw("Too many channels")
     #if it is a single channel Array, convert it to HW
-    if channelcolordict[channels] == Gray
+    if color == Gray
         imgArray = imgArray[1, :, :]
     end
     #convert Array to PNG pass it to image_summary
-    img = colorview(channelcolordict[channels], imgArray)
+    img = colorview(color, imgArray)
     image_summary(name, img)
 end
