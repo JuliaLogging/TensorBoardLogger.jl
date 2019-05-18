@@ -48,173 +48,26 @@ end
 content(x::TBImage) = x.data
 function preprocess(name, val::TBImage, data)
     imgArray = val.data
-    #formatdict asserts size & format and pushes object into `data`
-    #if format contains `N` then push `N` objects into `data`
-    formatdict = Dict(
-    L => function(imgArray)
-        @assert ndims(imgArray) == 1
-        push!(data, name=>TBImage(imgArray, val.format))
-    end,
-    LN => function(imgArray)
-        @assert ndims(imgArray) == 2
-        N = size(imgArray, 2)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[:, n], L))
-        end
-    end,
-    NL => function(imgArray)
-        @assert ndims(imgArray) == 2
-        N = size(imgArray, 1)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[n, :], L))
-        end
-    end,
-    CL => function(imgArray)
-        @assert ndims(imgArray) == 2
-        push!(data, name=>TBImage(imgArray, val.format))
-    end,
-    LC => function(imgArray)
-        @assert ndims(imgArray) == 2
-        push!(data, name=>TBImage(imgArray, val.format))
-    end,
-    CLN => function(imgArray)
-        @assert ndims(imgArray) == 3
-        N = size(imgArray, 3)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[:, :, N], CL))
-        end
-    end,
-    LCN => function(imgArray)
-        @assert ndims(imgArray) == 3
-        N = size(imgArray, 3)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[:, :, N], LC))
-        end
-    end,
-    NCL => function(imgArray)
-        @assert ndims(imgArray) == 3
-        N = size(imgArray, 1)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[N, :, :], CL))
-        end
-    end,
-    NLC => function(imgArray)
-        @assert ndims(imgArray) == 3
-        N = size(imgArray, 1)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[N, :, :], LC))
-        end
-    end,
-    HW => function(imgArray)
-        @assert ndims(imgArray) == 2
-        push!(data, name=>TBImage(imgArray, val.format))
-    end,
-    WH => function(imgArray)
-        @assert ndims(imgArray) == 2
-        push!(data, name=>TBImage(imgArray, val.format))
-    end,
-    HWC => function(imgArray)
-        @assert ndims(imgArray) == 3
-        push!(data, name=>TBImage(imgArray, val.format))
-    end,
-    WHC => function(imgArray)
-        @assert ndims(imgArray) == 3
-        push!(data, name=>TBImage(imgArray, val.format))
-    end,
-    CHW => function(imgArray)
-        @assert ndims(imgArray) == 3
-        push!(data, name=>TBImage(imgArray, val.format))
-    end,
-    CWH => function(imgArray)
-        @assert ndims(imgArray) == 3
-        push!(data, name=>TBImage(imgArray, val.format))
-    end,
-    HWN => function(imgArray)
-        @assert ndims(imgArray) == 3
-        N = size(imgArray, 3)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[:, :, n], HW))
-        end
-    end,
-    WHN => function(imgArray)
-        @assert ndims(imgArray) == 3
-        N = size(imgArray, 3)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[:, :, n], WH))
-        end
-    end,
-    NHW => function(imgArray)
-        @assert ndims(imgArray) == 3
-        N = size(imgArray, 1)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[n, :, :], HW))
-        end
-    end,
-    NWH => function(imgArray)
-        @assert ndims(imgArray) == 3
-        N = size(imgArray, 1)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[n, :, :], WH))
-        end
-    end,
-    HWCN => function(imgArray)
-        @assert ndims(imgArray) == 4
-        N = size(imgArray, 4)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[:, :, :, n], HWC))
-        end
-    end,
-    WHCN => function(imgArray)
-        @assert ndims(imgArray) == 4
-        N = size(imgArray, 4)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[:, :, :, n], WHC))
-        end
-    end,
-    CHWN => function(imgArray)
-        @assert ndims(imgArray) == 4
-        N = size(imgArray, 4)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[:, :, :, n], CHW))
-        end
-    end,
-    CWHN => function(imgArray)
-        @assert ndims(imgArray) == 4
-        N = size(imgArray, 4)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[:, :, :, n], CWH))
-        end
-    end,
-    NHWC => function(imgArray)
-        @assert ndims(imgArray) == 4
-        N = size(imgArray, 1)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[n, :, :, :], HWC))
-        end
-    end,
-    NWHC => function(imgArray)
-        @assert ndims(imgArray) == 4
-        N = size(imgArray, 1)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[n, :, :, :], WHC))
-        end
-    end,
-    NCHW => function(imgArray)
-        @assert ndims(imgArray) == 4
-        N = size(imgArray, 1)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[n, :, :, :], CHW))
-        end
-    end,
-    NCWH => function(imgArray)
-        @assert ndims(imgArray) == 4
-        N = size(imgArray, 1)
-        for n in 1:N
-            push!(data, name*"/$n"=>TBImage(imgArray[n, :, :, :], CWH))
+    format = val.format
+    imgArray = channelview(imgArray)
+    dims = ndims(imgArray)
+    @assert dims == expected_ndims(format)
+    obsdim = obs_dim(format)
+    if iszero(obsdim)
+        push!(data, name=>TBImage(imgArray, format))
+    else
+        format = strip_obs[format]
+        index = collect("[:"* ",:"^(dims-1) *"]")
+        index[2*obsdim] = 'g'
+        index = join(index)
+        global gimgArray = imgArray
+        nth_img = Meta.parse("gimgArray$(index)")
+        for n in 1:size(imgArray, obsdim)
+            global g = n
+            push!(data, name*"/$n"=>TBImage(eval(nth_img), format))
         end
     end
-    )
-    formatdict[val.format](val.data)
+    data
 end
 summary_impl(name, val::TBImage) = image_summary(name, val.data, val.format)
 

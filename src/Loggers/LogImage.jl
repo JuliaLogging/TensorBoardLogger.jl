@@ -1,5 +1,20 @@
+# Note: we use the 100s place of the enum to represent the number of dimensions
+# And the 10s place to represent which dimension is the observation (N), 0 for no observation dimension
+@enum ImageFormat begin
+    L=100;
+    CL=200; LC; HW; WH; NL=210; LN=220;
+    HWC=300; WHC; CHW; CWH; NCL=310; NHW; NWH; NLC; CLN=330; LCN; HWN; WHN;
+    NHWC=410; NWHC; NCHW; NCWH; HWCN=440; WHCN; CHWN; CWHN;
+end
 
-@enum ImageFormat L LN NL CL LC NCL NLC CLN LCN HW WH HWC WHC CHW CWH HWN WHN NHW NWH HWCN WHCN CHWN CWHN NHWC NWHC NCHW NCWH
+expected_ndims(x::ImageFormat) = Int(x) ÷ 100 # get the 100's digit
+obs_dim(x::ImageFormat) = (Int(x) % 100) ÷ 10 # get the 10's digit
+strip_obs = Dict(
+NL=>L, LN=>L, NCL=>CL, CLN=>CL, NLC=>LC, LCN=>LC,
+NHW=>HW, HWN=>HW, NWH=>WH, WHN=>WH,
+NHWC=>HWC, NWHC=>WHC, NCHW=>CHW, NCWH=>CWH, HWCN=>HWC, WHCN=>WHC, CHWN=>CHW, CWHN=>CWH
+)
+
 """
     log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray, format::ImageFormat; step = nothing)
 
@@ -59,11 +74,26 @@ function log_image(logger::TBLogger, name::AbstractString, img::AbstractArray{<:
 end
 
 function log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArray, format::ImageFormat; step=nothing)
-    summ = SummaryCollection()
-    #passing logger and step to image_summary because,
-    #format containing N will have to use them to call `log_image`
-    push!(summ.value, image_summary(name, imgArray, format, logger = logger, step = step))
-    write_event(logger.file, make_event(logger, summ, step=step))
+    imgArray = channelview(imgArray)
+    dims = ndims(imgArray)
+    @assert dims == expected_ndims(format)
+    obsdim = obs_dim(format)
+    if iszero(obsdim)
+        summ = SummaryCollection()
+        push!(summ.value, image_summary(name, imgArray, format))
+        write_event(logger.file, make_event(logger, summ, step=step))
+    else
+        format = strip_obs[format]
+        index = collect("[:"* ",:"^(dims-1) *"]")
+        index[2*obsdim] = 'g'
+        index = join(index)
+        global gimgArray = imgArray
+        nth_img = Meta.parse("gimgArray$(index)")
+        for n in 1:size(imgArray, obsdim)
+            global g = n
+            log_image(logger, name*"/$n", eval(nth_img), format, step = step)
+        end
+    end
 end
 
 function image_summary(name::AbstractString, img::AbstractArray{<:Colorant})
@@ -94,7 +124,7 @@ function image_summary(name::AbstractString, img::AbstractArray{<:Colorant})
     Summary_Value(tag = name, image = imgsumm)
 end
 
-function image_summary(name::AbstractString, imgArray::AbstractArray, format::ImageFormat; logger = nothing, step = nothing, data = nothing)
+function image_summary(name::AbstractString, imgArray::AbstractArray, format::ImageFormat)
     #logger and step are only relevant when using explicit function `log_image` and format contains N
     #unpack RGB, RGBA value to channels using channelview
     imgArray = channelview(imgArray)
@@ -109,211 +139,15 @@ function image_summary(name::AbstractString, imgArray::AbstractArray, format::Im
     #dictionary containing functions to perform for the given format
     #goal is to convert any format to CHW
     formatdict = Dict(
-    L => function(imgArray)
-        @assert ndims(imgArray) == 1
-        W = size(imgArray, 1)
-        reshape(imgArray, (1, 1, W))
-    end,
-    LN => function(imgArray)
-        @assert ndims(imgArray) == 2
-        W, N = size(imgArray)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[:, n], L, step = step)
-        end
-        name = name*"/$N"
-        reshape(imgArray[:, N:N], (1, 1, W))
-    end,
-    NL => function(imgArray)
-        @assert ndims(imgArray) == 2
-        N, W = size(imgArray)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[n, :], L, step = step)
-        end
-        name = name*"/$N"
-        reshape(imgArray[N:N, :], (1, 1, W))
-    end,
-    CL => function(imgArray)
-        @assert ndims(imgArray) == 2
-        C, W = size(imgArray)
-        reshape(imgArray, (C, 1, W))
-    end,
-    LC => function(imgArray)
-        @assert ndims(imgArray) == 2
-        imgArray = transpose(imgArray)
-        C, W = size(imgArray)
-        reshape(imgArray, (C, 1, W))
-    end,
-    NCL => function(imgArray)
-        @assert ndims(imgArray) == 3
-        N, C, W = size(imgArray)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[n, :, :], CL, step = step)
-        end
-        name = name*"/$N"
-        reshape(imgArray[N:N, :, :], (C, 1, W))
-    end,
-    NLC => function(imgArray)
-        @assert ndims(imgArray) == 3
-        N, W, C = size(imgArray)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[n, :, :], LC, step = step)
-        end
-        name = name*"/$N"
-        reshape(imgArray[N:N, :, :], (C, 1, W))
-    end,
-    LCN => function(imgArray)
-        @assert ndims(imgArray) == 3
-        W, C, N = size(imgArray)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[:, :, n], LC, step = step)
-        end
-        name = name*"/$N"
-        reshape(imgArray[:, :, N:N], (C, 1, W))
-    end,
-    CLN => function(imgArray)
-        @assert ndims(imgArray) == 3
-        C, W, N = size(imgArray)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[:, :, n], CL, step = step)
-        end
-        name = name*"/$N"
-        reshape(imgArray[:, :, N:N], (C, 1, W))
-    end,
-    HW => function(imgArray)
-        @assert ndims(imgArray) == 2
-        H, W = size(imgArray)
-        reshape(imgArray, (1, H, W))
-    end,
-    WH => function(imgArray)
-        @assert ndims(imgArray) == 2
-        imgArray = transpose(imgArray)
-        H, W = size(imgArray)
-        reshape(imgArray, (1, H, W))
-    end,
-    HWC => function(imgArray)
-        @assert ndims(imgArray) == 3
-        permutedims(imgArray, (3, 1, 2))
-    end,
-    WHC => function(imgArray)
-        @assert ndims(imgArray) == 3
-        permutedims(imgArray, (3, 2, 1))
-    end,
-    CHW => function(imgArray)
-        @assert ndims(imgArray) == 3
-        imgArray
-    end,
-    CWH => function(imgArray)
-        @assert ndims(imgArray) == 3
-        permutedims(imgArray, (1, 3, 2))
-    end,
-    HWN => function(imgArray)
-        @assert ndims(imgArray) == 3
-        N = size(imgArray, 3)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[:, :, n], HW, step = step)
-        end
-        name = name*"/$N"
-        permutedims(imgArray[:, :, N:N], (3, 1, 2))
-    end,
-    WHN => function(imgArray)
-        @assert ndims(imgArray) == 3
-        N = size(imgArray, 3)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[:, :, n], WH, step = step)
-        end
-        name = name*"/$N"
-        permutedims(imgArray[:, :, N:N], (3, 2, 1))
-    end,
-    NHW => function(imgArray)
-        @assert ndims(imgArray) == 3
-        N = size(imgArray, 1)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[n, :, :], HW, step = step)
-        end
-        name = name*"/$N"
-        imgArray[N:N, :, :]
-    end,
-    NWH => function(imgArray)
-        @assert ndims(imgArray) == 3
-        N = size(imgArray, 1)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[n, :, :], WH, step = step)
-        end
-        name = name*"/$N"
-        permutedims(imgArray[N:N, :, :], (1, 3, 2))
-    end,
-    HWCN => function(imgArray)
-        @assert ndims(imgArray) == 4
-        N = size(imgArray, 4)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[:, :, :, n], HWC, step = step)
-        end
-        name = name*"/$N"
-        permutedims(imgArray[:, :, :, N], (3, 1, 2))
-    end,
-    WHCN => function(imgArray)
-        @assert ndims(imgArray) == 4
-        N = size(imgArray, 4)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[:, :, :, n], WHC, step = step)
-        end
-        name = name*"/$N"
-        permutedims(imgArray[:, :, :, N], (3, 2, 1))
-    end,
-    CHWN => function(imgArray)
-        @assert ndims(imgArray) == 4
-        N = size(imgArray, 4)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[:, :, :, n], CHW, step = step)
-        end
-        name = name*"/$N"
-        imgArray[:, :, :, N]
-    end,
-    CWHN => function(imgArray)
-        @assert ndims(imgArray) == 4
-        N = size(imgArray, 4)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[:, :, :, n], CWH, step = step)
-        end
-        name = name*"/$N"
-        permutedims(imgArray[:, :, :, N], (1, 3, 2))
-    end,
-    NHWC => function(imgArray)
-        @assert ndims(imgArray) == 4
-        N = size(imgArray, 1)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[n, :, :, :], HWC, step = step)
-        end
-        name = name*"/$N"
-        permutedims(imgArray[N, :, :, :], (3, 1, 2))
-    end,
-    NWHC => function(imgArray)
-        @assert ndims(imgArray) == 4
-        N = size(imgArray, 1)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[n, :, :, :], WHC, step = step)
-        end
-        name = name*"/$N"
-        permutedims(imgArray[N, :, :, :], (3, 2, 1))
-    end,
-    NCHW => function(imgArray)
-        @assert ndims(imgArray) == 4
-        N = size(imgArray, 1)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[n, :, :, :], CHW, step = step)
-        end
-        name = name*"/$N"
-        imgArray[N, :, :, :]
-    end,
-    NCWH => function(imgArray)
-        @assert ndims(imgArray) == 4
-        N = size(imgArray, 1)
-        for n in 1:N-1
-            log_image(logger, name*"/$n", imgArray[n, :, :, :], CWH, step = step)
-        end
-        name = name*"/$N"
-        permutedims(imgArray[N, :, :, :], (1, 3, 2))
-    end
+    L => img ->  reshape(img, (1, 1, size(img, 1))),
+    CL => img ->  reshape(img, (size(img, 1), 1, size(img, 2))),
+    LC => img ->  reshape(transpose(img), (size(img, 2), 1, size(img, 1))),
+    HW => img ->  reshape(img, (1, size(img, 1), size(img, 2))),
+    WH => img ->  reshape(transpose(img), (1, size(img, 2), size(img, 1))),
+    HWC => img ->  permutedims(img, (3, 1, 2)),
+    WHC => img ->  permutedims(img, (3, 2, 1)),
+    CHW => img ->  img,
+    CWH => img ->  permutedims(img, (1, 3, 2))
     )
     imgArray = formatdict[format](imgArray)
     channelcolordict = Dict(1 => Gray, 2 => GrayA, 3 => RGB, 4 => RGBA)
@@ -323,7 +157,7 @@ function image_summary(name::AbstractString, imgArray::AbstractArray, format::Im
     if channelcolordict[channels] == Gray
         imgArray = imgArray[1, :, :]
     end
-    #convert Array to PNG and save in a buffer
+    #convert Array to PNG pass it to image_summary
     img = colorview(channelcolordict[channels], imgArray)
     image_summary(name, img)
 end
