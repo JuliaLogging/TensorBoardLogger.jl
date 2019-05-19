@@ -1,6 +1,8 @@
 # Create summary for Summary_value (default constructor by
 # protobuf is broken).
-const SummaryCollection(;kwargs...) = Summary(value=Base.Vector{Summary_Value}(); kwargs...)
+SummaryCollection(;kwargs...) = Summary(value=Vector{Summary_Value}(); kwargs...)
+SummaryCollection(summaries::Vector{Summary_Value}; kwargs...) = Summary(value=summaries; kwargs...)
+SummaryCollection(summary::Summary_Value; kwargs...) = Summary(value=[summary]; kwargs...)
 
 function make_event(logger::TBLogger, summary::Summary;
                     step::Int=TensorBoardLogger.step(logger))
