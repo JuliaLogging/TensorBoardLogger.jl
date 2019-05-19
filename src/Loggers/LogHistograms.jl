@@ -10,8 +10,7 @@ be used to bin the data.
 function log_histogram(logger::TBLogger, name::AbstractString, (bins,weights)::Tuple{AbstractVector, AbstractArray};
                        step=nothing)
     weights = collect(vec(weights))
-    summ    = SummaryCollection()
-    push!(summ.value,  histogram_summary(name, collect(bins), weights))
+    summ = SummaryCollection(histogram_summary(name, collect(bins), weights))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
 
@@ -24,9 +23,8 @@ Bins the values found in `data` and logs them as an histogram under the tag
 function log_histogram(logger::TBLogger, name::AbstractString, data::AbstractArray;
                        step=nothing)
     data = vec(data)
-    summ    = SummaryCollection()
     hvals = fit(Histogram, data)
-    push!(summ.value, histogram_summary(name, collect(hvals.edges[1]), hvals.weights))
+    summ = SummaryCollection(histogram_summary(name, collect(hvals.edges[1]), hvals.weights))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
 
@@ -36,8 +34,7 @@ end
 Logs the vector found in `data` as an histogram under the name `name`.
 """
 function log_vector(logger::TBLogger, name::AbstractString, data::AbstractVector; step=nothing)
-    summ    = SummaryCollection()
-    push!(summ.value, histogram_summary(name, collect(0:length(data)),data))
+    summ = SummaryCollection(histogram_summary(name, collect(0:length(data)),data))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
 
