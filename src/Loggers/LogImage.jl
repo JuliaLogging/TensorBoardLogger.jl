@@ -170,8 +170,7 @@ function log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArr
     end
     )
     imgArray = formatdict[format](imgArray)
-    summ = SummaryCollection()
-    push!(summ.value, image_summary(name, imgArray))
+    summ = SummaryCollection(image_summary(name, imgArray))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
 
