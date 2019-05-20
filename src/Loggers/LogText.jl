@@ -5,8 +5,7 @@ Logs text with name `name` at step `step`
 - text: If text is a 2-D or 3-D `Array`, it will be rendered as a table or a list. Any other data will be represented as string
 """
 function log_text(logger::TBLogger, name::String, text::Any; step = nothing)
-    summ = SummaryCollection()
-    push!(summ.value, text_summary(name, text))
+    summ = SummaryCollection(text_summary(name, text))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
 

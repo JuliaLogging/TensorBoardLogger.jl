@@ -68,8 +68,7 @@ function log_image(logger::TBLogger, name::AbstractString, img::AbstractArray{<:
         end
         img = img[:, :, channels]
     end
-    summ = SummaryCollection()
-    push!(summ.value, image_summary(name, img))
+    summ = SummaryCollection(image_summary(name, img))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
 
