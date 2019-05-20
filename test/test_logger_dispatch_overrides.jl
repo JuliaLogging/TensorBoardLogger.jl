@@ -45,8 +45,19 @@ end
     (rand(5, 4, 3, 2), WHCN), (rand(4, 5, 3, 2), HWCN), (rand(2, 3, 4, 5), NCHW), (rand(2, 3, 5, 4), NCWH),
     (rand(3, 5, 4, 2), CWHN), (rand(3, 4, 5, 2), CHWN), (rand(2, 4, 5, 3), NHWC), (rand(2, 5, 4, 3), NWHC),
     ]
+    preprocess("randTBImages", TBImages([rand(3, 3), rand(3,3)], HW), data)
     for testtuple in testdata
         preprocess("randTBImage/$(last(testtuple))", TBImage(first(testtuple), last(testtuple)), data)
     end
-    @test size(data, 1) == 45
+    @test size(data, 1) == 47
+end
+
+@testset "TBAudio" begin
+    data = Vector{Pair{String,Any}}()
+    sample_rate = 44100
+    x = collect(1:sample_rate*2)
+    y = cos.(440*pi*x/sample_rate)
+    preprocess("test", TBAudios([y, y], sample_rate), data)
+    @test first(data) == ("test/1"=>TBAudio(y, sample_rate))
+    @test last(data) == ("test/2"=>TBAudio(y, sample_rate))
 end
