@@ -26,9 +26,9 @@ Base.show(io::IO, mime::AbstractString, x::WrapperLogType) =
 
 ########## For things going to LogAudio ##############################
 """
-    TBAudio(data, samplerate)
+    TBAudios(data, samplerate)
 
-Forces `data` to be serialized as Audio to TensorBoard.
+Forces elements of Array `data` to be serialized as Audio to TensorBoard.
 """
 struct TBAudios <:WrapperLogType
     data::AbstractArray
@@ -41,6 +41,11 @@ function preprocess(name, val::TBAudios, data)
     end
 end
 
+"""
+    TBAudio(data, samplerate)
+
+Forces `data` to be serialized as Audio to TensorBoard.
+"""
 struct TBAudio <: WrapperLogType
     data::AbstractArray
     samplerate::Real
@@ -51,9 +56,9 @@ summary_impl(name, val::TBAudio) = audio_summary(name, val.data, val.samplerate)
 
 ########## For things going to LogImage ########################
 """
-    TBImage(data, format)
+    TBImages(data, format)
 
-Forces `data` to be serialized as an Image to TensorBoard.
+Forces elements of Array `data` to be serialized as an Image to TensorBoard.
 """
 struct TBImages <:WrapperLogType
     data::AbstractArray
@@ -66,6 +71,11 @@ function preprocess(name, val::TBImages, data)
     end
 end
 
+"""
+    TBImage(data, format)
+
+Forces `data` to be serialized as an Image to TensorBoard.
+"""
 struct TBImage <: WrapperLogType
     data::AbstractArray
     format::ImageFormat
