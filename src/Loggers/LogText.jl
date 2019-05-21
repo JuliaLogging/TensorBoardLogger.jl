@@ -5,8 +5,7 @@ Logs text with name `name` at step `step`
 - text: If text is a 2-D or 3-D `Array`, it will be rendered as a table or a list. Any other data will be represented as string
 """
 function log_text(logger::TBLogger, name::String, text::Any; step = nothing)
-    summ = SummaryCollection()
-    push!(summ.value, text_summary(name, text))
+    summ = SummaryCollection(text_summary(name, text))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
 
@@ -26,6 +25,9 @@ function text_summary(name::String, text::Any)
     #content of the tensor
     textstringval = Vector{Array{UInt8, 1}}()
     if isa(text, AbstractArray)
+        if ndims(text) == 2
+            text = permutedims(text, (2, 1))
+        end
         for string in text
             string = markdown_repr(string)
             push!(textstringval, Array{UInt8, 1}(string))

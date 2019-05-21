@@ -4,8 +4,7 @@
 Logs a Floating-point variable with name `name` at step `step`
 """
 function log_value(logger::TBLogger, name::AbstractString, value::Real; step=nothing)
-    summ    = SummaryCollection()
-    push!(summ.value, scalar_summary(name, value))
+    summ = SummaryCollection(scalar_summary(name, value))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
 
