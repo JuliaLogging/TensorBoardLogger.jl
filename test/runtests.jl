@@ -209,7 +209,7 @@ end
     @test isa(ss, TensorBoardLogger.Summary_Value)
     @test ss.tag == "test"
 
-    clip = load("test data/sample.wav")
+    clip = (cos.(440*pi*collect(1:100)/44100), 44100)
     fs = clip[2]
     sample = clip[1]
     samples = [sample, sample, sample]
