@@ -1,6 +1,7 @@
 using TensorBoardLogger, Test
 using TensorBoardLogger: preprocess, content
-
+using TestImages
+using ImageCore
 @testset "TBText" begin
     data = Vector{Pair{String,Any}}()
     preprocess("test", TBText(Complex(1.0,3.0)), data)
@@ -31,4 +32,21 @@ end
     k,v = pop!(data)
     @test k == "test/re"
     @test v.data == real(arr) && typeof(v)<:TBVector
+end
+
+@testset "TBImage" begin
+    data = Vector{Pair{String,Any}}()
+    testdata = [
+    (rand(10).*100, L), (rand(10, 2), LN), (rand(2, 10), NL), (rand(10, 3), LC), (rand(3, 10), CL),
+    (rand(10, 3, 2), LCN), (rand(3, 10, 2), CLN), (rand(2, 10, 3), NLC), (rand(2, 3, 10), NCL),
+    (rand(4, 5), HW), (rand(5, 4), WH),
+    (rand(5, 4, 2), WHN), (rand(4, 5, 2), HWN), (rand(2, 4, 5), NHW), (rand(2, 5, 4), NWH),
+    (rand(5, 4, 3), WHC), (rand(4, 5, 3), HWC), (rand(3, 4, 5), CHW), (rand(3, 5, 4), CWH),
+    (rand(5, 4, 3, 2), WHCN), (rand(4, 5, 3, 2), HWCN), (rand(2, 3, 4, 5), NCHW), (rand(2, 3, 5, 4), NCWH),
+    (rand(3, 5, 4, 2), CWHN), (rand(3, 4, 5, 2), CHWN), (rand(2, 4, 5, 3), NHWC), (rand(2, 5, 4, 3), NWHC),
+    ]
+    for testtuple in testdata
+        preprocess("randTBImage/$(last(testtuple))", TBImage(first(testtuple), last(testtuple)), data)
+    end
+    @test size(data, 1) == 45
 end

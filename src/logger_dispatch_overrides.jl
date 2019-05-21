@@ -24,6 +24,53 @@ preprocess(name, val::WrapperLogType, data) = push!(data, name=>val)
 Base.show(io::IO, mime::AbstractString, x::WrapperLogType) =
     Base.show(io, mime, content(x))
 
+########## For things going to LogImage ########################
+"""
+    TBImage(data, format)
+
+Forces `data` to be serialized as an Image to TensorBoard.
+"""
+struct TBImages <:WrapperLogType
+    data::AbstractArray
+    format::ImageFormat
+end
+content(x::TBImages) = x.data
+function preprocess(name, val::TBImages, data)
+    for (n, img) in enumerate(val.data)
+        preprocess(name*"/$n", TBImage(img, val.format), data)
+    end
+end
+
+struct TBImage <: WrapperLogType
+    data::AbstractArray
+    format::ImageFormat
+end
+content(x::TBImage) = x.data
+function preprocess(name, val::TBImage, data)
+    imgArray = val.data
+    format = val.format
+    imgArray = channelview(imgArray)
+    dims = ndims(imgArray)
+    @assert dims == expected_ndims(format)
+    obsdim = obs_dim(format)
+    if iszero(obsdim)
+        push!(data, name=>TBImage(imgArray, format))
+    else
+        format = strip_obs[format]
+        index = collect("[:"* ",:"^(dims-1) *"]")
+        index[2*obsdim] = 'g'
+        index = join(index)
+        global gimgArray = imgArray
+        nth_img = Meta.parse("gimgArray$(index)")
+        for n in 1:size(imgArray, obsdim)
+            global g = n
+            push!(data, name*"/$n"=>TBImage(eval(nth_img), format))
+        end
+    end
+    data
+end
+summary_impl(name, val::TBImage) = image_summary(name, val.data, val.format)
+
 ########## For things going to LogText ##############################
 """
     TBText(data)

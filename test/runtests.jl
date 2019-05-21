@@ -4,6 +4,7 @@ using Test
 using Flux.Data.MNIST
 using TestImages
 using ImageCore
+using ColorTypes
 
 @testset "TBLogger" begin
     include("test_TBLogger.jl")
@@ -110,33 +111,25 @@ end
     @test last(data[2])=="""helloworld"""
 end
 
-@testset "LogInterface" begin
-    logger = TBLogger("log/")
-
-    with_logger(logger) do
-        for i=1:100
-            x0 = 0.5+i/30; s0 = 0.5/(i/20);
-            edges = collect(-5:0.1:5)
-            centers = collect(edges[1:end-1] .+0.05)
-            histvals = [exp(-((c-x0)/s0)^2) for c=centers]
-            data_tuple = (edges, histvals)
-
-
-            @info "test" i=i j=i^2 dd=rand(10).+0.1*i hh=data_tuple
-            @info "test2" i=i j=2^i dd=rand(10).-0.1*i hh=data_tuple log_step_increment=0
-        end
-    end
-
-    @test TensorBoardLogger.step(logger) == 100
-end
-
 @testset "Image Logger" begin
     logger = TBLogger("test_logs/t", tb_overwrite)
     step = 1
 
-    ss = TensorBoardLogger.image_summary("test", rand(3, 16, 16))
+    ss = TensorBoardLogger.image_summary("test", colorview(Gray, rand(16, 16)))
     @test isa(ss, TensorBoardLogger.Summary_Value)
     @test ss.tag == "test"
+
+    #testing number Arrays
+    log_image(logger, "rand/auto", colorview(Gray, rand(10)), step = step)
+    log_image(logger, "rand/L", rand(10), L, step = step)
+    log_image(logger, "rand/LN", rand(10, 3) ,LN, step = step)
+    log_image(logger, "rand/NL", rand(3, 10), NL, step = step)
+    log_image(logger, "rand/CL", rand(3, 10), CL, step = step)
+    log_image(logger, "rand/LC", rand(10, 3), LC, step = step)
+    log_image(logger, "rand/NCL", rand(2, 3, 10), NCL, step = step)
+    log_image(logger, "rand/NLC", rand(2, 10, 3), NLC, step = step)
+    log_image(logger, "rand/CLN", rand(3, 10, 2), CLN, step = step)
+    log_image(logger, "rand/LCN", rand(10, 3, 2), LCN, step = step)
 
     sample = MNIST.images()[1:3]
     sample = hcat(sample...)
@@ -148,8 +141,10 @@ end
     log_image(logger, "mnist/NHW", sample, NHW, step = step)
     sample = permutedims(sample, (1, 3, 2))
     log_image(logger, "mnist/NWH", sample, NWH, step = step)
-
-    sample = [testimage("toucan"), testimage("toucan"), testimage("toucan")]
+    sample = testimage("toucan")
+    log_image(logger, "toucan/auto", sample, step = step)
+    sample = [sample, sample, sample]
+    log_images(logger, "toucans/auto", sample, step = step)
     log_images(logger, "toucans", sample, CHW, step = step)
     sample = hcat(sample...)
     sample = reshape(sample, (150, 162, 3))
@@ -169,6 +164,40 @@ end
     log_image(logger, "toucan/HWCN", sample, HWCN, step = step)
     sample = permutedims(sample, (2, 1, 3, 4))
     log_image(logger, "toucan/WHCN", sample, WHCN, step = step)
+
+end
+
+@testset "Image processing interface" begin
+    data = Vector{Pair{String,Any}}()
+    #2-d image
+    lighthouse = testimage("lighthouse")
+    @test data == preprocess("test1", lighthouse, data)
+    @test first(data[1])=="test1"
+    @test last(data[1])==lighthouse
+    #3-d MRI image
+    mri = testimage("mri-stack")
+    @test data == preprocess("test2", mri, data)
+    @test first(data[2])=="test2"
+    @test last(data[2])==mri[:, :, 1]
+end
+
+@testset "LogInterface" begin
+    logger = TBLogger("log/")
+
+    with_logger(logger) do
+        for i=1:100
+            x0 = 0.5+i/30; s0 = 0.5/(i/20);
+            edges = collect(-5:0.1:5)
+            centers = collect(edges[1:end-1] .+0.05)
+            histvals = [exp(-((c-x0)/s0)^2) for c=centers]
+            data_tuple = (edges, histvals)
+            @info "test1" simpletext = "simple text" woman = testimage("woman_blonde") mriimg = testimage("mri")
+            @info "test2" i=i j=i^2 dd=rand(10).+0.1*i hh=data_tuple
+            @info "test3" i=i j=2^i dd=rand(10).-0.1*i hh=data_tuple log_step_increment=0
+        end
+    end
+
+    @test TensorBoardLogger.step(logger) == 200
 end
 
 @testset "Logger dispatch overrides" begin

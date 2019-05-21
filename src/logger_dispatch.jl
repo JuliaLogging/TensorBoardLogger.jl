@@ -29,16 +29,35 @@ end
 """
     logable_propertynames(val::Any)
 
-Returns a tuple with the name of the fields of the structure `val` that 
+Returns a tuple with the name of the fields of the structure `val` that
 should be logged to TensorBoard. This function should be overridden when
-you want TensorBoard to ignore some fields in a structure when logging 
-it. The default behaviour is to return the  same result as `propertynames`. 
+you want TensorBoard to ignore some fields in a structure when logging
+it. The default behaviour is to return the  same result as `propertynames`.
 
 See also: [`Base.propertynames`](@ref)
 """
 logable_propertynames(val::Type) = propertynames(val)
 
 ## Default behaviours
+
+########## For things going to LogImage ##############################
+function preprocess(name,   img::AbstractArray{<:Colorant}, data)
+    dimensions = ndims(img)
+    #if it has 3 dimensions, eg MRI image, log each channel vth same name
+    #so that one can slide through channels
+    if dimensions == 3
+        #3rd is channel dim as observed in testimages
+        channels = size(img, 3)
+        for c in 1:channels
+            push!(data, name=>img[:, :, c])
+        end
+    else
+        push!(data, name=>img)
+    end
+    data
+end
+summary_impl(name, img::AbstractArray{<:Colorant}) = image_summary(name, img)
+
 
 ########## For things going to LogText ##############################
 preprocess(name, val::AbstractString, data) where T<:String = push!(data, name=>val)
