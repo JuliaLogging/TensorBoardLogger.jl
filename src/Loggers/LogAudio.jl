@@ -19,8 +19,7 @@ Logs an audio clip with name `name` at step `step`
 - samplerate: Sampling rate or Sampling frequency: a Real value
 """
 function log_audio(logger::TBLogger, name::AbstractString, samples::AbstractArray, samplerate::Real; step=nothing)
-    summ    = SummaryCollection()
-    SummaryCollection(audio_summary(name, samples, samplerate))
+    summ = SummaryCollection(audio_summary(name, samples, samplerate))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
 

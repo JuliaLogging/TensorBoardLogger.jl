@@ -78,8 +78,7 @@ function log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArr
     @assert dims == expected_ndims(format)
     obsdim = obs_dim(format)
     if iszero(obsdim)
-        summ = SummaryCollection()
-        push!(summ.value, image_summary(name, imgArray, format))
+        summ = SummaryCollection(image_summary(name, imgArray, format))
         write_event(logger.file, make_event(logger, summ, step=step))
     else
         format = strip_obs[format]
