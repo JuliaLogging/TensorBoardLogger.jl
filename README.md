@@ -56,6 +56,7 @@ At the moment, we can serialize to the following TensorBoard backends (plugins):
   - *Scalar*        for real-valued data  (`log_value`)  
   - *Histograms*    for real-value histograms (`log_histogram` and `log_vector`)
   - *Text*          for markdown (`log_text`)
+  - *Image*         for images (`log_image`). Note: you will need either ImageMagick.jl or QuartzImageIO.jl installed in the current enviroment for Image logging to function.
 
 When you use the Logging interface we break down structures in order to obtain types that 
 can be serialized to one of those backends. In particoular, the behaviour is the following:
