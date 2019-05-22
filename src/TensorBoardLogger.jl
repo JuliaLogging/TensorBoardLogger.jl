@@ -5,7 +5,6 @@ using ImageCore
 using ColorTypes
 using FileIO
 using FileIO: @format_str
-using WAV
 using StatsBase  #TODO: remove this. Only needed to compute histogram bins.
 using Base.CoreLogging: global_logger, LogLevel, Info
 import Base.CoreLogging:
