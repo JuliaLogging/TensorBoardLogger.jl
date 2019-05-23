@@ -40,7 +40,7 @@ global_logger(my_logger)
 
 You can also set `TBLogger` to be the current logger in a limited scope with the `with_logger` function:
 ```
-with_logger(my_logger) begin
+with_logger(my_logger) do
   # compute things
   @info .... # logged to TBLogger
 end
@@ -77,7 +77,7 @@ For example, the following code
 ```
 struct Test a; b; end
 data = Test(Complex(1,2), rand(10,10))
-with_logger(TBLogger("example")) begin
+with_logger(TBLogger("example")) do
   @info "ex" data
 end
 ```
