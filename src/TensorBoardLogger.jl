@@ -11,13 +11,13 @@ import Base.CoreLogging:
     AbstractLogger, handle_message, shouldlog, min_enabled_level,
 	catch_exceptions
 
-export log_histogram, log_value, log_vector, log_text, log_image, log_images
+export log_histogram, log_value, log_vector, log_text, log_image, log_images, log_audio, log_audios
 export scalar_summary, histogram_summary, text_summary, make_event
 export TBLogger
 export reset!, set_step!, increment_step!
 export ImageFormat, L, CL, LC, LN, NL, NCL, NLC, CLN, LCN, HW, WH, HWC, WHC, CHW, CWH,HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH
 # Wrapper types
-export TBText, TBVector, TBHistogram, TBImage, TBImages
+export TBText, TBVector, TBHistogram, TBImage, TBImages, TBAudio, TBAudios
 
 # Protobuffer definitions for tensorboard
 include("protojl/tensorflow.jl")
@@ -42,6 +42,7 @@ include("Loggers/LogValue.jl")
 include("Loggers/LogText.jl")
 include("Loggers/LogHistograms.jl")
 include("Loggers/LogImage.jl")
+include("Loggers/LogAudio.jl")
 
 include("logger_dispatch.jl")
 include("logger_dispatch_overrides.jl")

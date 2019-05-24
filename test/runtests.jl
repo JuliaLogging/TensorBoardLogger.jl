@@ -5,6 +5,7 @@ using Flux.Data.MNIST
 using TestImages
 using ImageCore
 using ColorTypes
+using FileIO
 
 
 @testset "TBLogger" begin
@@ -199,6 +200,21 @@ end
     end
 
     @test TensorBoardLogger.step(logger) == 200
+end
+
+@testset "Audio Logger" begin
+    logger = TBLogger("test_logs/t", tb_overwrite)
+    step = 1
+
+    ss = TensorBoardLogger.audio_summary("test", rand(800), 800)
+    @test isa(ss, TensorBoardLogger.Summary_Value)
+    @test ss.tag == "test"
+
+    clip = (cos.(440*pi*collect(1:100)/44100), 44100)
+    fs = clip[2]
+    sample = clip[1]
+    samples = [sample, sample, sample]
+    log_audios(logger, "audiosample", samples, fs, step = step)
 end
 
 @testset "Logger dispatch overrides" begin

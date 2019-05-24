@@ -24,11 +24,41 @@ preprocess(name, val::WrapperLogType, data) = push!(data, name=>val)
 Base.show(io::IO, mime::AbstractString, x::WrapperLogType) =
     Base.show(io, mime, content(x))
 
+########## For things going to LogAudio ##############################
+"""
+    TBAudios(data, samplerate)
+
+Forces elements of Array `data` to be serialized as Audio to TensorBoard.
+"""
+struct TBAudios <:WrapperLogType
+    data::AbstractArray
+    samplerate::Real
+end
+content(x::TBAudios) = x.data
+function preprocess(name, val::TBAudios, data)
+    for (n, audio) in enumerate(val.data)
+        preprocess(name*"/$n", TBAudio(audio, val.samplerate), data)
+    end
+end
+
+"""
+    TBAudio(data, samplerate)
+
+Forces `data` to be serialized as Audio to TensorBoard.
+"""
+struct TBAudio <: WrapperLogType
+    data::AbstractArray
+    samplerate::Real
+end
+content(x::TBAudio) = x.data
+preprocess(name, val::TBAudio, data) = push!(data, name=>val)
+summary_impl(name, val::TBAudio) = audio_summary(name, val.data, val.samplerate)
+
 ########## For things going to LogImage ########################
 """
-    TBImage(data, format)
+    TBImages(data, format)
 
-Forces `data` to be serialized as an Image to TensorBoard.
+Forces elements of Array `data` to be serialized as an Image to TensorBoard.
 """
 struct TBImages <:WrapperLogType
     data::AbstractArray
@@ -41,6 +71,11 @@ function preprocess(name, val::TBImages, data)
     end
 end
 
+"""
+    TBImage(data, format)
+
+Forces `data` to be serialized as an Image to TensorBoard.
+"""
 struct TBImage <: WrapperLogType
     data::AbstractArray
     format::ImageFormat
@@ -54,7 +89,7 @@ function preprocess(name, val::TBImage, data)
     @assert dims == expected_ndims(format)
     obsdim = obs_dim(format)
     if iszero(obsdim)
-        push!(data, name=>TBImage(imgArray, format))
+        push!(data, name=>val)
     else
         format = strip_obs[format]
         index = collect("[:"* ",:"^(dims-1) *"]")

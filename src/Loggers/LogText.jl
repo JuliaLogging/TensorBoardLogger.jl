@@ -25,6 +25,9 @@ function text_summary(name::String, text::Any)
     #content of the tensor
     textstringval = Vector{Array{UInt8, 1}}()
     if isa(text, AbstractArray)
+        if ndims(text) == 2
+            text = permutedims(text, (2, 1))
+        end
         for string in text
             string = markdown_repr(string)
             push!(textstringval, Array{UInt8, 1}(string))
