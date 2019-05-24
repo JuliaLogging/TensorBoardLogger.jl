@@ -232,26 +232,19 @@ function handle_message(lg::TBLogger, level, message, _module, group, id, file, 
     write_event(lg.file, make_event(lg, summ, step=iter))
 end
 
-Base.print(io::IO, tbl::TBLogger) =
-    Base.print(io, "TBLogger(min_leel=$(tbl.min_level), step=$(tbl.global_step))")
-
+######################### Methods for pretty printing ##########################
 Base.show(io::IO, tbl::TBLogger) = begin
-	str = """
-	TBLogger:
-		- Log level 	: $(tbl.min_level)
-		- Current step	: $(tbl.global_step)
-		- Output	    : $(tbl.logdir)
-		- open files    : $(length(tbl.all_files))
-	"""
-    Base.show(io, "hey\ncia")
+	str  = "TBLogger(\"$(tbl.logdir)\"), min_level=$(tbl.min_level), "*
+		   "purge_step=$(tbl.global_step))"
+    Base.print(io, str)
 end
 
 Base.show(io::IO, mime::MIME"text/plain", tbl::TBLogger) = begin
 	str = """
 	TBLogger:
-		- Log level 	: $(tbl.min_level)
-		- Current step	: $(tbl.global_step)
-		- Output	    : $(tbl.logdir)
+		- Log level     : $(tbl.min_level)
+		- Current step  : $(tbl.global_step)
+		- Output        : $(tbl.logdir)
 		- open files    : $(length(tbl.all_files))
 	"""
     Base.print(io, str)
