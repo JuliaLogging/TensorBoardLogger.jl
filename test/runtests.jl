@@ -1,7 +1,7 @@
 using TensorBoardLogger, Logging
 using TensorBoardLogger: preprocess, summary_impl
 using Test
-using Flux.Data.MNIST
+using Flux, Flux.Data.MNIST
 using TestImages
 using ImageCore
 using ColorTypes
@@ -215,6 +215,18 @@ end
     sample = clip[1]
     samples = [sample, sample, sample]
     log_audios(logger, "audiosample", samples, fs, step = step)
+end
+
+@testset "Graph Logger" begin
+    logger = TBLogger("test_logs/t", tb_overwrite)
+    step = 1
+
+    model = Chain(
+        Dense(10, 10),
+        softmax,
+    )
+    dummy = param(rand(10, 10));
+    @test log_graph(logger, "string", model, dummy, step = step)
 end
 
 @testset "Logger dispatch overrides" begin
