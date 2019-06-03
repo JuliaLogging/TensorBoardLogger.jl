@@ -7,10 +7,13 @@ makedocs(
     authors   = "Filippo Vicentini",
     pages     = [
             "Home"          => "index.md",
-            #"Manual"        => Any[
+            "Manual"        => Any[
                 "Basics"        => "basics.md",
                 "Extending"    => "custom_behaviour.md"
-            #]
+            ],
+            "Examples"      => Any[
+                "Optim.jl"  => "examples/optim.md"
+            ]
     ]
 )
 
