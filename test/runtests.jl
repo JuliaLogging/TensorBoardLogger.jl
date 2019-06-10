@@ -6,7 +6,7 @@ using TestImages
 using ImageCore
 using ColorTypes
 using FileIO
-
+using LightGraphs
 
 @testset "TBLogger" begin
     include("test_TBLogger.jl")
@@ -220,13 +220,13 @@ end
 @testset "Graph Logger" begin
     logger = TBLogger("test_logs/t", tb_overwrite)
     step = 1
-
-    model = Chain(
-        Dense(10, 10),
-        softmax,
-    )
-    dummy = param(rand(10, 10));
-    @test log_graph(logger, "string", model, dummy, step = step)
+    g = DiGraph(6)
+    add_edge!(g, 1, 2)
+    add_edge!(g, 2, 3)
+    add_edge!(g, 3, 6)
+    add_edge!(g, 4, 6)
+    add_edge!(g, 5, 6)
+    log_graph(logger, "simpledigraph", g, step = step)
 end
 
 @testset "Logger dispatch overrides" begin
