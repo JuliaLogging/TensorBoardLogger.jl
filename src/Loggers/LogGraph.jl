@@ -39,7 +39,7 @@ function graph_summary(name, g, nodelabel, nodeop, nodedevice, nodevalue)
 	end
 	nodes = Vector{NodeDef}()
 	if nodelabel == nothing
-		nodelabel = collect(1:nv(g));
+		nodelabel = collect(vertices(g))
 	end
 	if nodeop == nothing
 		nodeop = collect(1:nv(g));
