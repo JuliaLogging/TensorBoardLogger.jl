@@ -42,7 +42,7 @@ function graph_summary(name, g, nodelabel, nodeop, nodedevice, nodevalue)
 		nodelabel = collect(vertices(g))
 	end
 	if nodeop == nothing
-		nodeop = collect(1:nv(g));
+		nodeop = collect(vertices(g));
 	end
 	if nodedevice == nothing
 		nodedevice = fill("cpu", nv(g));
@@ -50,7 +50,7 @@ function graph_summary(name, g, nodelabel, nodeop, nodedevice, nodevalue)
 	if nodevalue == nothing
 		nodevalue = fill(nothing, nv(g));
 	end
-	for v in 1:nv(g)
+	for v in vertices(g)
 		name = repr(nodelabel[v])
 		op = repr(nodeop[v])
 		input = [repr(nodelabel[x]) for x in inneighbors(g, v)]
