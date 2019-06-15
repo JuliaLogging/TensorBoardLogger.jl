@@ -226,7 +226,7 @@ end
     add_edge!(g, 3, 6)
     add_edge!(g, 4, 6)
     add_edge!(g, 5, 6)
-    log_graph(logger, "simpledigraph", g, step = step, nodedevice = ["cpu", "cpu", "gpu", "gpu", "gpu", "gpu"], nodevalue = [1, "tf", 3.14, [1.0 2.0; 3.0 4.0], true, 2])
+    log_graph(logger, "simpledigraph", g, step = step, nodedevice = ["cpu", "cpu", "gpu", "gpu", "gpu", "gpu"], nodevalue = [1, "tf", 3.14, [1.0 2.0; 3.0 4.0], true, +])
 end
 
 @testset "Logger dispatch overrides" begin
