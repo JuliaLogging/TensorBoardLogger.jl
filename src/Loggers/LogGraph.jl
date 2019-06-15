@@ -1,7 +1,7 @@
 """
 	log_graph
 """
-function log_graph(logger::TBLogger, name::AbstractString, g::AbstractGraph; step = nothing, nodelabel = nothing, nodeop = nothing, nodedevice = nothing, nodevalue = nothing)
+function log_graph(logger::TBLogger, name::AbstractString, g::AbstractGraph; step = nothing, nodelabel::Vector{String} = map(string, vertices(g)), nodeop::Vector{String} = map(string, vertices(g)), nodedevice::Vector{String} = fill("cpu", nv(g)), nodevalue::Vector{Any} = fill(nothing, nv(g)))
 	summ = SummaryCollection(graph_summary(name, g, nodelabel, nodeop, nodedevice , nodevalue))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
@@ -38,23 +38,11 @@ function graph_summary(name, g, nodelabel, nodeop, nodedevice, nodevalue)
 		@error "Unknown Datatype" dtype
 	end
 	nodes = Vector{NodeDef}()
-	if nodelabel == nothing
-		nodelabel = collect(vertices(g))
-	end
-	if nodeop == nothing
-		nodeop = collect(vertices(g));
-	end
-	if nodedevice == nothing
-		nodedevice = fill("cpu", nv(g));
-	end
-	if nodevalue == nothing
-		nodevalue = fill(nothing, nv(g));
-	end
 	for v in vertices(g)
-		name = repr(nodelabel[v])
-		op = repr(nodeop[v])
-		input = [repr(nodelabel[x]) for x in inneighbors(g, v)]
-		device = repr(nodedevice[v])
+		name = nodelabel[v]
+		op = nodeop[v]
+		input = [nodelabel[x] for x in inneighbors(g, v)]
+		device = nodedevice[v]
 		attr = Dict{String, AttrValue}()
 		x = nodevalue[v]
 		if isa(x, AbstractString)
