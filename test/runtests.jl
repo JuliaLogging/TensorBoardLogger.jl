@@ -220,13 +220,14 @@ end
 @testset "Graph Logger" begin
     logger = TBLogger("test_logs/t", tb_overwrite)
     step = 1
-    g = DiGraph(6)
+    g = DiGraph(7)
     add_edge!(g, 1, 2)
     add_edge!(g, 2, 3)
     add_edge!(g, 3, 6)
     add_edge!(g, 4, 6)
     add_edge!(g, 5, 6)
-    log_graph(logger, "simpledigraph", g, step = step, nodedevice = ["cpu", "cpu", "gpu", "gpu", "gpu", "gpu"], nodevalue = [1, "tf", 3.14, [1.0 2.0; 3.0 4.0], true, +])
+    add_edge!(g, 5, 7)
+    log_graph(logger, "simpledigraph", g, step = step, nodedevice = ["cpu", "cpu", "gpu", "gpu", "gpu", "gpu", "cpu"], nodevalue = [1, "tf", 3.14, [1.0 2.0; 3.0 4.0], true, +, (10, "julia", 12.4)])
 end
 
 @testset "Logger dispatch overrides" begin

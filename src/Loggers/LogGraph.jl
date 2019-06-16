@@ -2,7 +2,11 @@
 	log_graph
 """
 function log_graph(logger::TBLogger, name::AbstractString, g::AbstractGraph; step = nothing, nodelabel::Vector{String} = map(string, vertices(g)), nodeop::Vector{String} = map(string, vertices(g)), nodedevice::Vector{String} = fill("cpu", nv(g)), nodevalue::Vector{Any} = fill(nothing, nv(g)))
-	summ = SummaryCollection(graph_summary(name, g, nodelabel, nodeop, nodedevice , nodevalue))
+	@assert nv(g) == length(nodelabel) "length of nodelable must be same as number of vertices"
+	@assert nv(g) == length(nodeop) "length of nodeop must be same as number of vertices"
+	@assert nv(g) == length(nodedevice) "length of nodedevice must be same as number of vertices"
+	@assert nv(g) == length(nodevalue) "length of nodevalue must be same as number of vertices"
+	summ = SummaryCollection(graph_summary(name, g, nodelabel, nodeop, nodedevice, nodevalue))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
 
@@ -62,12 +66,16 @@ function graph_summary(name, g, nodelabel, nodeop, nodedevice, nodevalue)
 			t = TensorProto(dtype = getdtype(eltype(x)), tensor_shape = shape, tensor_content = serialize_proto(string(x)))
 			attr["value"] = AttrValue(tensor = t)
 			attr["_output_shapes"] = AttrValue(list = AttrValue_ListValue(shape = [shape]))
+		elseif isa(x, Tuple)
+			attr["value"] = AttrValue(list = AttrValue_ListValue(s = [Vector{UInt8}(repr(y)) for y in x]))
+			shape = TensorShapeProto(dim = [TensorShapeProto_Dim(size = length(x))])
+			attr["_output_shapes"] = AttrValue(list = AttrValue_ListValue(shape = [shape]))
 		elseif isa(x, Function)
 			attr["value"] = AttrValue(func = NameAttrList(name = repr(x)))
 		elseif x == nothing
 			#donothing
 		else
-			@error "unhandled nodevalue type"
+			@error "unhandled nodevalue type $(typeof(x))"
 		end
 		node = NodeDef(name = name, op = op, input = input, device = device, attr = attr)
 		push!(nodes, node)
