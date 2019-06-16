@@ -220,6 +220,8 @@ end
 @testset "Graph Logger" begin
     logger = TBLogger("test_logs/t", tb_overwrite)
     step = 1
+    ss = TensorBoardLogger.graph_summary(DiGraph(1), ["1"], ["1"], ["cpu"], [nothing])
+    @test isa(ss, TensorBoardLogger.GraphDef)
     g = DiGraph(7)
     add_edge!(g, 1, 2)
     add_edge!(g, 2, 3)
@@ -227,7 +229,7 @@ end
     add_edge!(g, 4, 6)
     add_edge!(g, 5, 6)
     add_edge!(g, 5, 7)
-    log_graph(logger, "simpledigraph", g, step = step, nodedevice = ["cpu", "cpu", "gpu", "gpu", "gpu", "gpu", "cpu"], nodevalue = [1, "tf", 3.14, [1.0 2.0; 3.0 4.0], true, +, (10, "julia", 12.4)])
+    log_graph(logger, g, step = step, nodedevice = ["cpu", "cpu", "gpu", "gpu", "gpu", "gpu", "cpu"], nodevalue = [1, "tf", 3.14, [1.0 2.0; 3.0 4.0], true, +, (10, "julia", 12.4)])
 end
 
 @testset "Logger dispatch overrides" begin

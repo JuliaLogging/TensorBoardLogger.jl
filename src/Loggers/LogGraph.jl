@@ -1,17 +1,16 @@
 """
 	log_graph
 """
-function log_graph(logger::TBLogger, name::AbstractString, g::AbstractGraph; step = nothing, nodelabel::Vector{String} = map(string, vertices(g)), nodeop::Vector{String} = map(string, vertices(g)), nodedevice::Vector{String} = fill("cpu", nv(g)), nodevalue::Vector{Any} = fill(nothing, nv(g)))
+function log_graph(logger::TBLogger, g::AbstractGraph; step = nothing, nodelabel::Vector{String} = map(string, vertices(g)), nodeop::Vector{String} = map(string, vertices(g)), nodedevice::Vector{String} = fill("cpu", nv(g)), nodevalue::Vector{Any} = fill(nothing, nv(g)))
 	@assert nv(g) == length(nodelabel) "length of nodelable must be same as number of vertices"
 	@assert nv(g) == length(nodeop) "length of nodeop must be same as number of vertices"
 	@assert nv(g) == length(nodedevice) "length of nodedevice must be same as number of vertices"
 	@assert nv(g) == length(nodevalue) "length of nodevalue must be same as number of vertices"
-	summ = SummaryCollection(graph_summary(name, g, nodelabel, nodeop, nodedevice, nodevalue))
+	summ = SummaryCollection(graph_summary(g, nodelabel, nodeop, nodedevice, nodevalue))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
 
-function graph_summary(name, g, nodelabel, nodeop, nodedevice, nodevalue)
-	@info "WIP"
+function graph_summary(g, nodelabel, nodeop, nodedevice, nodevalue)
 	function getdtype(dtype)
 		nodetype =
 		dtype == nothing			? _DataType.DT_INVALID :
