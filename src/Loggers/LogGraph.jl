@@ -53,7 +53,6 @@ end
 
 function jltype2tf(dtype::DataType)
 	nodetype =
-	dtype == nothing			? _DataType.DT_INVALID :
 	dtype == UInt8				? _DataType.DT_UINT8 :
 	dtype == UInt16				? _DataType.DT_UINT16 :
 	dtype == UInt32				? _DataType.DT_UINT32 :
@@ -78,5 +77,5 @@ function jltype2tf(dtype::DataType)
 	dtype ∈ [Complex{Float64},
 			Complex{UInt64},
 			Complex{Int64}]		? _DataType.DT_COMPLEX128 :
-	throw("Unknown Datatype: $dtype")
+	_DataType.DT_INVALID
 end
