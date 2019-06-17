@@ -42,10 +42,8 @@ function graph_summary(g, nodelabel, nodeop, nodedevice, nodevalue)
 			attr["_output_shapes"] = AttrValue(list = AttrValue_ListValue(shape = [shape]))
 		elseif isa(x, Function)
 			attr["value"] = AttrValue(func = NameAttrList(name = repr(x)))
-		elseif x == nothing
-			#donothing
 		else
-			throw("unhandled nodevalue type $(typeof(x))")
+			#donothing
 		end
 		node = NodeDef(name = name, op = op, input = input, device = device, attr = attr)
 		push!(nodes, node)
