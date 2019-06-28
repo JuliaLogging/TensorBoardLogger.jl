@@ -1,12 +1,12 @@
 using TensorBoardLogger, Logging
 using TensorBoardLogger: preprocess, summary_impl
 using Test
-using Flux.Data.MNIST
+using Flux, Flux.Data.MNIST
 using TestImages
 using ImageCore
 using ColorTypes
 using FileIO
-
+using LightGraphs
 
 @testset "TBLogger" begin
     include("test_TBLogger.jl")
@@ -215,6 +215,21 @@ end
     sample = clip[1]
     samples = [sample, sample, sample]
     log_audios(logger, "audiosample", samples, fs, step = step)
+end
+
+@testset "Graph Logger" begin
+    logger = TBLogger("test_logs/t", tb_overwrite)
+    step = 1
+    ss = TensorBoardLogger.graph_summary(DiGraph(1), ["1"], ["1"], ["cpu"], [nothing])
+    @test isa(ss, TensorBoardLogger.GraphDef)
+    g = DiGraph(7)
+    add_edge!(g, 1, 2)
+    add_edge!(g, 2, 3)
+    add_edge!(g, 3, 6)
+    add_edge!(g, 4, 6)
+    add_edge!(g, 5, 6)
+    add_edge!(g, 5, 7)
+    log_graph(logger, g, step = step, nodedevice = ["cpu", "cpu", "gpu", "gpu", "gpu", "gpu", "cpu"], nodevalue = [1, "tf", 3.14, [1.0 2.0; 3.0 4.0], true, +, (10, "julia", 12.4)])
 end
 
 @testset "Logger dispatch overrides" begin

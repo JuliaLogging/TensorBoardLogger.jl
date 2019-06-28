@@ -3,11 +3,10 @@
 SummaryCollection(;kwargs...) = Summary(value=Vector{Summary_Value}(); kwargs...)
 SummaryCollection(summaries::Vector{Summary_Value}; kwargs...) = Summary(value=summaries; kwargs...)
 SummaryCollection(summary::Summary_Value; kwargs...) = Summary(value=[summary]; kwargs...)
+SummaryCollection(summary::GraphDef; kwargs...) = summary
 
-function make_event(logger::TBLogger, summary::Summary;
-                    step::Int=TensorBoardLogger.step(logger))
-    return Event(wall_time=time(), summary=summary, step=step)
-end
+make_event(logger::TBLogger, summary::Summary; step::Int=TensorBoardLogger.step(logger)) = Event(wall_time=time(), summary=summary, step=step)
+make_event(logger::TBLogger, summary::GraphDef; step::Int=TensorBoardLogger.step(logger)) = Event(wall_time=time(), graph_def=serialize_proto(summary), step=step)
 
 function write_event(file::IOStream, event::Event)
     data = PipeBuffer();

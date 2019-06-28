@@ -5,13 +5,14 @@ using ImageCore
 using ColorTypes
 using FileIO
 using FileIO: @format_str
+using LightGraphs
 using StatsBase  #TODO: remove this. Only needed to compute histogram bins.
 using Base.CoreLogging: global_logger, LogLevel, Info
 import Base.CoreLogging:
     AbstractLogger, handle_message, shouldlog, min_enabled_level,
 	catch_exceptions
 
-export log_histogram, log_value, log_vector, log_text, log_image, log_images, log_audio, log_audios
+export log_histogram, log_value, log_vector, log_text, log_image, log_images, log_audio, log_audios, log_graph
 export scalar_summary, histogram_summary, text_summary, make_event
 export TBLogger
 export reset!, set_step!, increment_step!
@@ -43,6 +44,7 @@ include("Loggers/LogText.jl")
 include("Loggers/LogHistograms.jl")
 include("Loggers/LogImage.jl")
 include("Loggers/LogAudio.jl")
+include("Loggers/LogGraph.jl")
 
 include("logger_dispatch.jl")
 include("logger_dispatch_overrides.jl")
