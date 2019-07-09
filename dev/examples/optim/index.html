@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Optim.jl · TensorBoardLogger.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link href="../../assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><h1>TensorBoardLogger.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="../../search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../../">Home</a></li><li><span class="toctext">Manual</span><ul><li><a class="toctext" href="../../">Basics</a></li><li><a class="toctext" href="../../custom_behaviour/">Backends</a></li><li><a class="toctext" href="../../extending_behaviour/">Extending</a></li></ul></li><li><span class="toctext">Examples</span><ul><li class="current"><a class="toctext" href>Optim.jl</a><ul class="internal"></ul></li></ul></li></ul></nav><article id="docs"><header><nav><ul><li>Examples</li><li><a href>Optim.jl</a></li></ul><a class="edit-page" href="https://github.com/PhilipVinc/TensorBoardLogger.jl/blob/master/docs/src/examples/optim.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Optim.jl</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Using-TensorBoard-with-Optim.jl-1" href="#Using-TensorBoard-with-Optim.jl-1">Using TensorBoard with <code>Optim.jl</code></a></h1><pre><code class="language-none">using TensorBoardLogger
+using Optim
+using Logging
+
+# Returns a closure over a logger, that takes a Optim trace as input
+function make_tensorboardlogger_callback(dir=&quot;logs&quot;)
+    logger = TBLogger(dir)
+
+    function callback(opt_state = Optim.OptimizationState)
+        with_logger(logger) do
+            @info &quot;&quot; opt_step = opt_state.iteration  function_value=opt_state.value gradient_norm=opt_state.g_norm
+        end
+        return false  # do not terminate optimisation
+    end
+    callback(trace::Optim.OptimizationTrace) = callback(last(trace))
+    return callback
+end
+
+
+rosenbrock(x) =  (1.0 - x[1])^2 + 100.0 * (x[2] - x[1]^2)^2
+result = optimize(rosenbrock, zeros(2), BFGS(), Optim.Options(callback=make_tensorboardlogger_callback()))</code></pre><p><img src="../optim.png" alt="optim_plot"/></p><footer><hr/><a class="previous" href="../../extending_behaviour/"><span class="direction">Previous</span><span class="title">Extending</span></a></footer></article></body></html>
