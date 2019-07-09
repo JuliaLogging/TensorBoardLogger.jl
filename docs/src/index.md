@@ -69,3 +69,31 @@ with_logger(lg) do
     end
 end
 ```
+
+## Backends
+
+*TensorBoardLogger* supports five backends:
+    - Scalars
+    - Distributions
+    - Images
+    - Audio
+    - Text/Markdown
+
+When you log data to tensorboard, it is processed to convert it to the format
+used by TensorBoard.
+In particoular, fields in structures are logged individually individually and complex
+numbers/arrays are split into their real and imaginary parts. Depending on it's type, an
+object is serialized to the relevant backend, with the text backend being the
+default fallback.
+
+For more detailed informations on how data is dispatched to a certain backend, and
+how to specify a desired backend refer to @ref(Specifying a backend).
+
+If you want to define a new default behaviour for a custom type refer to section
+@ref(Extending TensorBoardLogger).
+
+## Explicit logging
+
+In alternative, you can also log data to TensorBoard through it's functional interface,
+by calling the relevant method with a tag string and the data. For information
+on this interface refer to @ref()...

@@ -8,8 +8,9 @@ makedocs(
     pages     = [
             "Home"          => "index.md",
             "Manual"        => Any[
-                "Basics"        => "basics.md",
-                "Extending"    => "custom_behaviour.md"
+                "Basics"        => "index.md",
+                "Backends"    =>  "custom_behaviour.md",
+                "Extending"    =>  "extending_behaviour.md"
             ],
             "Examples"      => Any[
                 "Optim.jl"  => "examples/optim.md"
