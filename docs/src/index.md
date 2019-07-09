@@ -87,10 +87,10 @@ object is serialized to the relevant backend, with the text backend being the
 default fallback.
 
 For more detailed informations on how data is dispatched to a certain backend, and
-how to specify a desired backend refer to @ref(Specifying a backend).
+how to specify a desired backend refer to [Specifying a backend](@ref).
 
 If you want to define a new default behaviour for a custom type refer to section
-@ref(Extending TensorBoardLogger).
+[Extending TensorBoardLogger](@ref).
 
 ## Explicit logging
 
