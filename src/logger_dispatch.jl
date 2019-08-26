@@ -36,7 +36,7 @@ it. The default behaviour is to return the  same result as `propertynames`.
 
 See also: [`Base.propertynames`](@ref)
 """
-logable_propertynames(val::Type) = propertynames(val)
+logable_propertynames(val::Any) = propertynames(val)
 
 ## Default behaviours
 
