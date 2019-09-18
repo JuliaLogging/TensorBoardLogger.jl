@@ -55,6 +55,8 @@ include("logger_dispatch_overrides.jl")
 # maybe we could split the explicit and the @log interfaces?
 include("Loggers/LogImage.jl")
 
+include("deserialization.jl")
+
 using Requires
 function __init__()
     @require LightGraphs="093fc24a-ae57-5d10-9952-331d41423f4d" begin
