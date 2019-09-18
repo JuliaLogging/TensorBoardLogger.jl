@@ -5,7 +5,6 @@ using ImageCore
 using ColorTypes
 using FileIO
 using FileIO: @format_str
-using LightGraphs
 using StatsBase  #TODO: remove this. Only needed to compute histogram bins.
 using Base.CoreLogging: global_logger, LogLevel, Info
 import Base.CoreLogging:
@@ -44,8 +43,16 @@ include("Loggers/LogText.jl")
 include("Loggers/LogHistograms.jl")
 include("Loggers/LogImage.jl")
 include("Loggers/LogAudio.jl")
-include("Loggers/LogGraph.jl")
 
 include("logger_dispatch.jl")
 include("logger_dispatch_overrides.jl")
+
+using Requires
+function __init__()
+	@require LightGraphs="093fc24a-ae57-5d10-9952-331d41423f4d" begin
+		using .LightGraphs
+		include("Loggers/LogGraph.jl")
+	end
+end
+
 end # module
