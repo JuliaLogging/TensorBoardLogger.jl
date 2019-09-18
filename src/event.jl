@@ -5,8 +5,13 @@ SummaryCollection(summaries::Vector{Summary_Value}; kwargs...) = Summary(value=s
 SummaryCollection(summary::Summary_Value; kwargs...) = Summary(value=[summary]; kwargs...)
 SummaryCollection(summary::GraphDef; kwargs...) = summary
 
-make_event(logger::TBLogger, summary::Summary; step::Int=TensorBoardLogger.step(logger)) = Event(wall_time=time(), summary=summary, step=step)
-make_event(logger::TBLogger, summary::GraphDef; step::Int=TensorBoardLogger.step(logger)) = Event(wall_time=time(), graph_def=serialize_proto(summary), step=step)
+# TODO Clean up this nothing crazyness
+make_event(logger::TBLogger, args...; step::Nothing) =
+    make_event(logger, args...)
+make_event(logger::TBLogger, summary::Summary; step::Int=TensorBoardLogger.step(logger)) =
+    Event(wall_time=time(), summary=summary, step=step)
+make_event(logger::TBLogger, summary::GraphDef; step::Int=TensorBoardLogger.step(logger)) =
+    Event(wall_time=time(), graph_def=serialize_proto(summary), step=step)
 
 """
     write_event(out::IOStream, event::Event)
