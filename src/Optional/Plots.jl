@@ -29,5 +29,5 @@ Renders the Plots' and sends it to TensorBoard as an image with tag `name`.
 """
 function log_image(lg::TBLogger, name::AbstractString, img::Plots.Plot; step=nothing)
     summ = SummaryCollection(image_summary(name, img))
-    write_event(logger.file, make_event(logger, summ, step=step))
+    write_event(lg.file, make_event(lg, summ, step=step))
 end
