@@ -117,10 +117,6 @@ end
     logger = TBLogger("test_logs/t", tb_overwrite)
     step = 1
 
-    ss = TensorBoardLogger.image_summary("test", colorview(Gray, rand(16, 16)))
-    @test isa(ss, TensorBoardLogger.Summary_Value)
-    @test ss.tag == "test"
-
     #testing number Arrays
     log_image(logger, "rand/auto", colorview(Gray, rand(10)), step = step)
     log_image(logger, "rand/L", rand(10), L, step = step)

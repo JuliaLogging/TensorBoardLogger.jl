@@ -62,6 +62,9 @@ function __init__()
     @require Plots="91a5bcdd-55d7-5caf-9e0b-520d859cae80" begin
         include("Optional/Plots.jl")
     end
+    @require PyPlot="d330b81b-6aea-500a-939a-2ce795aea3ee" begin
+        include("Optional/PyPlot.jl")
+    end
 end
 
 end # module
