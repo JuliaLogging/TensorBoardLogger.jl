@@ -35,6 +35,9 @@ include("protojl/summary_pb.jl")
 include("protojl/event_pb.jl")
 include("protojl/plugin_text_pb.jl")
 
+include("PNG.jl")
+include("ImageFormat.jl")
+
 include("TBLogger.jl")
 include("utils.jl")  # CRC Utils
 include("event.jl")
