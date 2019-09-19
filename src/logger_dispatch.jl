@@ -52,7 +52,7 @@ function preprocess(name,   img::AbstractArray{<:Colorant}, data)
             preprocess(name, convert(PNG, img[:, :, c]), data)
         end
     else
-        preprocess!(name, convert(PNG, img), data)
+        preprocess(name, convert(PNG, img), data)
     end
     return data
 end

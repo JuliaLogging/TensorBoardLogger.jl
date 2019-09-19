@@ -41,6 +41,7 @@ include("ImageFormat.jl")
 include("TBLogger.jl")
 include("utils.jl")  # CRC Utils
 include("event.jl")
+include("Loggers/base.jl")
 include("Loggers/LogValue.jl")
 include("Loggers/LogText.jl")
 include("Loggers/LogHistograms.jl")

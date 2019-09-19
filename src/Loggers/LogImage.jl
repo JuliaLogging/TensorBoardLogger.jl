@@ -23,11 +23,11 @@ Log multiple images using `Array` of images and format
 """
 function log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray; step = nothing)
     @assert isa(first(imgArrays), AbstractArray{<:Colorant}) "Please specify format"
-    _log_data(logger, name, imgArrays, step)
+    log_keyval(logger, name, imgArrays, step)
 end
 
 log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray, format::ImageFormat; step = nothing) =
-    _log_data(logger, name, TBImages(imgArrays, format), step)
+    log_keyval(logger, name, TBImages(imgArrays, format), step)
 
 """
     log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArray, format::ImageFormat, step = nothing)
@@ -47,8 +47,8 @@ Log an image using image data and format
   - N: Observation
 """
 log_image(logger::TBLogger, name::AbstractString, img::AbstractArray{<:Colorant}; step = nothing) =
-    _log_data(logger, name, img, step)
+    log_keyval(logger, name, img, step)
 
 
 log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArray, format::ImageFormat; step=nothing) =
-    _log_data(logger, name, TBImage(imgArray, format), step)
+    log_keyval(logger, name, TBImage(imgArray, format), step)
