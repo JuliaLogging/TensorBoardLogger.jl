@@ -23,16 +23,12 @@ Log multiple images using `Array` of images and format
 """
 function log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray; step = nothing)
     @assert isa(first(imgArrays), AbstractArray{<:Colorant}) "Please specify format"
-    for (n, imgArray) in enumerate(imgArrays)
-        log_image(logger, name*"/$n", imgArray, step = step)
-    end
+    _log_data(logger, name, imgArrays, step)
 end
 
-function log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray, format::ImageFormat; step = nothing)
-    for (n, imgArray) in enumerate(imgArrays)
-        log_image(logger, name*"/$n", imgArray, format, step = step)
-    end
-end
+log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray, format::ImageFormat; step = nothing) =
+    _log_data(logger, name, TBImages(imgArrays, format), step)
+
 """
     log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArray, format::ImageFormat, step = nothing)
 
@@ -50,40 +46,9 @@ Log an image using image data and format
   - W: Width
   - N: Observation
 """
-function log_image(logger::TBLogger, name::AbstractString, img::AbstractArray{<:Colorant}; step = nothing)
-    dimensions = ndims(img)
-    #if it has 3 dimensions, eg MRI image, log each channel vth same name
-    #so that one can slide through channels
-    if dimensions == 3
-        #3rd d is channel dim as observed in testimages
-        channels = size(img, 3)
-        for c in 1:channels-1
-            log_image(logger, name, img[:, :, c], step = step)
-        end
-        img = img[:, :, channels]
-    end
-    summ = SummaryCollection(image_summary(name, convert(PNG, img)))
-    write_event(logger.file, make_event(logger, summ, step=step))
-end
+log_image(logger::TBLogger, name::AbstractString, img::AbstractArray{<:Colorant}; step = nothing) =
+    _log_data(logger, name, img, step)
 
-function log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArray, format::ImageFormat; step=nothing)
-    imgArray = channelview(imgArray)
-    dims = ndims(imgArray)
-    @assert dims == expected_ndims(format)
-    obsdim = obs_dim(format)
-    if iszero(obsdim)
-        summ = SummaryCollection(image_summary(name, convert(PNG, TBImage(imgArray, format))))
-        write_event(logger.file, make_event(logger, summ, step=step))
-    else
-        format = strip_obs[format]
-        index = collect("[:"* ",:"^(dims-1) *"]")
-        index[2*obsdim] = 'g'
-        index = join(index)
-        global gimgArray = imgArray
-        nth_img = Meta.parse("gimgArray$(index)")
-        for n in 1:size(imgArray, obsdim)
-            global g = n
-            log_image(logger, name*"/$n", eval(nth_img), format, step = step)
-        end
-    end
-end
+
+log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArray, format::ImageFormat; step=nothing) =
+    _log_data(logger, name, TBImage(imgArray, format), step)
