@@ -44,11 +44,14 @@ include("event.jl")
 include("Loggers/LogValue.jl")
 include("Loggers/LogText.jl")
 include("Loggers/LogHistograms.jl")
-include("Loggers/LogImage.jl")
 include("Loggers/LogAudio.jl")
 
 include("logger_dispatch.jl")
 include("logger_dispatch_overrides.jl")
+
+# TODO move it: It depends on TBImage for the explicit interface...
+# maybe we could split the explicit and the @log interfaces?
+include("Loggers/LogImage.jl")
 
 using Requires
 function __init__()

@@ -49,14 +49,15 @@ function preprocess(name,   img::AbstractArray{<:Colorant}, data)
         #3rd is channel dim as observed in testimages
         channels = size(img, 3)
         for c in 1:channels
-            push!(data, name=>img[:, :, c])
+            preprocess(name, convert(PNG, img[:, :, c]), data)
         end
     else
-        push!(data, name=>img)
+        preprocess!(name, convert(PNG, img), data)
     end
-    data
+    return data
 end
-summary_impl(name, img::AbstractArray{<:Colorant}) = image_summary(name, img)
+preprocess(name, val::PNG, data) = push!(data, name=>val)
+summary_impl(name, value::PNG) = image_summary(name, value)
 
 
 ########## For things going to LogText ##############################
