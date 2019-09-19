@@ -1,3 +1,11 @@
+function image_summary(name::AbstractString, img::PNG)
+
+    attr    = img.attr
+    imgsumm = Summary_Image(height     = attr[:height],
+                            width      = attr[:width],
+                            colorspace = attr[:colorspace],
+                            encoded_image_string = img.data )
+    return Summary_Value(tag = name, image = imgsumm)
 end
 
 
@@ -54,7 +62,7 @@ function log_image(logger::TBLogger, name::AbstractString, img::AbstractArray{<:
         end
         img = img[:, :, channels]
     end
-    summ = SummaryCollection(image_summary(name, img))
+    summ = SummaryCollection(image_summary(name, convert(PNG, img)))
     write_event(logger.file, make_event(logger, summ, step=step))
 end
 
@@ -64,7 +72,7 @@ function log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArr
     @assert dims == expected_ndims(format)
     obsdim = obs_dim(format)
     if iszero(obsdim)
-        summ = SummaryCollection(image_summary(name, imgArray, format))
+        summ = SummaryCollection(image_summary(name, convert(PNG, TBImage(imgArray, format))))
         write_event(logger.file, make_event(logger, summ, step=step))
     else
         format = strip_obs[format]
@@ -78,72 +86,4 @@ function log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArr
             log_image(logger, name*"/$n", eval(nth_img), format, step = step)
         end
     end
-end
-
-function image_summary(name::AbstractString, img::AbstractArray{<:Colorant})
-    #image is of type AbstractArray{<:Colorant}
-    getcolorspaceid(::Type{<:Gray}) = 1
-    getcolorspaceid(::Type{<:GrayA}) = 2
-    getcolorspaceid(::Type{<:RGB}) = 3
-    getcolorspaceid(::Type{<:RGBA}) = 4
-    getcolorspaceid(::Type{<:BGRA}) = 6
-    colorspace = getcolorspaceid(eltype(img))
-    dimensions = ndims(img)
-    if dimensions == 1
-        #Grayscale/color array
-        height = 1
-        width = size(img, 1)
-    elseif dimensions == 2
-        #Grayscale/color matrix
-        height, width = size(img)
-    else
-        throw("Too many dimensions")
-    end
-    #save image in a buffer
-    io = IOBuffer()
-    save(Stream(format"PNG", io), img)
-    #read from buffer to obtain encoded string of the image
-    eis = io.data
-    imgsumm = Summary_Image(height = height, width = width, colorspace = colorspace, encoded_image_string = eis)
-    Summary_Value(tag = name, image = imgsumm)
-end
-
-function image_summary(name::AbstractString, imgArray::AbstractArray, format::ImageFormat)
-    #logger and step are only relevant when using explicit function `log_image` and format contains N
-    #unpack RGB, RGBA value to channels using channelview
-    imgArray = channelview(imgArray)
-    #if data contains integer numbers, scale them to 0-255
-    if isa(first(imgArray), Integer)
-        imgArray = (imgArray./255)
-    end
-    #convert all values to `Float64` for uniformity
-    imgArray = Float64.(imgArray)
-    #scale all values to 0-1
-    imgArray = (imgArray./(max(maximum(imgArray), 1)))
-    #convert any format to CHW
-    imgArray =
-    format == L   ? reshape(imgArray, (1, 1, size(imgArray, 1))) :
-    format == CL  ? reshape(imgArray, (size(imgArray, 1), 1, size(imgArray, 2))) :
-    format == LC  ? reshape(transpose(imgArray), (size(imgArray, 2), 1, size(imgArray, 1))) :
-    format == HW  ? reshape(imgArray, (1, size(imgArray, 1), size(imgArray, 2))) :
-    format == WH  ? reshape(transpose(imgArray), (1, size(imgArray, 2), size(imgArray, 1))) :
-    format == HWC ? permutedims(imgArray, (3, 1, 2)) :
-    format == WHC ? permutedims(imgArray, (3, 2, 1)) :
-    format == CHW ? imgArray :
-    format == CWH ? permutedims(imgArray, (1, 3, 2)) :
-    #== else ==#    throw("Invalid format")
-    channels, height, width = size(imgArray)
-    color =
-    channels == 1 ? Gray :
-    channels == 2 ? GrayA :
-    channels == 3 ? RGB :
-    channels == 4 ? RGBA :
-    #== else ==#    throw("Too many channels")
-    #if it is a single channel Array, convert it to HW
-    if color == Gray
-        imgArray = imgArray[1, :, :]
-    end
-    #convert Array to PNG pass it to image_summary
-    img = colorview(color, imgArray)
-    image_summary(name, img)
 end
