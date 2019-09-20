@@ -23,9 +23,10 @@ ImageMagick = "6218d12a-5da1-5696-b52f-db25d2ecc6d1"
 LightGraphs = "093fc24a-ae57-5d10-9952-331d41423f4d"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+PyPlot="d330b81b-6aea-500a-939a-2ce795aea3ee"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 TestImages = "5e47fb64-e119-507b-a336-dd2b206d9990"
 WAV = "8149f6b0-98f6-5db9-b78f-408fbbb8ef88"
 
 [targets]
-test = ["Test", "Flux", "TestImages", "ImageMagick", "Logging", "LightGraphs", "Plots", "WAV"]
+test = ["Test", "Flux", "TestImages", "ImageMagick", "Logging", "LightGraphs", "Plots", "PyPlot", "WAV"]

@@ -172,7 +172,9 @@ abstract type RealArrayWrapperLogType{T,N} <: WrapperLogType end
 
 Forces `data` to be serialized as an histogram to TensorBoard.
 """
-struct TBHistogram{T,N} <: RealArrayWrapperLogType{T,N} data::AbstractArray{T,N}; end
+struct TBHistogram{T,N} <: RealArrayWrapperLogType{T,N}
+    data::AbstractArray{T,N};
+end
 content(x::TBHistogram) = x.data
 preprocess(name, val::TBHistogram{T,N}, data) where {T<:Complex,N} =
     push!(data, name*"/re"=>TBHistogram(real.(content(val))), name*"/im"=>TBHistogram(imag.(content(val))))
