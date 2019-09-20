@@ -1,4 +1,4 @@
-import .Plots : Plots
+import .Plots: Plots
 
 function Base.convert(t::Type{PNG}, plot::Plots.Plot)
     pb = PipeBuffer()

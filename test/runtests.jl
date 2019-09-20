@@ -245,3 +245,9 @@ end
 @testset "Logger dispatch overrides" begin
     include("test_logger_dispatch_overrides.jl")
 end
+
+@testset "Optional dependency tests" begin
+    include("Optional/test_Plots.jl")
+    # Don't run PyPlot tests until I figure a way to install the dependencies
+    #include("Optional/test_PyPlot.jl")
+end
