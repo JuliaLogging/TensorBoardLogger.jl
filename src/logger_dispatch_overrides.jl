@@ -107,14 +107,14 @@ function Base.convert(T::Type{PNG}, tb_image::TBImage)
         format == WHC ? permutedims(imgArray, (3, 2, 1)) :
         format == CHW ? imgArray :
         format == CWH ? permutedims(imgArray, (1, 3, 2)) :
-    #== else ==#    throw("Invalid format")
+        #== else ==# throw("Invalid format")
     channels, height, width = size(imgArray)
     color =
-    channels == 1 ? Gray :
-    channels == 2 ? GrayA :
-    channels == 3 ? RGB :
-    channels == 4 ? RGBA :
-    #== else ==#    throw("Too many channels")
+        channels == 1 ? Gray :
+        channels == 2 ? GrayA :
+        channels == 3 ? RGB :
+        channels == 4 ? RGBA :
+        #== else ==# throw("Too many channels")
     #if it is a single channel Array, convert it to HW
     if color == Gray
         imgArray = imgArray[1, :, :]
