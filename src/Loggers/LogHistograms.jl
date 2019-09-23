@@ -1,5 +1,5 @@
 """
-    log_histogram(logger, name, (bins,weights); step)
+    log_histogram(logger, name, (bins,weights); step=step(logger))
 
 Logs a histogram under the tag `name` on given `step`. The histogram must be
 passed as a tuple holding the `N+1` bin edges and the height of the `N` bins.
@@ -15,7 +15,7 @@ function log_histogram(logger::TBLogger, name::AbstractString, (bins,weights)::T
 end
 
 """
-    log_histogram(logger, name, data::Vector; step)
+    log_histogram(logger, name, data::Vector; step=step(logger))
 
 Bins the values found in `data` and logs them as an histogram under the tag
 `name`.
@@ -29,7 +29,7 @@ function log_histogram(logger::TBLogger, name::AbstractString, data::AbstractArr
 end
 
 """
-    log_vector(logger, name, data::Vector; step)
+    log_vector(logger, name, data::Vector; step=step(logger))
 
 Logs the vector found in `data` as an histogram under the name `name`.
 """

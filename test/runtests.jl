@@ -117,10 +117,6 @@ end
     logger = TBLogger("test_logs/t", tb_overwrite)
     step = 1
 
-    ss = TensorBoardLogger.image_summary("test", colorview(Gray, rand(16, 16)))
-    @test isa(ss, TensorBoardLogger.Summary_Value)
-    @test ss.tag == "test"
-
     #testing number Arrays
     log_image(logger, "rand/auto", colorview(Gray, rand(10)), step = step)
     log_image(logger, "rand/L", rand(10), L, step = step)
@@ -170,24 +166,38 @@ end
 end
 
 @testset "Image processing interface" begin
-    data = Vector{Pair{String,Any}}()
     #2-d image
+    data = Vector{Pair{String,Any}}()
     lighthouse = testimage("lighthouse")
     @test data == preprocess("test1", lighthouse, data)
     @test first(data[1])=="test1"
-    @test last(data[1])==lighthouse
+    @test last(data[1]) isa TensorBoardLogger.PNG
     #3-d MRI image
+    data = Vector{Pair{String,Any}}()
     mri = testimage("mri-stack")
     @test data == preprocess("test2", mri, data)
-    @test first(data[2])=="test2"
-    @test last(data[2])==mri[:, :, 1]
+    @test length(data) == size(mri, 3)
+    # check that all slices have been logged with same tag
+    isok = true
+    for (tag,val)=data
+        tag == "test2" && continue
+        isok = false
+    end
+    @test isok
+    # check that all slices have been converted to PNG
+    isok = true
+    for (tag,val)=data
+        val isa TensorBoardLogger.PNG && continue
+        isok = false
+    end
+    @test isok
 end
 
 @testset "LogInterface" begin
     logger = TBLogger("log/")
 
     with_logger(logger) do
-        for i=1:100
+        for i=1:5
             x0 = 0.5+i/30; s0 = 0.5/(i/20);
             edges = collect(-5:0.1:5)
             centers = collect(edges[1:end-1] .+0.05)
@@ -199,7 +209,7 @@ end
         end
     end
 
-    @test TensorBoardLogger.step(logger) == 200
+    @test TensorBoardLogger.step(logger) == 10
 end
 
 @testset "Audio Logger" begin
@@ -234,4 +244,10 @@ end
 
 @testset "Logger dispatch overrides" begin
     include("test_logger_dispatch_overrides.jl")
+end
+
+@testset "Optional dependency tests" begin
+    include("Optional/test_Plots.jl")
+    # Don't run PyPlot tests until I figure a way to install the dependencies
+    #include("Optional/test_PyPlot.jl")
 end

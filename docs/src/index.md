@@ -15,8 +15,9 @@ To install this Julia package run the following command in the julia REPL:
 ```
 
 !!! note
-    To log images to the *Image* backend of TensorBoard you must also install
-    `ImageMagick`. You won't need to import it.
+    If you need to log Images, you must also install `ImageMagick`
+    (on MacOS, you will also need `QuartzImageIO`).
+    You only need to install those dependencies, and you will never need to load them.
     ```
     ] add ImageMagick
     ```
@@ -41,10 +42,17 @@ there already exhist a document at the given path.
 
 Once you have created a `TBLogger`, you can use it as you would use any other
 logger in Julia:
-    - You can set it to be your global logger with the function [`global_logger`](https://docs.julialang.org/en/v1/stdlib/Logging/index.html#Base.CoreLogging.global_logger)
-    - You can set it to be the current logger in a scope with the function [`with_logger`](https://docs.julialang.org/en/v1/stdlib/Logging/index.html#Base.CoreLogging.with_logger)
-    - You can combine it with other Loggers using [LoggingExtras.jl](https://github.com/oxinabox/LoggingExtras.jl), so that messages are logged to TensorBoard and to other backends at the same time.
+- You can set it to be your global logger with the function [`global_logger`](https://docs.julialang.org/en/v1/stdlib/Logging/index.html#Base.CoreLogging.global_logger)
+- You can set it to be the current logger in a scope with the function [`with_logger`](https://docs.julialang.org/en/v1/stdlib/Logging/index.html#Base.CoreLogging.with_logger)
+- You can combine it with other Loggers using [LoggingExtras.jl](https://github.com/oxinabox/LoggingExtras.jl), so that messages are logged to TensorBoard and to other backends at the same time.
 
+Every `TBLogger` has an internal counter to store the current `step`, which is initially set to `1`. All the data logged with the same `@log` call will be logged with the same step, and then
+it will increment the internal counter by 1.
+
+If you want to increase the counter by a different amount, or prevent it from increasing, you can log the additional message
+`log_step_increment=N`. The default behaviour corresponds to `N=1`. If you set `N=0` the internal counter will not be modified.
+
+See the example below:
 ```julia
 using TensorBoardLogger, Logging, Random
 
@@ -92,8 +100,13 @@ how to specify a desired backend refer to [Specifying a backend](@ref).
 If you want to define a new default behaviour for a custom type refer to section
 [Extending TensorBoardLogger](@ref).
 
+## Third-party packages
+We also support logging custom types from a the following third-party libraries:
+ - [Plots.jl](https://github.com/JuliaPlots/Plots.jl): the `Plots.Plot` type will be rendered to PNG at the resolution specified by the object and logged as an image
+ - [PyPlot.jl](https://github.com/JuliaPy/PyPlot.jl): the `PyPlot.Figure` type will be rendered to PNG at the resolution specified by the object and logged as an image
+
 ## Explicit logging
 
 In alternative, you can also log data to TensorBoard through it's functional interface,
 by calling the relevant method with a tag string and the data. For information
-on this interface refer to @ref()...
+on this interface refer to [Explicit interface]@ref()...

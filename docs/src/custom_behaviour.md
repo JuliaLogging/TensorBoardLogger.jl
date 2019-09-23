@@ -26,7 +26,6 @@ parameters. For example, to log a vector as text you can do the following:
 @info "mytag" TBText([1,2,3])
 ```
 
-
 ```@docs
 TBText
 TBHistogram

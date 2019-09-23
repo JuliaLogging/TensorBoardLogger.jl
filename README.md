@@ -16,7 +16,8 @@ To install run the following command in the julia REPL:
 ] add TensorBoardLogger
 ```
 
-To also enable support for Images, also install `ImageMagick`
+If you need to log Images, you must also install `ImageMagick`
+(on MacOS, you will also need `QuartzImageIO`).
 ```
 ] add ImageMagick
 ```
@@ -33,6 +34,14 @@ logger in Julia:
     - You can set it to be your global logger with the function [`global_logger`](https://docs.julialang.org/en/v1/stdlib/Logging/index.html#Base.CoreLogging.global_logger)
     - You can set it to be the current logger in a scope with the function [`with_logger`](https://docs.julialang.org/en/v1/stdlib/Logging/index.html#Base.CoreLogging.with_logger)
     - You can combine it with other Loggers using [LoggingExtras.jl](https://github.com/oxinabox/LoggingExtras.jl), so that messages are logged to TensorBoard and to other backends at the same time.
+
+You can log to TensorBoard any type. Numeric types will be logged as scalar,
+arrays will be binned into histograms, images and audio will be logged as such,
+and we even support [Plots](https://github.com/JuliaPlots/Plots.jl) and
+[PyPlot](https://github.com/JuliaPlots/Plots.jl) figures!
+
+For details about how types are logged by default, or how to customize this behaviour for your custom types,
+refer to the documentation or the examples folder.
 
 ```julia
 using TensorBoardLogger, Logging, Random
@@ -58,6 +67,10 @@ with_logger(lg) do
     end
 end
 ```
+
+## Integration with third party packages
+We also support native logging of the types defined by a few third-party packages, such as `Plots` and `PyPlot` plots.
+If there are other libraries that you think we should include in the list, please open an issue.
 
 ## Roadmap
 Support for Computational Graphs is currently planned and partly implemented.
