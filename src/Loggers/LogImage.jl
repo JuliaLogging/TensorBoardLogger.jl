@@ -10,7 +10,7 @@ end
 
 
 """
-    log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray, format::ImageFormat; step = nothing)
+    log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray, format::ImageFormat; step=step(logger))
 
 Log multiple images using `Array` of images and format
 - imgArrays: `Array` of images, e.g. Array{Array{Float64, 3}, 1}. `Array` of images can be multidimensional.
@@ -30,7 +30,7 @@ log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray, for
     log_keyval(logger, name, TBImages(imgArrays, format), step)
 
 """
-    log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArray, format::ImageFormat, step = nothing)
+    log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArray, format::ImageFormat; step=step(logger))
 
 Log an image using image data and format
 - imgArray: image data. A 1-D, 2-D or 3-D `Array` of pixel values. pixel values can be Real [0, 1] or Integer[0, 255]
@@ -48,7 +48,6 @@ Log an image using image data and format
 """
 log_image(logger::TBLogger, name::AbstractString, img::AbstractArray{<:Colorant}; step = nothing) =
     log_keyval(logger, name, img, step)
-
 
 log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArray, format::ImageFormat; step=nothing) =
     log_keyval(logger, name, TBImage(imgArray, format), step)

@@ -1,7 +1,9 @@
 """
-    log_value(logger, name, value, step)
+    log_value(logger, name, value; step=step(logger))
 
-Logs a Floating-point variable with name `name` at step `step`
+Logs a Floating-point variable with name `name` at step `step`.
+If `value` is a complex number, the real and imaginary part are logged
+separately.
 """
 function log_value(logger::TBLogger, name::AbstractString, value::Real; step=nothing)
     summ = SummaryCollection(scalar_summary(name, value))

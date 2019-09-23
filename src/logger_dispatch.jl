@@ -42,9 +42,9 @@ logable_propertynames(val::Any) = propertynames(val)
 
 ########## For things going to LogImage ##############################
 function preprocess(name,   img::AbstractArray{<:Colorant}, data)
+    # If it has three dimensions (and we don't have 3D monitors) we log several
+    # 2D slices under the same tag so that TB shows a slider along the z direction.
     dimensions = ndims(img)
-    #if it has 3 dimensions, eg MRI image, log each channel vth same name
-    #so that one can slide through channels
     if dimensions == 3
         #3rd is channel dim as observed in testimages
         channels = size(img, 3)
