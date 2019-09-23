@@ -52,7 +52,7 @@ it will increment the internal counter by 1.
 If you want to increase the counter by a different amount, or prevent it from increasing, you can log the additional message
 `log_step_increment=N`. The default behaviour corresponds to `N=1`. If you set `N=0` the internal counter will not be modified.
 
-See the example below
+See the example below:
 ```julia
 using TensorBoardLogger, Logging, Random
 
@@ -96,8 +96,6 @@ default fallback.
 
 For more detailed informations on how data is dispatched to a certain backend, and
 how to specify a desired backend refer to [Specifying a backend](@ref).
-
-For a list of third-party
 
 If you want to define a new default behaviour for a custom type refer to section
 [Extending TensorBoardLogger](@ref).
