@@ -51,3 +51,18 @@ log_image(logger::TBLogger, name::AbstractString, img::AbstractArray{<:Colorant}
 
 log_image(logger::TBLogger, name::AbstractString, imgArray::AbstractArray, format::ImageFormat; step=nothing) =
     log_keyval(logger, name, TBImage(imgArray, format), step)
+
+"""
+log_image(logger, name, obj; [step=current_step])
+
+Renders the object to PNG and sends it to TensorBoard as an image with tag `name`.
+`showable("image/png", obj)` must be true.
+"""
+function log_image(lg::TBLogger, name::AbstractString, obj; step=nothing)
+    if !showable("image/png", obj)
+        @error "cannot log as an image object $obj"
+    end
+    pb = PipeBuffer()
+    show(pb, "image/png", obj)
+    log_keyval(lg, name, PNG(pb), step)
+end

@@ -14,13 +14,5 @@ preprocess(name, plots::AbstractArray{<:PyPlot.Figure}, data) = begin
     return data
 end
 
-"""
-    log_image(logger, name, plot::Plots.Figure; [step=current_step])
-
-Renders the PyPlots' and sends it to TensorBoard as an image with tag `name`.
-"""
-log_image(lg::TBLogger, name::AbstractString, img::PyPlot.Figure; step=nothing) =
-    log_keyval(lg, name, img, step)
-
 log_image(lg::TBLogger, name::AbstractString, img::AbstractArray{<:PyPlot.Figure}; step=nothing) =
     log_keyval(lg, name, img, step)
