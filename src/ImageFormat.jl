@@ -1,6 +1,7 @@
 # Note: we use the 100s place of the enum to represent the number of dimensions
 # And the 10s place to represent which dimension is the observation (N), 0 for no observation dimension
 @enum ImageFormat begin
+    PNG=0;
     L=100;
     CL=200; LC; HW; WH; NL=210; LN=220;
     HWC=300; WHC; CHW; CWH; NCL=310; NHW; NWH; NLC; CLN=330; LCN; HWN; WHN;
