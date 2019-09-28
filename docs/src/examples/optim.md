@@ -1,6 +1,6 @@
 # Using TensorBoard with `Optim.jl`
 
-```
+```julia
 using TensorBoardLogger
 using Optim
 using Logging
@@ -9,7 +9,7 @@ using Logging
 function make_tensorboardlogger_callback(dir="logs")
     logger = TBLogger(dir)
 
-    function callback(opt_state = Optim.OptimizationState)
+    function callback(opt_state:: Optim.OptimizationState)
         with_logger(logger) do
             @info "" opt_step = opt_state.iteration  function_value=opt_state.value gradient_norm=opt_state.g_norm
         end
