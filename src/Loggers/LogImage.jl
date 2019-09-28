@@ -60,7 +60,7 @@ Renders the object to PNG and sends it to TensorBoard as an image with tag `name
 """
 function log_image(lg::TBLogger, name::AbstractString, obj; step=nothing)
     if !showable("image/png", obj)
-        @error "cannot log as an image object $obj"
+        @error "cannot log $name as an image object $obj"
         return
     end
     pb = PipeBuffer()
