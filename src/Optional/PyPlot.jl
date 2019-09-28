@@ -1,12 +1,12 @@
 import .PyPlot: PyPlot
 
-function Base.convert(t::Type{PNG}, figure::PyPlot.Figure)
+function Base.convert(t::Type{PngImage}, figure::PyPlot.Figure)
     pb = PipeBuffer()
     show(pb, MIME("image/png"), figure)
-    return PNG(pb)
+    return PngImage(pb)
 end
 
-preprocess(name, plot::PyPlot.Figure, data) = preprocess(name, convert(PNG, plot), data)
+preprocess(name, plot::PyPlot.Figure, data) = preprocess(name, convert(PngImage, plot), data)
 preprocess(name, plots::AbstractArray{<:PyPlot.Figure}, data) = begin
     for (i, plot)=enumerate(plots)
         preprocess(name*"/$i", plot, data)

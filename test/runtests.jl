@@ -171,7 +171,7 @@ end
     lighthouse = testimage("lighthouse")
     @test data == preprocess("test1", lighthouse, data)
     @test first(data[1])=="test1"
-    @test last(data[1]) isa TensorBoardLogger.PNG
+    @test last(data[1]) isa TensorBoardLogger.PngImage
     #3-d MRI image
     data = Vector{Pair{String,Any}}()
     mri = testimage("mri-stack")
@@ -184,10 +184,10 @@ end
         isok = false
     end
     @test isok
-    # check that all slices have been converted to PNG
+    # check that all slices have been converted to PngImage
     isok = true
     for (tag,val)=data
-        val isa TensorBoardLogger.PNG && continue
+        val isa TensorBoardLogger.PngImage && continue
         isok = false
     end
     @test isok

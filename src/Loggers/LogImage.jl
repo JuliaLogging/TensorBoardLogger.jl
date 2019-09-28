@@ -1,4 +1,4 @@
-function image_summary(name::AbstractString, img::PNG)
+function image_summary(name::AbstractString, img::PngImage)
 
     attr    = img.attr
     imgsumm = Summary_Image(height     = attr[:height],
@@ -72,5 +72,5 @@ function log_image(lg::TBLogger, name::AbstractString, obj; step=nothing)
     end
     pb = PipeBuffer()
     show(pb, "image/png", obj)
-    log_keyval(lg, name, PNG(pb), step)
+    log_keyval(lg, name, PngImage(pb), step)
 end

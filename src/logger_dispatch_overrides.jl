@@ -64,6 +64,15 @@ struct TBImages <:WrapperLogType
     data::AbstractArray
     format::ImageFormat
 end
+
+"""
+    TBImages(image)
+
+Forces elements of Array `data` to be serialized as images to TensorBoard.
+`showable("image/png", image)` must be true.
+"""
+TBImages(image) = TBImages(image, PngImage)
+
 content(x::TBImages) = x.data
 function preprocess(name, val::TBImages, data)
     for (n, img) in enumerate(val.data)
@@ -80,11 +89,30 @@ struct TBImage <: WrapperLogType
     data::AbstractArray
     format::ImageFormat
 end
+"""
+    TBImage(image)
+
+Renders `image` to PNG and logs it as an image to TensorBoard.
+`showable("image/png", image)` must be true.
+"""
+TBImage(image) = TBImage(image, PngImage)
+
 content(x::TBImage) = x.data
 
-function Base.convert(T::Type{PNG}, tb_image::TBImage)
+function Base.convert(T::Type{PngImage}, tb_image::TBImage)
     imgArray = tb_image.data
     format   = tb_image.format
+
+    # Check at the beginning if it's a PNG
+    if format == PNG
+        if !showable("image/png", imgArray)
+            @error "cannot log as an image object $obj"
+            return
+        end
+        pb=PipeBuffer()
+        show(pb, "image/png", imgArray)
+        return PngImage(pb)
+    end
 
     #unpack RGB, RGBA value to channels using channelview
     imgArray = channelview(imgArray)
@@ -121,7 +149,7 @@ function Base.convert(T::Type{PNG}, tb_image::TBImage)
     end
     #convert Array to PNG pass it to image_summary
     img = colorview(color, imgArray)
-    return convert(PNG, img)
+    return convert(PngImage, img)
 end
 
 function preprocess(name, val::TBImage, data)
@@ -132,7 +160,7 @@ function preprocess(name, val::TBImage, data)
     @assert dims == expected_ndims(format)
     obsdim = obs_dim(format)
     if iszero(obsdim)
-        preprocess(name, convert(PNG, val), data)
+        preprocess(name, convert(PngImage, val), data)
     else
         format = strip_obs[format]
         index = collect("[:"* ",:"^(dims-1) *"]")
@@ -142,7 +170,7 @@ function preprocess(name, val::TBImage, data)
         nth_img = Meta.parse("gimgArray$(index)")
         for n in 1:size(imgArray, obsdim)
             global g = n
-            preprocess(name*"/$n", convert(PNG, TBImage(eval(nth_img), format)), data)
+            preprocess(name*"/$n", convert(PngImage, TBImage(eval(nth_img), format)), data)
         end
     end
     return data
