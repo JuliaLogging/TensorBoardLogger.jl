@@ -38,6 +38,15 @@ See also: [`Base.propertynames`](@ref)
 """
 logable_propertynames(val::Any) = propertynames(val)
 
+## Default unpacking of key-value dictionaries
+function preprocess(name, dict::AbstractDict, data)
+    for (key, val) in dict
+        # convert any key into a string, via interpolating it
+        preprocess("$name/$key", val, data)
+    end
+    return data
+end
+
 ## Default behaviours
 
 ########## For things going to LogImage ##############################
