@@ -39,7 +39,7 @@ See also: [`Base.propertynames`](@ref)
 logable_propertynames(val::Any) = propertynames(val)
 
 ## Default unpacking of key-value dictionaries
-function preprocess(name, dict::Dict, data)
+function preprocess(name, dict::AbstractDict, data)
     i=1
     for k=keys(dict)
         if isa(k, String) || isa(k, Symbol) || isa(k, Real)
