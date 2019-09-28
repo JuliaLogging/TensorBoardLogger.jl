@@ -155,13 +155,16 @@ end
 function preprocess(name, val::TBImage, data)
     imgArray = val.data
     format = val.format
-    imgArray = channelview(imgArray)
-    dims = ndims(imgArray)
-    @assert dims == expected_ndims(format)
     obsdim = obs_dim(format)
+
+    # obs_dim of PNG format is 0
     if iszero(obsdim)
         preprocess(name, convert(PngImage, val), data)
     else
+        imgArray = channelview(imgArray)
+        dims = ndims(imgArray)
+        @assert dims == expected_ndims(format)
+
         format = strip_obs[format]
         index = collect("[:"* ",:"^(dims-1) *"]")
         index[2*obsdim] = 'g'
