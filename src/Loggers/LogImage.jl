@@ -21,9 +21,16 @@ Log multiple images using `Array` of images and format
    HWN, WHN, NHW, NWH,
    HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH}
 """
-function log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray; step = nothing)
-    @assert isa(first(imgArrays), AbstractArray{<:Colorant}) "Please specify format"
-    log_keyval(logger, name, imgArrays, step)
+function log_images(logger::TBLogger, name::AbstractString, img_array::AbstractArray; step = nothing)
+    if isa(first(img_array), AbstractArray{<:Colorant})
+        log_keyval(logger, name, img_array, step)
+    elseif showable("image/png", first(img_array))
+        for (i,img)=enumerate(img_array)
+            log_image(logger, name*"/$i", img, step=step)
+        end
+    else
+        @error "Array is neither <:AbstractArray{<:Colorant} nor showable to png.\n If it's numeric data, you should specify the format."
+    end
 end
 
 log_images(logger::TBLogger, name::AbstractString, imgArrays::AbstractArray, format::ImageFormat; step = nothing) =
