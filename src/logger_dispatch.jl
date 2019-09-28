@@ -40,16 +40,9 @@ logable_propertynames(val::Any) = propertynames(val)
 
 ## Default unpacking of key-value dictionaries
 function preprocess(name, dict::AbstractDict, data)
-    i=1
-    for k=keys(dict)
-        if isa(k, String) || isa(k, Symbol) || isa(k, Real)
-            preprocess(name*"/$k", dict[k], data)
-        else
-            tag = name*"/not_a_string_$i"
-            preprocess(tag*"/key", k, data)
-            preprocess(tag*"/val", dict[k], data)
-            i += 1
-        end
+    for (key, val) in dict
+        # convert any key into a string, via interpolating it
+        preprocess("$name/$key", val, data)
     end
     return data
 end
