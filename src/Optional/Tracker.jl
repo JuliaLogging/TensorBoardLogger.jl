@@ -1,3 +1,3 @@
 import .Tracker
 
-preprocess(name, x::Tracker.TrackedReal, data) = push!(data, name => Tracker.data(x))
+preprocess(name, x::T, data) where {T<:Union{Tracker.TrackedReal,Tracker.TrackedArray}}= push!(data, name => Tracker.data(x))

@@ -2,10 +2,12 @@ using TensorBoardLogger, Logging
 using Tracker
 using Test
 
-@testset "Optional: PyPlot.jl" begin
+@testset "Optional: Tracker.jl" begin
     logger = TBLogger("test_logs/Tracker-jl", tb_overwrite)
-    v = Tracker.TrackedReal(1)
+    tr = Tracker.TrackedReal(1)
+    ta = Tracker.TrackedArray(ones(10))
     with_logger(logger) do
-        @info "dispatch" v=v
+        @info "dispatch" tr=tr
+        @info "dispatch" ta=ta
     end
 end
