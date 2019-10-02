@@ -197,14 +197,15 @@ end
 
 # Implement the AbstractLogger Interface
 
-catch_exceptions(lg::TBLogger) = false
+CoreLogging.catch_exceptions(lg::TBLogger) = false
 
-min_enabled_level(lg::TBLogger) = lg.min_level
+CoreLogging.min_enabled_level(lg::TBLogger) = lg.min_level
 
 # For now, log everything that is above the lg.min_level
-shouldlog(lg::TBLogger, level, _module, group, id) = true
+CoreLogging.shouldlog(lg::TBLogger, level, _module, group, id) = true
 
-function handle_message(lg::TBLogger, level, message, _module, group, id, file, line; kwargs...)
+function CoreLogging.handle_message(lg::TBLogger, level, message, _module, group,
+									id, file, line; kwargs...)
     # Unpack the message
     summ    = SummaryCollection()
     i_step = 1 # :log_step_increment default value

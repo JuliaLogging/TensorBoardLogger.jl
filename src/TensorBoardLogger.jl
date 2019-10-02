@@ -6,11 +6,9 @@ using ImageCore, ColorTypes
 using FileIO: @format_str, Stream, save
 
 using StatsBase  #TODO: remove this. Only needed to compute histogram bins.
-using Base.CoreLogging: global_logger, LogLevel, Info
-import Base.CoreLogging:
-    AbstractLogger, handle_message, shouldlog, min_enabled_level,
-    catch_exceptions
 
+using  Base.CoreLogging: CoreLogging, AbstractLogger, LogLevel, Info,
+    handle_message, shouldlog, min_enabled_level, catch_exceptions
 
 export TBLogger, reset!, set_step!, increment_step!
 export log_histogram, log_value, log_vector, log_text, log_image, log_images,
