@@ -30,3 +30,13 @@ function convert_to_CHW(imgArray::AbstractArray, format)
         #== else ==# throw("Invalid format")
     return converted
 end
+
+function ColorType_from_nchannels(channels)
+    color =
+        channels == 1 ? Gray :
+        channels == 2 ? GrayA :
+        channels == 3 ? RGB :
+        channels == 4 ? RGBA :
+        #== else ==# throw("Too many channels")
+    return color
+end

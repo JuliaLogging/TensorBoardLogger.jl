@@ -131,12 +131,8 @@ function Base.convert(T::Type{PngImage}, img::TBImage{<:AbstractArray})
     imgArray = convert_to_CHW(imgArray, format)
 
     channels, height, width = size(imgArray)
-    color =
-        channels == 1 ? Gray :
-        channels == 2 ? GrayA :
-        channels == 3 ? RGB :
-        channels == 4 ? RGBA :
-        #== else ==# throw("Too many channels")
+    color = ColorType_from_nchannels(channels)
+
     #if it is a single channel Array, convert it to HW
     if color == Gray
         imgArray = imgArray[1, :, :]
