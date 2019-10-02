@@ -30,4 +30,4 @@ WAV = "8149f6b0-98f6-5db9-b78f-408fbbb8ef88"
 Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
 
 [targets]
-test = ["Test", "Flux", "TestImages", "ImageMagick", "Logging", "LightGraphs", "Plots", "PyPlot", "WAV"]
+test = ["Test", "Flux", "TestImages", "ImageMagick", "Logging", "LightGraphs", "Plots", "PyPlot", "WAV", "Tracker"]
