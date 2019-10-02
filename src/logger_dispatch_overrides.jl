@@ -156,18 +156,12 @@ function preprocess(name, val::TBImage, data)
         preprocess(name, convert(PngImage, val), data)
     else
         imgArray = channelview(imgArray)
-        dims = ndims(imgArray)
-        @assert dims == expected_ndims(format)
+        @assert ndims(imgArray) == expected_ndims(format)
 
         format = strip_obs[format]
-        index = collect("[:"* ",:"^(dims-1) *"]")
-        index[2*obsdim] = 'g'
-        index = join(index)
-        global gimgArray = imgArray
-        nth_img = Meta.parse("gimgArray$(index)")
         for n in 1:size(imgArray, obsdim)
-            global g = n
-            preprocess(name*"/$n", convert(PngImage, TBImage(eval(nth_img), format)), data)
+            nth_img = selectdim(imgArray, obsdim, n)
+            preprocess(name*"/$n", convert(PngImage, TBImage(nth_img, format)), data)
         end
     end
     return data
