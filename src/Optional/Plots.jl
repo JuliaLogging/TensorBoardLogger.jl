@@ -13,6 +13,3 @@ preprocess(name, plots::AbstractArray{<:Plots.Plot}, data) = begin
     end
     return data
 end
-
-log_image(lg::TBLogger, name::AbstractString, img::AbstractArray{<:Plots.Plot}; step=nothing) =
-    log_keyval(lg, name, img, step)

@@ -124,22 +124,12 @@ function Base.convert(T::Type{PngImage}, img::TBImage{<:AbstractArray})
     if isa(first(imgArray), Integer)
         imgArray = (imgArray./255)
     end
-    #convert all values to `Float64` for uniformity
+
+    #convert all values to `Float64` for uniformity and scale all values to 0-1
     imgArray = Float64.(imgArray)
-    #scale all values to 0-1
     imgArray = (imgArray./(max(maximum(imgArray), 1)))
-    #convert any format to CHW
-    imgArray =
-        format == L   ? reshape(imgArray, (1, 1, size(imgArray, 1))) :
-        format == CL  ? reshape(imgArray, (size(imgArray, 1), 1, size(imgArray, 2))) :
-        format == LC  ? reshape(transpose(imgArray), (size(imgArray, 2), 1, size(imgArray, 1))) :
-        format == HW  ? reshape(imgArray, (1, size(imgArray, 1), size(imgArray, 2))) :
-        format == WH  ? reshape(transpose(imgArray), (1, size(imgArray, 2), size(imgArray, 1))) :
-        format == HWC ? permutedims(imgArray, (3, 1, 2)) :
-        format == WHC ? permutedims(imgArray, (3, 2, 1)) :
-        format == CHW ? imgArray :
-        format == CWH ? permutedims(imgArray, (1, 3, 2)) :
-        #== else ==# throw("Invalid format")
+    imgArray = convert_to_CHW(imgArray, format)
+
     channels, height, width = size(imgArray)
     color =
         channels == 1 ? Gray :

@@ -13,6 +13,3 @@ preprocess(name, plots::AbstractArray{<:PyPlot.Figure}, data) = begin
     end
     return data
 end
-
-log_image(lg::TBLogger, name::AbstractString, img::AbstractArray{<:PyPlot.Figure}; step=nothing) =
-    log_keyval(lg, name, img, step)

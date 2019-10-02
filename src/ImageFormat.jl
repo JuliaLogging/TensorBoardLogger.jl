@@ -15,3 +15,18 @@ const strip_obs = Dict(
     NHW=>HW, HWN=>HW, NWH=>WH, WHN=>WH,
     NHWC=>HWC, NWHC=>WHC, NCHW=>CHW, NCWH=>CWH, HWCN=>HWC, WHCN=>WHC, CHWN=>CHW, CWHN=>CWH
 )
+
+function convert_to_CHW(imgArray::AbstractArray, format)
+    converted =
+        format == L   ? reshape(imgArray, (1, 1, size(imgArray, 1))) :
+        format == CL  ? reshape(imgArray, (size(imgArray, 1), 1, size(imgArray, 2))) :
+        format == LC  ? reshape(transpose(imgArray), (size(imgArray, 2), 1, size(imgArray, 1))) :
+        format == HW  ? reshape(imgArray, (1, size(imgArray, 1), size(imgArray, 2))) :
+        format == WH  ? reshape(transpose(imgArray), (1, size(imgArray, 2), size(imgArray, 1))) :
+        format == HWC ? permutedims(imgArray, (3, 1, 2)) :
+        format == WHC ? permutedims(imgArray, (3, 2, 1)) :
+        format == CHW ? imgArray :
+        format == CWH ? permutedims(imgArray, (1, 3, 2)) :
+        #== else ==# throw("Invalid format")
+    return converted
+end
