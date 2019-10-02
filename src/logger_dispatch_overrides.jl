@@ -102,7 +102,7 @@ content(x::TBImage) = x.data
 function Base.convert(T::Type{PngImage}, img::TBImage)
     if img.format == PNG
         if !showable("image/png", img.data)
-            @error "cannot log as an image object $obj"
+            @error "cannot log as an image object" obj=img.data
             return
         end
         pb=PipeBuffer()
