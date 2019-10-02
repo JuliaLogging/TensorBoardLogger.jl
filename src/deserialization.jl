@@ -29,11 +29,21 @@ function read_event(f::IOStream)
     return ev
 end
 
+"""
+    TBEventFileCollectionIterator(path; purge=true)
 
+Iterate along all event-files in the folder `path`.
+When the keyword argument `purge==true`, if the i+1-th file begins with a purge
+at step `s`, the i-th file is read only up to step `s`.
+"""
 struct TBEventFileCollectionIterator
     dir::String
     files::Vector
+
+    purge::Bool
 end
+TBEventFileCollectionIterator(path; purge=true) =
+    TBEventFileCollectionIterator(path, sort(readdir(path)), purge)
 
 function Base.iterate(it::TBEventFileCollectionIterator, state=1)
     state > length(it.files) && return nothing
@@ -55,9 +65,10 @@ function Base.iterate(it::TBEventFileCollectionIterator, state=1)
 end
 
 """
-    TBEventFileIterator(fstream)
+    TBEventFileIterator(fstream, stop_at_step=∞)
 
-Iterator for iterating along a fstream
+Iterator for iterating along a fstream.
+The optional argument `stop_at_step` tells at what step the iterator should stop.
 """
 struct TBEventFileIterator
     fstream::IOStream
@@ -77,8 +88,8 @@ end
 """
     iterate(evs::Summary, state=1)
 
-Iterate along all summaries stored inside an event, automatically decoding the
-data stored inside of each summary.
+Iterate along all summaries stored inside an event, automatically returning the
+correct value (histogram, audio, image or scalar).
 """
 function Base.iterate(evs::Summary, state=1)
     # if ev.summary is not defined, don't bother processing this event, as it's
@@ -91,28 +102,66 @@ function Base.iterate(evs::Summary, state=1)
     tag = summary.tag
 
     if isdefined(summary, :histo)
-        val = decode_histogram(summary.audio)
+        val = summary.histo
     elseif isdefined(summary, :image)
-        val = decode_image(summary.image)
+        val = summary.image
     elseif isdefined(summary, :audio)
-        val = decode_audio(summary.audio)
+        val = summary.audio
     elseif isdefined(summary, :simple_value)
         val = summary.simple_value
     else
-        @error "Event with unknown field $summary"
+        @error "Event with unknown field" summary=summary
     end
     return (tag, val), state+1
 end
 
+"""
+    map_summaries(fun, path; purge=true)
 
-summary_iterator(tb::TBLogger) = summary_iterator(logdir(tb_logger))
+Maps the function `fun(name, value)` on all the values logged to the folder
+at `path`. The function is called sequentially, starting from the first
+event till the last.
 
-function summary_iterator(path::String)
-    coll = TBEventFileCollectionIterator(path,sort(readdir(path)))
-    return coll
+When the keyword argument `purge==true`, if the i+1-th file begins with a purge
+at step `s`, the i-th file is read only up to step `s`.
+
+`fun` should take 2 arguments:
+    - a String representing the name/tag of the logged value
+    - a value, which can be of the following types:
+        - Float32
+        - HistogramProto (containing bin edges and values)
+        - Summary_Audio  (containing a serialized WAV clip)
+        - Summary_Image  (containing a serialized PNG image)
+"""
+function map_summaries(fun::Function, folder_path::String; purge=true)
+    for event_file in TBEventFileCollectionIterator(folder_path, purge=purge)
+        for event in event_file
+            !isdefined(event, :summary) && continue
+            for (name, val) in event.summary
+                fun(name, val)
+            end
+        end
+    end
 end
 
-function decode_histogram(histo)
-    # check if it's a vectorized array
 
+"""
+    map_summaries(fun, path; purge=true)
+
+Maps the function `fun(event)` on all the event logged to the folder
+at `path`. The function is called sequentially, starting from the first
+event till the last.
+
+When the keyword argument `purge==true`, if the i+1-th file begins with a purge
+at step `s`, the i-th file is read only up to step `s`.
+
+Also metadata events, without any real data attached are mapped.
+You can detect those by `isdefined(event, :summary) == false`
+"""
+function map_events(fun::Function, folder_path::String)
+    for event_file in TBEventFileCollectionIterator(folder_path)
+        for event in event_file
+            fun(event)
+        end
+    end
 end
