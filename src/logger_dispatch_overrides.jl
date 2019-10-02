@@ -85,8 +85,8 @@ end
 
 Forces `data` to be serialized as an Image to TensorBoard.
 """
-struct TBImage <: WrapperLogType
-    data::AbstractArray
+struct TBImage{T} <: WrapperLogType
+    data::T
     format::ImageFormat
 end
 """
@@ -99,20 +99,24 @@ TBImage(image) = TBImage(image, PngImage)
 
 content(x::TBImage) = x.data
 
-function Base.convert(T::Type{PngImage}, tb_image::TBImage)
-    imgArray = tb_image.data
-    format   = tb_image.format
-
-    # Check at the beginning if it's a PNG
-    if format == PNG
-        if !showable("image/png", imgArray)
+function Base.convert(T::Type{PngImage}, img::TBImage)
+    if img.format == PNG
+        if !showable("image/png", img.data)
             @error "cannot log as an image object $obj"
             return
         end
         pb=PipeBuffer()
-        show(pb, "image/png", imgArray)
+        show(pb, "image/png", img.data)
         return PngImage(pb)
+    else
+        @error "Unknown format $(img.format) for data of type $(typeof(img.data))."
+        return nothing
     end
+end
+
+function Base.convert(T::Type{PngImage}, img::TBImage{<:AbstractArray})
+    imgArray = img.data
+    format   = img.format
 
     #unpack RGB, RGBA value to channels using channelview
     imgArray = channelview(imgArray)
