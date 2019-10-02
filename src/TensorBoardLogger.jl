@@ -1,21 +1,23 @@
 module TensorBoardLogger
-using ProtoBuf
-using CRC32c
-using ImageCore
-using ColorTypes
-using FileIO
-using FileIO: @format_str
+
+using ProtoBuf, CRC32c
+
+using ImageCore, ColorTypes
+using FileIO: @format_str, Stream, save
+
 using StatsBase  #TODO: remove this. Only needed to compute histogram bins.
 using Base.CoreLogging: global_logger, LogLevel, Info
 import Base.CoreLogging:
     AbstractLogger, handle_message, shouldlog, min_enabled_level,
     catch_exceptions
 
-export log_histogram, log_value, log_vector, log_text, log_image, log_images, log_audio, log_audios, log_graph
-export scalar_summary, histogram_summary, text_summary, make_event
-export TBLogger
-export reset!, set_step!, increment_step!
-export ImageFormat, L, CL, LC, LN, NL, NCL, NLC, CLN, LCN, HW, WH, HWC, WHC, CHW, CWH,HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH
+
+export TBLogger, reset!, set_step!, increment_step!
+export log_histogram, log_value, log_vector, log_text, log_image, log_images,
+       log_audio, log_audios, log_graph
+export ImageFormat, L, CL, LC, LN, NL, NCL, NLC, CLN, LCN, HW, WH, HWC, WHC,
+       CHW, CWH,HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH
+
 # Wrapper types
 export TBText, TBVector, TBHistogram, TBImage, TBImages, TBAudio, TBAudios
 
