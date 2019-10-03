@@ -104,6 +104,7 @@ If you want to define a new default behaviour for a custom type refer to section
 We also support logging custom types from a the following third-party libraries:
  - [Plots.jl](https://github.com/JuliaPlots/Plots.jl): the `Plots.Plot` type will be rendered to PNG at the resolution specified by the object and logged as an image
  - [PyPlot.jl](https://github.com/JuliaPy/PyPlot.jl): the `PyPlot.Figure` type will be rendered to PNG at the resolution specified by the object and logged as an image
+ - [Tracker.jl](https://github.com/FluxML/Tracker.jl): the `TrackedReal` and `TrackedArray` types will be logged as vector data
 
 ## Explicit logging
 
