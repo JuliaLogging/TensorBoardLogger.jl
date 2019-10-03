@@ -64,6 +64,15 @@ struct TBImages <:WrapperLogType
     data::AbstractArray
     format::ImageFormat
 end
+
+"""
+    TBImages(image)
+
+Forces elements of Array `data` to be serialized as images to TensorBoard.
+`showable("image/png", image)` must be true.
+"""
+TBImages(image) = TBImages(image, PngImage)
+
 content(x::TBImages) = x.data
 function preprocess(name, val::TBImages, data)
     for (n, img) in enumerate(val.data)
@@ -76,15 +85,38 @@ end
 
 Forces `data` to be serialized as an Image to TensorBoard.
 """
-struct TBImage <: WrapperLogType
-    data::AbstractArray
+struct TBImage{T} <: WrapperLogType
+    data::T
     format::ImageFormat
 end
+"""
+    TBImage(image)
+
+Renders `image` to PNG and logs it as an image to TensorBoard.
+`showable("image/png", image)` must be true.
+"""
+TBImage(image) = TBImage(image, PngImage)
+
 content(x::TBImage) = x.data
 
-function Base.convert(T::Type{PNG}, tb_image::TBImage)
-    imgArray = tb_image.data
-    format   = tb_image.format
+function Base.convert(T::Type{PngImage}, img::TBImage)
+    if img.format == PNG
+        if !showable("image/png", img.data)
+            @error "cannot log as an image object" obj=img.data
+            return
+        end
+        pb=PipeBuffer()
+        show(pb, "image/png", img.data)
+        return PngImage(pb)
+    else
+        @error "Unknown format for datatype." format=img.format datatype=typeof(img.data) 
+        return nothing
+    end
+end
+
+function Base.convert(T::Type{PngImage}, img::TBImage{<:AbstractArray})
+    imgArray = img.data
+    format   = img.format
 
     #unpack RGB, RGBA value to channels using channelview
     imgArray = channelview(imgArray)
@@ -92,57 +124,40 @@ function Base.convert(T::Type{PNG}, tb_image::TBImage)
     if isa(first(imgArray), Integer)
         imgArray = (imgArray./255)
     end
-    #convert all values to `Float64` for uniformity
+
+    #convert all values to `Float64` for uniformity and scale all values to 0-1
     imgArray = Float64.(imgArray)
-    #scale all values to 0-1
     imgArray = (imgArray./(max(maximum(imgArray), 1)))
-    #convert any format to CHW
-    imgArray =
-        format == L   ? reshape(imgArray, (1, 1, size(imgArray, 1))) :
-        format == CL  ? reshape(imgArray, (size(imgArray, 1), 1, size(imgArray, 2))) :
-        format == LC  ? reshape(transpose(imgArray), (size(imgArray, 2), 1, size(imgArray, 1))) :
-        format == HW  ? reshape(imgArray, (1, size(imgArray, 1), size(imgArray, 2))) :
-        format == WH  ? reshape(transpose(imgArray), (1, size(imgArray, 2), size(imgArray, 1))) :
-        format == HWC ? permutedims(imgArray, (3, 1, 2)) :
-        format == WHC ? permutedims(imgArray, (3, 2, 1)) :
-        format == CHW ? imgArray :
-        format == CWH ? permutedims(imgArray, (1, 3, 2)) :
-        #== else ==# throw("Invalid format")
+    imgArray = convert_to_CHW(imgArray, format)
+
     channels, height, width = size(imgArray)
-    color =
-        channels == 1 ? Gray :
-        channels == 2 ? GrayA :
-        channels == 3 ? RGB :
-        channels == 4 ? RGBA :
-        #== else ==# throw("Too many channels")
+    color = ColorType_from_nchannels(channels)
+
     #if it is a single channel Array, convert it to HW
     if color == Gray
         imgArray = imgArray[1, :, :]
     end
     #convert Array to PNG pass it to image_summary
     img = colorview(color, imgArray)
-    return convert(PNG, img)
+    return convert(PngImage, img)
 end
 
 function preprocess(name, val::TBImage, data)
     imgArray = val.data
     format = val.format
-    imgArray = channelview(imgArray)
-    dims = ndims(imgArray)
-    @assert dims == expected_ndims(format)
     obsdim = obs_dim(format)
+
+    # obs_dim of PNG format is 0
     if iszero(obsdim)
-        preprocess(name, convert(PNG, val), data)
+        preprocess(name, convert(PngImage, val), data)
     else
+        imgArray = channelview(imgArray)
+        @assert ndims(imgArray) == expected_ndims(format)
+
         format = strip_obs[format]
-        index = collect("[:"* ",:"^(dims-1) *"]")
-        index[2*obsdim] = 'g'
-        index = join(index)
-        global gimgArray = imgArray
-        nth_img = Meta.parse("gimgArray$(index)")
         for n in 1:size(imgArray, obsdim)
-            global g = n
-            preprocess(name*"/$n", convert(PNG, TBImage(eval(nth_img), format)), data)
+            nth_img = selectdim(imgArray, obsdim, n)
+            preprocess(name*"/$n", convert(PngImage, TBImage(nth_img, format)), data)
         end
     end
     return data

@@ -117,51 +117,55 @@ end
     logger = TBLogger("test_logs/t", tb_overwrite)
     step = 1
 
-    #testing number Arrays
-    log_image(logger, "rand/auto", colorview(Gray, rand(10)), step = step)
-    log_image(logger, "rand/L", rand(10), L, step = step)
-    log_image(logger, "rand/LN", rand(10, 3) ,LN, step = step)
-    log_image(logger, "rand/NL", rand(3, 10), NL, step = step)
-    log_image(logger, "rand/CL", rand(3, 10), CL, step = step)
-    log_image(logger, "rand/LC", rand(10, 3), LC, step = step)
-    log_image(logger, "rand/NCL", rand(2, 3, 10), NCL, step = step)
-    log_image(logger, "rand/NLC", rand(2, 10, 3), NLC, step = step)
-    log_image(logger, "rand/CLN", rand(3, 10, 2), CLN, step = step)
-    log_image(logger, "rand/LCN", rand(10, 3, 2), LCN, step = step)
+    # The following tests are akin to @test_nothrow, which does not exist.
+    # https://github.com/JuliaLang/julia/issues/18780
+
+    # testing number Arrays
+    @test π != log_image(logger, "rand/auto", colorview(Gray, rand(10)), step = step)
+    @test π != log_image(logger, "rand/L", rand(10), L, step = step)
+    @test π != log_image(logger, "rand/LN", rand(10, 3) ,LN, step = step)
+    @test π != log_image(logger, "rand/NL", rand(3, 10), NL, step = step)
+    @test π != log_image(logger, "rand/CL", rand(3, 10), CL, step = step)
+    @test π != log_image(logger, "rand/LC", rand(10, 3), LC, step = step)
+    @test π != log_image(logger, "rand/NCL", rand(2, 3, 10), NCL, step = step)
+    @test π != log_image(logger, "rand/NLC", rand(2, 10, 3), NLC, step = step)
+    @test π != log_image(logger, "rand/CLN", rand(3, 10, 2), CLN, step = step)
+    @test π != log_image(logger, "rand/LCN", rand(10, 3, 2), LCN, step = step)
 
     sample = MNIST.images()[1:3]
     sample = hcat(sample...)
     sample = reshape(sample, (28, 28, 3))
-    log_image(logger, "mnist/HWN", sample, HWN, step = step)
+    @test  π != log_image(logger, "mnist/HWN", sample, HWN, step = step)
     sample = permutedims(sample, (2, 1, 3))
-    log_image(logger, "mnist/WHN", sample, WHN, step = step)
+    @test  π != log_image(logger, "mnist/WHN", sample, WHN, step = step)
     sample = permutedims(sample, (3, 2, 1))
-    log_image(logger, "mnist/NHW", sample, NHW, step = step)
+    @test  π != log_image(logger, "mnist/NHW", sample, NHW, step = step)
     sample = permutedims(sample, (1, 3, 2))
-    log_image(logger, "mnist/NWH", sample, NWH, step = step)
+    @test  π != log_image(logger, "mnist/NWH", sample, NWH, step = step)
     sample = testimage("toucan")
-    log_image(logger, "toucan/auto", sample, step = step)
+    @test  π != log_image(logger, "toucan/auto", sample, step = step)
     sample = [sample, sample, sample]
-    log_images(logger, "toucans/auto", sample, step = step)
-    log_images(logger, "toucans", sample, CHW, step = step)
+    @test  π != log_images(logger, "toucans/auto", sample, step = step)
+    @test  π != log_images(logger, "toucans", sample, CHW, step = step)
+
     sample = hcat(sample...)
     sample = reshape(sample, (150, 162, 3))
-    log_image(logger, "toucan/CHWN", sample, CHWN, step = step)
+    @test  π != log_image(logger, "toucan/CHWN", sample, CHWN, step = step)
     sample = permutedims(sample, (2, 1, 3))
-    log_image(logger, "toucan/CWHN", sample, CWHN, step = step)
+    @test  π != log_image(logger, "toucan/CWHN", sample, CWHN, step = step)
     sample = channelview(sample) #CWHN
     sample = permutedims(sample, (4, 1, 2, 3))
-    log_image(logger, "toucan/NCWH", sample, NCWH, step = step)
+    @test  π != log_image(logger, "toucan/NCWH", sample, NCWH, step = step)
     sample = permutedims(sample, (1, 2, 4, 3))
-    log_image(logger, "toucan/NCHW", sample, NCHW, step = step)
+    @test  π != log_image(logger, "toucan/NCHW", sample, NCHW, step = step)
     sample = permutedims(sample, (1, 4, 3, 2))
-    log_image(logger, "toucan/NWHC", sample, NWHC, step = step)
+    @test  π != log_image(logger, "toucan/NWHC", sample, NWHC, step = step)
     sample = permutedims(sample, (1, 3, 2, 4))
-    log_image(logger, "toucan/NHWC", sample, NHWC, step = step)
+    @test  π != log_image(logger, "toucan/NHWC", sample, NHWC, step = step)
     sample = permutedims(sample, (2, 3, 4, 1))
-    log_image(logger, "toucan/HWCN", sample, HWCN, step = step)
+    @test  π != log_image(logger, "toucan/HWCN", sample, HWCN, step = step)
     sample = permutedims(sample, (2, 1, 3, 4))
-    log_image(logger, "toucan/WHCN", sample, WHCN, step = step)
+    @test  π != log_image(logger, "toucan/WHCN", sample, WHCN, step = step)
 
 end
 
@@ -171,7 +175,7 @@ end
     lighthouse = testimage("lighthouse")
     @test data == preprocess("test1", lighthouse, data)
     @test first(data[1])=="test1"
-    @test last(data[1]) isa TensorBoardLogger.PNG
+    @test last(data[1]) isa TensorBoardLogger.PngImage
     #3-d MRI image
     data = Vector{Pair{String,Any}}()
     mri = testimage("mri-stack")
@@ -184,10 +188,10 @@ end
         isok = false
     end
     @test isok
-    # check that all slices have been converted to PNG
+    # check that all slices have been converted to PngImage
     isok = true
     for (tag,val)=data
-        val isa TensorBoardLogger.PNG && continue
+        val isa TensorBoardLogger.PngImage && continue
         isok = false
     end
     @test isok

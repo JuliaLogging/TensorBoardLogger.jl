@@ -1,19 +1,19 @@
 # Official spec : http://www.libpng.org/pub/png/spec/1.2/png-1.2.pdf
 
 """
-    PNG
+    PngImage
 
 A wrapper around the binary encoding of a PNG image, holding it's attributes
 """
-struct PNG
+struct PngImage
     attr::Dict
     data::Vector{UInt8}
 end
 
-function PNG(buffer::Base.IOBuffer)
+function PngImage(buffer::Base.IOBuffer)
     !check_valid_png(buffer.data) && return false
     attr  = read_info(buffer.data)
-    return PNG(attr, buffer.data)
+    return PngImage(attr, buffer.data)
 end
 
 """
@@ -74,8 +74,8 @@ function read_info(data)
     return attr
 end
 
-function Base.convert(::Type{PNG}, img::AbstractArray{<:Colorant})
+function Base.convert(::Type{PngImage}, img::AbstractArray{<:Colorant})
     pb = PipeBuffer()
     save(Stream(format"PNG", pb), img)
-    return PNG(pb)
+    return PngImage(pb)
 end
