@@ -254,4 +254,5 @@ end
     include("Optional/test_Plots.jl")
     # Don't run PyPlot tests until I figure a way to install the dependencies
     #include("Optional/test_PyPlot.jl")
+    include("Optional/test_Tracker.jl")
 end

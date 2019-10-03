@@ -66,6 +66,9 @@ function __init__()
     @require PyPlot="d330b81b-6aea-500a-939a-2ce795aea3ee" begin
         include("Optional/PyPlot.jl")
     end
+    @require Tracker="9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c" begin
+        include("Optional/Tracker.jl")
+    end
 end
 
 end # module
