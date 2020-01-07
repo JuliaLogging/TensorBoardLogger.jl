@@ -12,7 +12,7 @@ using  Base.CoreLogging: CoreLogging, AbstractLogger, LogLevel, Info,
 
 export TBLogger, reset!, set_step!, increment_step!
 export log_histogram, log_value, log_vector, log_text, log_image, log_images,
-       log_audio, log_audios, log_graph
+       log_audio, log_audios, log_graph, log_embeddings
 export ImageFormat, L, CL, LC, LN, NL, NCL, NLC, CLN, LCN, HW, WH, HWC, WHC,
        CHW, CWH,HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH
 
@@ -46,6 +46,7 @@ include("Loggers/LogValue.jl")
 include("Loggers/LogText.jl")
 include("Loggers/LogHistograms.jl")
 include("Loggers/LogAudio.jl")
+include("Loggers/LogEmbeddings.jl")
 
 include("logger_dispatch.jl")
 include("logger_dispatch_overrides.jl")

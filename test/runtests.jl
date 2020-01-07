@@ -246,6 +246,14 @@ end
     log_graph(logger, g, step = step, nodedevice = ["cpu", "cpu", "gpu", "gpu", "gpu", "gpu", "cpu"], nodevalue = [1, "tf", 3.14, [1.0 2.0; 3.0 4.0], true, +, (10, "julia", 12.4)])
 end
 
+@testset "Embedding Value Logger" begin
+    logger = TBLogger("test_logs/t", tb_overwrite)
+    step = 1
+    mat = rand(4, 4)
+    metadata = Array(1:4)
+    @test  π != log_embeddings(logger, "random", mat, metadata = metadata, step = step)
+end
+
 @testset "Logger dispatch overrides" begin
     include("test_logger_dispatch_overrides.jl")
 end
