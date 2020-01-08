@@ -21,38 +21,35 @@ end
 
 function write_matrix(mat::AbstractArray, matrix_path::AbstractString)
     matrix_path = joinpath(matrix_path, "tensor.tsv")
-    file = open(matrix_path, "w")
     mat = convert(Array{Float64,2}, mat)
-    for i in 1:size(mat, 1)
-        write(file, join(mat[i, :], '\t'))
-        write(file, '\n')
+    open(matrix_path, "w") do file
+        for i in 1:size(mat, 1)
+            write(file, join(mat[i, :], '\t'))
+            write(file, '\n')
+        end
     end
-    flush(file)
-    close(file)
 end
 
 function write_metadata(metadata::AbstractArray, matrix_path::AbstractString, metadata_header::AbstractArray)
     matrix_path = joinpath(matrix_path, "metadata.tsv")
-    file = open(matrix_path, "w")
-    for x in metadata
-        write(file, string(x)*'\n')
+    open(matrix_path, "w") do file
+        for x in metadata
+            write(file, string(x)*'\n')
+        end
     end
-    flush(file)
-    close(file)
 end
 
 function write_pbtext(name::AbstractString, path::AbstractString, matrix_path::AbstractString, metadata, step)
     metadata_path = joinpath(matrix_path, "metadata.tsv")
     matrix_path = joinpath(matrix_path, "tensor.tsv")
     path = joinpath(path, "projector_config.pbtxt")
-    file = open(path, "w")
-    write(file, "embeddings {\n")
-    write(file, "tensor_name: \""*name*":"*string(step)*"\"\n")
-    write(file, "tensor_path: \""*matrix_path*"\"\n")
-    if metadata != nothing
-        write(file, "metadata_path: \""*metadata_path*"\"\n")
+    open(path, "w") do file
+        write(file, "embeddings {\n")
+        write(file, "tensor_name: \""*name*":"*string(step)*"\"\n")
+        write(file, "tensor_path: \""*matrix_path*"\"\n")
+        if metadata != nothing
+            write(file, "metadata_path: \""*metadata_path*"\"\n")
+        end
+        write(file, "}\n")
     end
-    write(file, "}\n")
-    flush(file)
-    close(file)
 end
