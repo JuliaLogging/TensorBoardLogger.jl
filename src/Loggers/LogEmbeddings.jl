@@ -2,15 +2,15 @@
 
 """
 function log_embeddings(logger::TBLogger, name::AbstractString, mat::AbstractArray; metadata=nothing, labels=nothing, metadata_header=nothing, step=nothing)
-    @assert ndims(mat) == 2 "Embedding matrix must be 2-D"
+    ndims(mat) == 2 || throw(DimensionMismatch("Embedding matrix must be 2-Dimensional"))
     matrix_path = joinpath(logger.logdir, string(step), name)
     mkpath(matrix_path)
     if metadata != nothing
-        @assert length(metadata) == size(mat, 1) "#labels must be equal to #samples"
+        length(metadata) == size(mat, 1) || throw(ErrorException("#labels must be equal to #samples"))
         if metadata_header == nothing
             metadata_header = [string(x) for x in metadata]
         else
-            @assert length(metadata_header) == size(metadata, 2) "length of header must be equal to the number of columns in metadata"
+            length(metadata_header) == size(metadata, 2) || throw(ErrorException("length of header must be equal to the number of columns in metadata"))
             metadata = [join(metadata_header, '\t'); join(x, '\t') for x in metadata])
         end
         write_metadata(metadata, matrix_path, metadata_header)
