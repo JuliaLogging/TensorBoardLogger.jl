@@ -11,7 +11,7 @@ function log_embeddings(logger::TBLogger, name::AbstractString, mat::AbstractArr
             metadata_header = [string(x) for x in metadata]
         else
             @assert length(metadata_header) == size(metadata, 2) "length of header must be equal to the number of columns in metadata"
-            metadata = vcat([join(metadata_header, '\t')], [join(x, '\t') for x in metadata])
+            metadata = [join(metadata_header, '\t'); join(x, '\t') for x in metadata])
         end
         write_metadata(metadata, matrix_path, metadata_header)
     end
