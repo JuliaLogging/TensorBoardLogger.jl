@@ -2,18 +2,27 @@ using TensorBoardLogger #import the TensorBoardLogger package
 using Logging #import Logging package
 using TestImages
 using Flux, Flux.Data.MNIST
+using LinearAlgebra
 
 logger = TBLogger("embeddinglogs", tb_append) #create tensorboard logger
 
 ################log embeddings example: MNIST data################
-mat = MNIST.images()[1:100]
-n = size(mat, 1)
-mat = hcat(mat...)
-mat = reshape(mat, (28, 28, n))
-imgs = mat
-mat = permutedims(mat, (3, 1, 2))
-mat = reshape(mat, n, 28*28)
+n_samples = 100
+features = 100
+data = MNIST.images()[1:n_samples]
+n = size(data, 1)
+data = hcat(data...)
+data = reshape(data, (28, 28, n))
+imgs = data
+data = permutedims(data, (3, 1, 2))
+data = reshape(data, n, 28*28)
+data = convert(Array{Float64,2}, data)
+svd_data = svd(data)
+u = svd_data.U
+s = Array(Diagonal(svd_data.S))[:, 1:features]
+vt = svd_data.Vt[1:features, :]
+data = u*s
 metadata = MNIST.labels()[1:n]
 
 #using explicit function interface
-log_embeddings(logger, "mnist", mat, metadata = metadata, img_labels = TBImages(imgs, HWN), step = 0)
+log_embeddings(logger, "mnist", data, metadata = metadata, img_labels = TBImages(imgs, HWN), step = 0)
