@@ -31,6 +31,28 @@ function convert_to_CHW(imgArray::AbstractArray, format)
     return converted
 end
 
+function convert_to_NCHW(labels::TBImages)
+    data = content(labels)
+    format = labels.format
+    obs_dim(format) > 0 || throw(ErrorException("Expected format with observation dimension (N)"))
+    n = obs_dim(format)
+    e_ndims = expected_ndims(format)
+    stripped_format = strip_obs[format]
+    imgsArray =
+        e_ndims == 2 && n == 1 ? [data[i, :] for i in 1:size(data, n)] :
+        e_ndims == 2 && n == 2 ? [data[:, i] for i in 1:size(data, n)] :
+        e_ndims == 3 && n == 1 ? [data[i, :, :] for i in 1:size(data, n)] :
+        e_ndims == 3 && n == 2 ? [data[:, i, :] for i in 1:size(data, n)] :
+        e_ndims == 3 && n == 3 ? [data[:, :, i] for i in 1:size(data, n)] :
+        e_ndims == 4 && n == 1 ? [data[i, :, :, :] for i in 1:size(data, n)] :
+        e_ndims == 4 && n == 2 ? [data[:, i, :, :] for i in 1:size(data, n)] :
+        e_ndims == 4 && n == 3 ? [data[:, :, i, :] for i in 1:size(data, n)] :
+        e_ndims == 4 && n == 4 ? [data[:, :, :, i] for i in 1:size(data, n)] :
+        #== else ==# throw("Invalid format")
+    transformed = map(x -> convert_to_CHW(x, stripped_format), imgsArray)
+    transformed = map(x -> reshape(x, (1, size(x)...)), transformed)
+    converted = vcat(transformed...)
+end
 function ColorType_from_nchannels(channels)
     color =
         channels == 1 ? Gray :

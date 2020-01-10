@@ -12,9 +12,11 @@ function log_embeddings(logger::TBLogger, name::AbstractString, mat::AbstractMat
         else
             length(metadata_header) == size(metadata, 2) || throw(ErrorException("length of header must be equal to the number of columns in metadata. ("*string(length(metadata_header))*" ≠ "*string(size(metadata, 2))*")"))
             metadata = [join(metadata_header, '\t'); [join(metadata[i, :], '\t') for i in 1:size(metadata, 1)]]
-
         end
         write_metadata(metadata, matrix_path, metadata_header)
+    end
+    if labels != nothing
+        labels = convert_to_NCHW()
     end
     write_matrix(mat, matrix_path)
     write_pbtext(name, logger.logdir, matrix_path, metadata, step)
