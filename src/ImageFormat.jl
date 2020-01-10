@@ -31,9 +31,7 @@ function convert_to_CHW(imgArray::AbstractArray, format)
     return converted
 end
 
-function convert_to_NCHW(labels::TBImages)
-    data = content(labels)
-    format = labels.format
+function convert_to_NCHW(data, format)
     obs_dim(format) > 0 || throw(ErrorException("Expected format with observation dimension (N)"))
     n = obs_dim(format)
     e_ndims = expected_ndims(format)
