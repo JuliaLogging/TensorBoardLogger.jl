@@ -252,7 +252,8 @@ end
     metadata = rand(4, 10)
     metadata_header = Array(collect(1:10))
     imgs = TBImages(rand(8, 8, 3, 4), HWCN)
-    @test  π != log_embeddings(logger, "random", mat, metadata = metadata, metadata_header = metadata_header, img_labels = imgs, step = step)
+    @test π != log_embeddings(logger, "random1", mat, metadata = metadata, metadata_header = metadata_header, img_labels = imgs, step = step)
+    @test π != log_embeddings(logger, "random2", mat, step = step+1)
 end
 
 @testset "Logger dispatch overrides" begin

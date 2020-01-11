@@ -1,19 +1,28 @@
 """
+    log_embeddings(logger::TBLogger, name::AbstractString, mat::AbstractMatrix; metadata, metadata_header, img_labels, step=step(logger))
 
+Log embedding data to tensorboard and visualize in 3-D or 2-D with PCA, t-SNE or UMAP.
+- mat: 2-D `Matrix` of data, with rows representing the samples and columns representing the features
+- metadata: Array of labels for each sample. Each element across 1st dimenstion will be converted to `string`
+- metadata_header: 1-D Array. Useful when samples have multiple labels. size should be same as size of each row in `metadata`
+- img_labels: TBImages object representing image labels for each sample.
+    - each number of images (N) must be equal to number of samples in `mat`
+    - each image must be a square (H == W)
+    - the value √N * W must be less than or equal to 8192 because of tensorboard restrictions.
 """
-function log_embeddings(logger::TBLogger, name::AbstractString, mat::AbstractMatrix; metadata=nothing, img_labels=nothing, metadata_header=nothing, step=nothing)
+function log_embeddings(logger::TBLogger, name::AbstractString, mat::AbstractMatrix; metadata=nothing, metadata_header=nothing, img_labels=nothing, step=nothing)
     ndims(mat) == 2 || throw(DimensionMismatch("Embedding matrix must be 2-Dimensional. ("*string(ndims(mat))*" ≠ 2)"))
-    matrix_path = joinpath(logger.logdir, string(step), name)
+    matrix_path = joinpath(logger.logdir, repr(step), name)
     mkpath(matrix_path)
     if metadata != nothing
         size(metadata, 1) == size(mat, 1) || throw(ErrorException("#labels must be equal to #samples. ("*string(length(metadata))*" ≠ "*string(size(mat, 1))*")"))
         if metadata_header == nothing
-            metadata_header = [string(x) for x in metadata]
+            metadata = [string(x) for x in metadata]
         else
             length(metadata_header) == size(metadata, 2) || throw(ErrorException("length of header must be equal to the number of columns in metadata. ("*string(length(metadata_header))*" ≠ "*string(size(metadata, 2))*")"))
             metadata = [join(metadata_header, '\t'); [join(metadata[i, :], '\t') for i in 1:size(metadata, 1)]]
         end
-        write_metadata(metadata, matrix_path, metadata_header)
+        write_metadata(metadata, matrix_path)
     end
     if img_labels != nothing
         img_labels = convert_to_NCHW(content(img_labels), img_labels.format)
@@ -36,7 +45,7 @@ function write_matrix(mat::AbstractMatrix, matrix_path::AbstractString)
     end
 end
 
-function write_metadata(metadata::AbstractArray, matrix_path::AbstractString, metadata_header::AbstractArray)
+function write_metadata(metadata::AbstractArray, matrix_path::AbstractString)
     matrix_path = joinpath(matrix_path, "metadata.tsv")
     open(matrix_path, "w") do file
         for x in metadata
@@ -46,6 +55,8 @@ function write_metadata(metadata::AbstractArray, matrix_path::AbstractString, me
 end
 
 function write_sprite(img_labels::AbstractArray, matrix_path::AbstractString)
+    n, _, _, w = size(img_labels)
+    sqrt(n)*w <= 8192 || throw(ErrorException("the value √N * W must be less than or equal to 8192 because of tensorboard restrictions"))
     total_pixels = size(img_labels, 1)*size(img_labels, 3)*size(img_labels, 4)
     pixels_one_side = sqrt(total_pixels)
     number_of_images_per_row = Integer(ceil(pixels_one_side/size(img_labels, 4)))
