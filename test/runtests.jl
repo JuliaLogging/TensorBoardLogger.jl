@@ -212,8 +212,7 @@ end
             @info "test3" i=i j=2^i dd=rand(10).-0.1*i hh=data_tuple log_step_increment=0
         end
     end
-
-    #@test TensorBoardLogger.step(logger) == 12
+    @test TensorBoardLogger.step(logger) == 10
 end
 
 @testset "Audio Logger" begin
