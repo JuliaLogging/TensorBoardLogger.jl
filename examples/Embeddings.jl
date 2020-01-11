@@ -24,5 +24,10 @@ vt = svd_data.Vt[1:features, :]
 data = u*s
 metadata = MNIST.labels()[1:n]
 
+#using logger interface
+with_logger(logger) do
+    @info "embedding/mnist/loggerinterface" TBEmbeddings(data, metadata = metadata, img_labels = TBImages(imgs, HWN))
+end
+
 #using explicit function interface
-log_embeddings(logger, "mnist", data, metadata = metadata, img_labels = TBImages(imgs, HWN), step = 0)
+log_embeddings(logger, "embedding/mnist/explicitinterface", data, metadata = metadata, img_labels = TBImages(imgs, HWN), step = 0)

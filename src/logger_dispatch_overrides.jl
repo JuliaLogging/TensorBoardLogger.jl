@@ -1,4 +1,5 @@
 ## Overridden behaviours
+
 """
     WrapperLogType
 
@@ -109,7 +110,7 @@ function Base.convert(T::Type{PngImage}, img::TBImage)
         show(pb, "image/png", img.data)
         return PngImage(pb)
     else
-        @error "Unknown format for datatype." format=img.format datatype=typeof(img.data) 
+        @error "Unknown format for datatype." format=img.format datatype=typeof(img.data)
         return nothing
     end
 end
@@ -197,6 +198,25 @@ function summary_impl(name, val::TBHistogram)
     hvals = fit(Histogram, val.data)
     return histogram_summary(name, collect(hvals.edges[1]), hvals.weights)
 end
+
+########## For things going to LogEmbeddings ########################
+"""
+    TBEmbeddings(mat; metadata, metadata_header, img_labels)
+
+Forces `data` to be serialized as a embedding in the projector backend of
+TensorBoard.
+"""
+struct TBEmbeddings <: WrapperLogType
+    mat::AbstractMatrix
+    metadata
+    metadata_header
+    img_labels
+    TBEmbeddings(mat::AbstractMatrix; metadata = nothing, metadata_header = nothing, img_labels = nothing) = new(mat, metadata, metadata_header, img_labels)
+end
+
+
+preprocess(lg::TBLogger, name, x::TBEmbeddings, data) = log_embeddings(lg, name, x.mat, metadata = x.metadata, metadata_header = x.metadata_header, img_labels = x.img_labels)
+preprocess(lg::TBLogger, name, x, data) = preprocess(name, x, data)
 
 """
     TBVector(data)

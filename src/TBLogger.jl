@@ -221,7 +221,7 @@ function CoreLogging.handle_message(lg::TBLogger, level, message, _module, group
                 continue
             end
 
-            preprocess(message*"/$key", val, data)
+            preprocess(lg, message*"/$key", val, data)
         end
 
         # Serialize every object

@@ -17,7 +17,7 @@ export ImageFormat, L, CL, LC, LN, NL, NCL, NLC, CLN, LCN, HW, WH, HWC, WHC,
        CHW, CWH,HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH
 
 # Wrapper types
-export TBText, TBVector, TBHistogram, TBImage, TBImages, TBAudio, TBAudios
+export TBText, TBVector, TBHistogram, TBImage, TBImages, TBAudio, TBAudios, TBEmbeddings
 
 # Protobuffer definitions for tensorboard
 include("protojl/tensorflow.jl")

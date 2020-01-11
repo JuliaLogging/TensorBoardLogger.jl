@@ -94,9 +94,9 @@ function write_pbtext(name::AbstractString, path::AbstractString, matrix_path::A
     img_labels_path = joinpath(matrix_path, "sprite.png")
     matrix_path = joinpath(matrix_path, "tensor.tsv")
     path = joinpath(path, "projector_config.pbtxt")
-    open(path, "w") do file
+    open(path, "a") do file
         write(file, "embeddings {\n")
-        write(file, "tensor_name: \""*name*":"*string(step)*"\"\n")
+        write(file, "tensor_name: \""*name*":"*repr(step)*"\"\n")
         write(file, "tensor_path: \""*matrix_path*"\"\n")
         if metadata != nothing
             write(file, "metadata_path: \""*metadata_path*"\"\n")
@@ -110,4 +110,5 @@ function write_pbtext(name::AbstractString, path::AbstractString, matrix_path::A
         end
         write(file, "}\n")
     end
+    return
 end
