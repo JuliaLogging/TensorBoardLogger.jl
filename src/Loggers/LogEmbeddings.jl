@@ -6,7 +6,7 @@ function log_embeddings(logger::TBLogger, name::AbstractString, mat::AbstractMat
     matrix_path = joinpath(logger.logdir, string(step), name)
     mkpath(matrix_path)
     if metadata != nothing
-        length(metadata) == size(mat, 1) || throw(ErrorException("#labels must be equal to #samples. ("*string(length(metadata))*" ≠ "*string(size(mat, 1))*")"))
+        size(metadata, 1) == size(mat, 1) || throw(ErrorException("#labels must be equal to #samples. ("*string(length(metadata))*" ≠ "*string(size(mat, 1))*")"))
         if metadata_header == nothing
             metadata_header = [string(x) for x in metadata]
         else
