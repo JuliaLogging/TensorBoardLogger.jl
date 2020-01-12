@@ -199,7 +199,8 @@ end
 
 @testset "LogInterface" begin
     logger = TBLogger("log/")
-
+    woman = testimage("woman_blonde")
+    mri = testimage("mri")
     with_logger(logger) do
         for i=1:5
             x0 = 0.5+i/30; s0 = 0.5/(i/20);
@@ -207,7 +208,7 @@ end
             centers = collect(edges[1:end-1] .+0.05)
             histvals = [exp(-((c-x0)/s0)^2) for c=centers]
             data_tuple = (edges, histvals)
-            @info "test1" simpletext = "simple text" woman = testimage("woman_blonde") mriimg = testimage("mri")
+            @info "test1" simpletext = "simple text" woman = woman mriimg = mri
             @info "test2" i=i j=i^2 dd=rand(10).+0.1*i hh=data_tuple
             @info "test3" i=i j=2^i dd=rand(10).-0.1*i hh=data_tuple log_step_increment=0
         end
