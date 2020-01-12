@@ -199,7 +199,8 @@ using FileIO
 
 @testset "LogInterface" begin
     logger = TBLogger("log/")
-
+    woman = testimage("woman_blonde")
+    mri = testimage("mri")
     with_logger(logger) do
         for i=1:5
             x0 = 0.5+i/30; s0 = 0.5/(i/20);
@@ -207,8 +208,6 @@ using FileIO
             centers = collect(edges[1:end-1] .+0.05)
             histvals = [exp(-((c-x0)/s0)^2) for c=centers]
             data_tuple = (edges, histvals)
-            woman = testimage("woman_blonde")
-            mri = testimage("mri")
             println(i," ",TensorBoardLogger.step(logger))
             @info "test1" simpletext = "simple text" woman = woman mriimg = mri
             println(i," ",TensorBoardLogger.step(logger))
