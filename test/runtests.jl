@@ -2,7 +2,7 @@ using TensorBoardLogger, Logging
 using TensorBoardLogger: preprocess, summary_impl
 using Test
 # using Flux, Flux.Data.MNIST
-# using TestImages
+using TestImages
 # using ImageCore
 # using ColorTypes
 using FileIO
