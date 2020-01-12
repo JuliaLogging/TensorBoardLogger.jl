@@ -231,6 +231,7 @@ function CoreLogging.handle_message(lg::TBLogger, level, message, _module, group
         end
     end
     iter = increment_step!(lg, i_step)
+	println("increment_step called ", lg.global_step)
     write_event(lg.file, make_event(lg, summ, step=iter))
 end
 
