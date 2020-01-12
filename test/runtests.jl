@@ -208,7 +208,9 @@ using FileIO
             histvals = [exp(-((c-x0)/s0)^2) for c=centers]
             data_tuple = (edges, histvals)
             println(i," ",TensorBoardLogger.step(logger))
-            @info "test1" simpletext = "simple text" woman = testimage("woman_blonde") mriimg = testimage("mri")
+            woman = testimage("woman_blonde")
+            mri = testimage("mri")
+            @info "test1" simpletext = "simple text" woman = woman mriimg = mri
             println(i," ",TensorBoardLogger.step(logger))
             @info "test2" i=i j=i^2 dd=rand(10).+0.1*i hh=data_tuple
             println(i," ",TensorBoardLogger.step(logger))
