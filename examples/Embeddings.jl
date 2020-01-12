@@ -30,4 +30,4 @@ with_logger(logger) do
 end
 
 #using explicit function interface
-log_embeddings(logger, "embedding/mnist/explicitinterface", data, metadata = metadata, img_labels = TBImages(imgs, HWN), step = 0)
+log_embeddings(logger, "embedding/mnist/explicitinterface", data, metadata = metadata, img_labels = TBImages(imgs, HWN), step = 1)

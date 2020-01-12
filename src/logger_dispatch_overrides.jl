@@ -215,7 +215,7 @@ struct TBEmbeddings <: WrapperLogType
 end
 
 
-preprocess(lg::TBLogger, name, x::TBEmbeddings, data) = log_embeddings(lg, name, x.mat, metadata = x.metadata, metadata_header = x.metadata_header, img_labels = x.img_labels)
+preprocess(lg::TBLogger, name, x::TBEmbeddings, data) = log_embeddings(lg, name, x.mat, metadata = x.metadata, metadata_header = x.metadata_header, img_labels = x.img_labels, step = step(lg))
 preprocess(lg::TBLogger, name, x, data) = preprocess(name, x, data)
 
 """
