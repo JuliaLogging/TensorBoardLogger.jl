@@ -208,8 +208,11 @@ end
             histvals = [exp(-((c-x0)/s0)^2) for c=centers]
             data_tuple = (edges, histvals)
             @info "test1" simpletext = "simple text" woman = testimage("woman_blonde") mriimg = testimage("mri")
+            print(i," ",TensorBoardLogger.step(logger))
             @info "test2" i=i j=i^2 dd=rand(10).+0.1*i hh=data_tuple
+            print(i," ",TensorBoardLogger.step(logger))
             @info "test3" i=i j=2^i dd=rand(10).-0.1*i hh=data_tuple log_step_increment=0
+            print(i," ",TensorBoardLogger.step(logger))
         end
     end
     @test TensorBoardLogger.step(logger) == 10
