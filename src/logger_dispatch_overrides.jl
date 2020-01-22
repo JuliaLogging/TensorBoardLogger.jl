@@ -1,5 +1,4 @@
 ## Overridden behaviours
-
 """
     WrapperLogType
 
@@ -198,25 +197,6 @@ function summary_impl(name, val::TBHistogram)
     hvals = fit(Histogram, val.data)
     return histogram_summary(name, collect(hvals.edges[1]), hvals.weights)
 end
-
-########## For things going to LogEmbeddings ########################
-"""
-    TBEmbeddings(mat; metadata, metadata_header, img_labels)
-
-Forces `data` to be serialized as a embedding in the projector backend of
-TensorBoard.
-"""
-struct TBEmbeddings <: WrapperLogType
-    mat::AbstractMatrix
-    metadata
-    metadata_header
-    img_labels
-    TBEmbeddings(mat::AbstractMatrix; metadata = nothing, metadata_header = nothing, img_labels = nothing) = new(mat, metadata, metadata_header, img_labels)
-end
-
-
-preprocess(lg::TBLogger, name, x::TBEmbeddings, data) = log_embeddings(lg, name, x.mat, metadata = x.metadata, metadata_header = x.metadata_header, img_labels = x.img_labels, step = step(lg))
-preprocess(lg::TBLogger, name, x, data) = preprocess(name, x, data)
 
 """
     TBVector(data)
