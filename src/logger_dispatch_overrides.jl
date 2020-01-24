@@ -109,7 +109,7 @@ function Base.convert(T::Type{PngImage}, img::TBImage)
         show(pb, "image/png", img.data)
         return PngImage(pb)
     else
-        @error "Unknown format for datatype." format=img.format datatype=typeof(img.data) 
+        @error "Unknown format for datatype." format=img.format datatype=typeof(img.data)
         return nothing
     end
 end

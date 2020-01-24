@@ -199,7 +199,8 @@ end
 
 @testset "LogInterface" begin
     logger = TBLogger("log/")
-
+    woman = testimage("woman_blonde")
+    mri = testimage("mri")
     with_logger(logger) do
         for i=1:5
             x0 = 0.5+i/30; s0 = 0.5/(i/20);
@@ -207,12 +208,11 @@ end
             centers = collect(edges[1:end-1] .+0.05)
             histvals = [exp(-((c-x0)/s0)^2) for c=centers]
             data_tuple = (edges, histvals)
-            @info "test1" simpletext = "simple text" woman = testimage("woman_blonde") mriimg = testimage("mri")
+            @info "test1" simpletext = "simple text" woman = woman mriimg = mri
             @info "test2" i=i j=i^2 dd=rand(10).+0.1*i hh=data_tuple
             @info "test3" i=i j=2^i dd=rand(10).-0.1*i hh=data_tuple log_step_increment=0
         end
     end
-
     @test TensorBoardLogger.step(logger) == 10
 end
 
@@ -244,6 +244,17 @@ end
     add_edge!(g, 5, 6)
     add_edge!(g, 5, 7)
     log_graph(logger, g, step = step, nodedevice = ["cpu", "cpu", "gpu", "gpu", "gpu", "gpu", "cpu"], nodevalue = [1, "tf", 3.14, [1.0 2.0; 3.0 4.0], true, +, (10, "julia", 12.4)])
+end
+
+@testset "Embedding Logger" begin
+    logger = TBLogger("test_logs/t", tb_overwrite)
+    step = 1
+    mat = rand(4, 4)
+    metadata = rand(4, 10)
+    metadata_header = Array(collect(1:10))
+    imgs = TBImages(rand(8, 8, 3, 4), HWCN)
+    @test π != log_embeddings(logger, "random1", mat, metadata = metadata, metadata_header = metadata_header, img_labels = imgs, step = step)
+    @test π != log_embeddings(logger, "random2", mat, step = step+1)
 end
 
 @testset "Logger dispatch overrides" begin
