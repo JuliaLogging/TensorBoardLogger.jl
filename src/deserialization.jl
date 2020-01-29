@@ -137,8 +137,8 @@ at step `s`, the i-th file is read only up to step `s`.
         - Summary_Audio  (containing a serialized WAV clip)
         - Summary_Image  (containing a serialized PNG image)
 """
-function map_summaries(fun::Function, folder; purge=true)
-    for event_file in TBEventFileCollectionIterator(folder, purge=purge)
+function map_summaries(fun::Function, logdir; purge=true)
+    for event_file in TBEventFileCollectionIterator(logdir, purge=purge)
         for event in event_file
             !isdefined(event, :summary) && continue
             step = event.step
@@ -163,8 +163,8 @@ at step `s`, the i-th file is read only up to step `s`.
 Also metadata events, without any real data attached are mapped.
 You can detect those by `isdefined(event, :summary) == false`
 """
-function map_events(fun::Function, folder_path::String)
-    for event_file in TBEventFileCollectionIterator(folder_path)
+function map_events(fun::Function, logdir, purge=true)
+    for event_file in TBEventFileCollectionIterator(logdir, purge=purge)
         for event in event_file
             fun(event)
         end
