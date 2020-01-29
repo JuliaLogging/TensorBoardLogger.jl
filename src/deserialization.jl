@@ -45,6 +45,9 @@ end
 TBEventFileCollectionIterator(path; purge=true) =
     TBEventFileCollectionIterator(path, sort(readdir(path)), purge)
 
+TBEventFileCollectionIterator(logger::TBLogger; purge=true) =
+    TBEventFileCollectionIterator(logdir(logger), purge=true)
+
 function Base.iterate(it::TBEventFileCollectionIterator, state=1)
     state > length(it.files) && return nothing
     fstream = open(joinpath(it.dir, it.files[state]))
@@ -125,20 +128,22 @@ event till the last.
 When the keyword argument `purge==true`, if the i+1-th file begins with a purge
 at step `s`, the i-th file is read only up to step `s`.
 
-`fun` should take 2 arguments:
+`fun` should take 3 arguments:
     - a String representing the name/tag of the logged value
+    - an Integer, representing the step number
     - a value, which can be of the following types:
         - Float32
         - HistogramProto (containing bin edges and values)
         - Summary_Audio  (containing a serialized WAV clip)
         - Summary_Image  (containing a serialized PNG image)
 """
-function map_summaries(fun::Function, folder_path::String; purge=true)
-    for event_file in TBEventFileCollectionIterator(folder_path, purge=purge)
+function map_summaries(fun::Function, folder; purge=true)
+    for event_file in TBEventFileCollectionIterator(folder, purge=purge)
         for event in event_file
             !isdefined(event, :summary) && continue
+            step = event.step
             for (name, val) in event.summary
-                fun(name, val)
+                fun(name, step, val)
             end
         end
     end
