@@ -61,6 +61,7 @@ include("logger_dispatch_overrides.jl")
 include("Loggers/LogImage.jl")
 
 include("deserialization.jl")
+include("deserialization_helpers.jl")
 
 using Requires
 function __init__()
