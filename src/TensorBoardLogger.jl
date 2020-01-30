@@ -13,6 +13,8 @@ using  Base.CoreLogging: CoreLogging, AbstractLogger, LogLevel, Info,
 export TBLogger, reset!, set_step!, increment_step!
 export log_histogram, log_value, log_vector, log_text, log_image, log_images,
        log_audio, log_audios, log_graph, log_embeddings
+export map_summaries
+
 export ImageFormat, L, CL, LC, LN, NL, NCL, NLC, CLN, LCN, HW, WH, HWC, WHC,
        CHW, CWH,HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH
 
@@ -37,6 +39,9 @@ include("protojl/plugin_text_pb.jl")
 
 include("PNG.jl")
 include("ImageFormat.jl")
+
+# Plugin name used to store julia-specific metadata.
+const TB_PLUGIN_JLARRAY_NAME = "_jl_tbl_array_sz"
 
 include("TBLogger.jl")
 include("utils.jl")  # CRC Utils
