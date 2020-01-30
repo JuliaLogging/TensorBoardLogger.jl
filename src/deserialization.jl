@@ -38,7 +38,7 @@ at step `s`, the i-th file is read only up to step `s`.
 """
 struct TBEventFileCollectionIterator
     dir::String
-    files::Vector
+    files::Vector{String}
 
     purge::Bool
 end
