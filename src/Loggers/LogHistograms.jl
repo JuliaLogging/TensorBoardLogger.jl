@@ -45,5 +45,23 @@ function histogram_summary(name::AbstractString, edges::AbstractVector{<:Number}
     hp = HistogramProto(min=minimum(edges), max=maximum(edges),
                         bucket_limit=edges[2:end],
                         bucket=hist_vals)
-    Summary_Value(tag=name, histo=hp)
+    return Summary_Value(tag=name, histo=hp)
+end
+
+# Writes to an Histogram summary the flattened version of the array.
+# Also stores the shape of the array as a field in a plugin, which allows to
+# reconstruct the original shape when read back into Julia
+function histogram_arr_summary(name::AbstractString, tensor::AbstractArray)
+
+    smpd = SummaryMetadata_PluginData(plugin_name=TB_PLUGIN_JLARRAY_NAME,
+                    content=reinterpret(UInt8, collect(size(tensor))))
+    sm = SummaryMetadata(plugin_data=smpd)
+
+
+    edges = collect(0:length(tensor))
+    hp = HistogramProto(min=minimum(edges), max=maximum(edges),
+                        bucket_limit=edges[2:end],
+                        bucket=vec(tensor))
+
+    return Summary_Value(tag=name, histo=hp, metadata=sm)
 end

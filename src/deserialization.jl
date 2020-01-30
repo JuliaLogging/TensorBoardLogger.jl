@@ -105,7 +105,16 @@ function Base.iterate(evs::Summary, state=1)
     tag = summary.tag
 
     if isdefined(summary, :histo)
-        val = summary.histo
+        # custom deserialization
+        if isdefined(summary, :metadata)
+            if summary.metadata.plugin_data.plugin_name == TB_PLUGIN_JLARRAY_NAME
+                val = reshape(summary.histo.bucket, reinterpret(Int, summary.metadata.plugin_data.content)...)
+            else
+                val = summary.histo
+            end
+        else
+            val = summary.histo
+        end
     elseif isdefined(summary, :image)
         val = summary.image
     elseif isdefined(summary, :audio)
@@ -136,13 +145,30 @@ at step `s`, the i-th file is read only up to step `s`.
         - HistogramProto (containing bin edges and values)
         - Summary_Audio  (containing a serialized WAV clip)
         - Summary_Image  (containing a serialized PNG image)
+
+Optional kwargs `tags` takes as input a collection of Strings, and will only
+iterate across tags summaries with a tag in that collection.
+
+Optional kwargs `steps` takes as input a collection of integers, and will
+only iterate across events with step within that collection.
 """
-function map_summaries(fun::Function, logdir; purge=true)
+function map_summaries(fun::Function, logdir; purge=true, tags=nothing, steps=nothing)
+    if tags isa AbstractString
+        s = Set{typeof(tags)}()
+        push!(s, tags)
+        tags = s
+    end
+
     for event_file in TBEventFileCollectionIterator(logdir, purge=purge)
         for event in event_file
             !isdefined(event, :summary) && continue
+
             step = event.step
+            !isnothing(steps) && step ∉ steps && continue
+
             for (name, val) in event.summary
+                !isnothing(tags) && name ∉ tags && continue
+
                 fun(name, step, val)
             end
         end
@@ -162,10 +188,16 @@ at step `s`, the i-th file is read only up to step `s`.
 
 Also metadata events, without any real data attached are mapped.
 You can detect those by `isdefined(event, :summary) == false`
+
+Optional kwargs `steps` takes as input a collection of integers, and will
+only iterate across events with step within that collection.
 """
-function map_events(fun::Function, logdir, purge=true)
+function map_events(fun::Function, logdir; purge=true, steps=nothing)
     for event_file in TBEventFileCollectionIterator(logdir, purge=purge)
         for event in event_file
+            step = event.step
+            !isnothing(steps) && step ∈ steps
+
             fun(event)
         end
     end
