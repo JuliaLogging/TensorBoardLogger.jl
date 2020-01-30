@@ -78,6 +78,9 @@ function __init__()
     @require Tracker="9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c" begin
         include("Optional/Tracker.jl")
     end
+    @require ValueHistories="98cad3c8-aec3-5f06-8e41-884608649ab7" begin
+        include("Optional/ValueHistories.jl")
+    end
 end
 
 end # module

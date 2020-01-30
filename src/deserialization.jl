@@ -128,7 +128,7 @@ function Base.iterate(evs::Summary, state=1)
 end
 
 """
-    map_summaries(fun, path; purge=true)
+    map_summaries(fun, path; purge=true, tags=all, steps=all)
 
 Maps the function `fun(name, value)` on all the values logged to the folder
 at `path`. The function is called sequentially, starting from the first
@@ -138,13 +138,9 @@ When the keyword argument `purge==true`, if the i+1-th file begins with a purge
 at step `s`, the i-th file is read only up to step `s`.
 
 `fun` should take 3 arguments:
-    - a String representing the name/tag of the logged value
-    - an Integer, representing the step number
-    - a value, which can be of the following types:
-        - Float32
-        - HistogramProto (containing bin edges and values)
-        - Summary_Audio  (containing a serialized WAV clip)
-        - Summary_Image  (containing a serialized PNG image)
+    (1) a String representing the name/tag of the logged value
+    (2) an Integer, representing the step number
+    (3) a value, which can be of the following types:
 
 Optional kwargs `tags` takes as input a collection of Strings, and will only
 iterate across tags summaries with a tag in that collection.
@@ -177,7 +173,7 @@ end
 
 
 """
-    map_summaries(fun, path; purge=true)
+    map_summaries(fun, path; purge=true, steps=all)
 
 Maps the function `fun(event)` on all the event logged to the folder
 at `path`. The function is called sequentially, starting from the first
