@@ -11,7 +11,6 @@ ImageCore = "a09fc81d-aa75-5fe9-8630-4744c3626534"
 ProtoBuf = "3349acd9-ac6a-5e09-bcdb-63829b23a429"
 Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-ValueHistories = "98cad3c8-aec3-5f06-8e41-884608649ab7"
 
 [compat]
 ColorTypes = "0.7, 0.8, 0.9"
