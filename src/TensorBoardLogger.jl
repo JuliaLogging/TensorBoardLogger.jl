@@ -60,8 +60,8 @@ include("logger_dispatch_overrides.jl")
 # maybe we could split the explicit and the @log interfaces?
 include("Loggers/LogImage.jl")
 
-include("deserialization.jl")
-include("deserialization_helpers.jl")
+include("Deserialization/deserialization.jl")
+include("Deserialization/helpers.jl")
 
 using Requires
 function __init__()
