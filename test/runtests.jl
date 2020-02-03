@@ -82,7 +82,7 @@ end
 
     vals = rand(10, 10)
     preprocess("test2", vals, data)
-    @test last(data[4]) == vec(vals)
+    @test last(data[4]) == vals
 
 end
 
@@ -202,7 +202,7 @@ end
 end
 
 @testset "LogInterface" begin
-    logger = TBLogger("log/")
+    logger = TBLogger("log/", tb_overwrite)
     woman = testimage("woman_blonde")
     mri = testimage("mri")
     with_logger(logger) do
