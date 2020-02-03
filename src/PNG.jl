@@ -79,3 +79,6 @@ function Base.convert(::Type{PngImage}, img::AbstractArray{<:Colorant})
     save(Stream(format"PNG", pb), img)
     return PngImage(pb)
 end
+
+Base.show(io::IO, ::MIME"image/png", x::TensorBoardLogger.PngImage) =
+    write(io, x.data)

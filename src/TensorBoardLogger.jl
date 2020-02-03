@@ -3,7 +3,7 @@ module TensorBoardLogger
 using ProtoBuf, CRC32c
 
 using ImageCore, ColorTypes
-using FileIO: @format_str, Stream, save
+using FileIO: @format_str, Stream, save, load
 
 using StatsBase  #TODO: remove this. Only needed to compute histogram bins.
 
@@ -62,6 +62,9 @@ include("Loggers/LogImage.jl")
 
 include("Deserialization/deserialization.jl")
 include("Deserialization/helpers.jl")
+include("Deserialization/histograms.jl")
+include("Deserialization/images.jl")
+include("Deserialization/tensor.jl")
 
 using Requires
 function __init__()

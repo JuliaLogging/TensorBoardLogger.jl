@@ -9,3 +9,5 @@ function Base.convert(::Type{MVHistory}, tbl::TBLogger; kwargs...)
 
     return hist
 end
+
+ValueHistories.MVHistory(tbl::TBLogger; kwargs...) = convert(MVHistory, tbl; kwargs...)
