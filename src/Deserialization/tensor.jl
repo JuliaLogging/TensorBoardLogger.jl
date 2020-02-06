@@ -24,6 +24,10 @@ function deserialize_text_tensor(summary, sizes, names)
             #TODO should undo `markdown_repr`, because all strings
             # will be displayed with a starting and ending \"
             strings[i] = String(in)
+            delimiter = '\"'
+            if delimiter === first(strings[i]) === last(strings[i])
+                strings[i] = strings[i][2:end-1]
+            end
         end
     else
         @warn "Unknown string version $(version_data.version)"
