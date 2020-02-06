@@ -15,6 +15,7 @@ To install this Julia package run the following command in the julia REPL:
 ```
 
 !!! note
+    If you need to log audio files, you must also install `WAV`.
     If you need to log Images, you must also install `ImageMagick`
     (on MacOS, you will also need `QuartzImageIO`).
     You only need to install those dependencies, and you will never need to load them.
