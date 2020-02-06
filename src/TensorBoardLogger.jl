@@ -62,6 +62,7 @@ include("Loggers/LogImage.jl")
 
 include("Deserialization/deserialization.jl")
 include("Deserialization/helpers.jl")
+include("Deserialization/audio.jl")
 include("Deserialization/histograms.jl")
 include("Deserialization/images.jl")
 include("Deserialization/tensor.jl")

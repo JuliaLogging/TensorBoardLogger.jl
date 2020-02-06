@@ -109,7 +109,7 @@ function Base.iterate(evs::Summary, state=1)
     elseif isdefined(summary, :image)
         val = deserialize_image_summary(summary)
     elseif isdefined(summary, :audio)
-        val = summary.audio
+        val = deserialize_audio_summary(summary)
     elseif isdefined(summary, :tensor)
         val = deserialize_tensor_summary(summary)
     elseif isdefined(summary, :simple_value)
