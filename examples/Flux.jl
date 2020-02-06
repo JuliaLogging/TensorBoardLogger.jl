@@ -19,7 +19,7 @@ testsize = size(testdata, 3);
 #Log some images
 images = TBImage(traindata[:, :, 1:10], WHN)
 with_logger(logger) do #log some samples
-    @info "fmnist/samples" pics = images
+    @info "fmnist/samples" pics = images log_step_increment=0
 end
 
 #Create model
