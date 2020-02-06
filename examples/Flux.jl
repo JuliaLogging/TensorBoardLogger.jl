@@ -24,24 +24,9 @@ end
 
 #Create model
 model = Chain(
-    # First convolution, operating upon a 28x28 image
-    Conv((3, 3), 1=>16, pad=(1,1), relu),
-    MaxPool((2,2)),
-
-    # Second convolution, operating upon a 14x14 image
-    Conv((3, 3), 16=>32, pad=(1,1), relu),
-    MaxPool((2,2)),
-
-    # Third convolution, operating upon a 7x7 image
-    Conv((3, 3), 32=>32, pad=(1,1), relu),
-    MaxPool((2,2)),
-
-    # Reshape 3d tensor into a 2d one, at this point it should be (3, 3, 32, N)
-    # which is where we get the 288 in the `Dense` layer below:
     x -> reshape(x, :, size(x, 4)),
-    Dense(288, 10),
-
-    # Finally, softmax to get nice probabilities
+    Dense(28^2, 32, relu),
+    Dense(32, 10),
     softmax
 )
 
@@ -64,7 +49,11 @@ function fill_param_dict!(dict, m, prefix)
         end
     else
         for fieldname in fieldnames(typeof(m))
-            dict[prefix*string(fieldname)] = getfield(m, fieldname)
+            val = getfield(m, fieldname)
+            if val isa AbstractArray
+                val = vec(val)
+            end
+            dict[prefix*string(fieldname)] = val
         end
     end
 end
@@ -72,25 +61,23 @@ end
 #function to log information after every epoch
 function TBCallback()
   param_dict = Dict{String, Any}()
-  fill_param_dict!(param_dict, model, "params/")
+  fill_param_dict!(param_dict, model, "")
   with_logger(logger) do
-    for param in param_dict
-      @info param.first val=param.second log_step_increment=0
-    end
+    @info "model" params=param_dict log_step_increment=0
     @info "train" loss=loss(traindata, trainlabels) acc=accuracy(traindata, trainlabels) log_step_increment=0
     @info "test" loss=loss(testdata, testlabels) acc=accuracy(testdata, testlabels)
   end
 end
 
 minibatches = []
-batchsize = 6000
+batchsize = 100
 for i in range(1, stop = trainsize÷batchsize)
   lbound = (i-1)*batchsize+1
   ubound = min(trainsize, i*batchsize)
   push!(minibatches, (traindata[:, :, :, lbound:ubound], trainlabels[:, lbound:ubound]))
 end
 
-#Move data and model to gpu
+Move data and model to gpu
 traindata = traindata |> gpu
 testdata = testdata |> gpu
 trainlabels = trainlabels |> gpu
@@ -99,4 +86,4 @@ model = model |> gpu
 minibatches = minibatches |> gpu
 
 #Train
-@Flux.epochs 50 Flux.train!(loss, params(model), minibatches, opt, cb = Flux.throttle(TBCallback, 5))
+@Flux.epochs 15 Flux.train!(loss, params(model), minibatches, opt, cb = Flux.throttle(TBCallback, 5))
