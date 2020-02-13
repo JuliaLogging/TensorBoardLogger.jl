@@ -95,29 +95,84 @@ Iterate along all summaries stored inside an event, automatically returning the
 correct value (histogram, audio, image or scalar).
 """
 function Base.iterate(evs::Summary, state=1)
-    # if ev.summary is not defined, don't bother processing this event, as it's
-    # probably a "start file" event or a graph event.
     summaries = evs.value
 
     state > length(summaries) && return nothing
     summary = summaries[state]
 
     tag = summary.tag
+    Δ_state = 0
 
     if isdefined(summary, :histo)
         val = deserialize_histogram_summary(summary)
+        tag, val, Δ_state = lookahead_deserialize(tag, val, evs, state+1, :histo)
     elseif isdefined(summary, :image)
         val = deserialize_image_summary(summary)
+        tag, val, Δ_state = lookahead_deserialize(tag, val, evs, state+1, :image)
     elseif isdefined(summary, :audio)
         val = deserialize_audio_summary(summary)
     elseif isdefined(summary, :tensor)
         val = deserialize_tensor_summary(summary)
     elseif isdefined(summary, :simple_value)
         val = summary.simple_value
+        tag, val, Δ_state = lookahead_deserialize(tag, val, evs, state+1, :simple_value)
     else
         @error "Event with unknown field" summary=summary
     end
-    return (tag, val), state+1
+    return (tag, val), state + Δ_state + 1
+end
+
+"""
+    lookahead_deserialize(old_tag, old_val, summaries, state, type)
+
+Looks ahead at state, and checks that the tag of `state` matches `old_tag`, and
+if so, attempts to combine the value of `state` with that of `old_val`.
+
+For example, if `old_tag = "someval/re"` then if `state` contains "someval/im" the
+two values will be combined as real and immaginary part.
+
+Returns a possibly modified tag, a possibily modified value, and the number
+of states that it has looked ahead.
+If the lookahead fails to find matching states, he returns (old_tag, old_val, 0)
+"""
+function lookahead_deserialize(old_tag, old_val, evs::Summary, state, type)
+    result = old_tag, old_val, 0
+    summaries = evs.value
+
+    state > length(summaries) && return result
+    summary = summaries[state]
+
+    tag = summary.tag
+
+    if type == :histo && isdefined(summary, :histo)
+        if old_tag[end-2:end] == "/re"
+            old_tag_parts = split(old_tag, "/")
+            new_tag_parts = split(tag, "/")
+            if ( all(old_tag_parts[1:end-1] .== new_tag_parts[1:end-1]) &&
+                new_tag_parts[end] == "im" )
+                val_im = deserialize_histogram_summary(summary)
+                result = tag[1:end-3], old_val + im*val_im, 1
+            end
+        end
+    elseif isdefined(summary, :image)
+    elseif isdefined(summary, :audio)
+        nothing
+    elseif isdefined(summary, :tensor)
+        nothing
+    elseif type == :simple_value
+        if old_tag[end-2:end] == "/re"
+            old_tag_parts = split(old_tag, "/")
+            new_tag_parts = split(tag, "/")
+            if ( all(old_tag_parts[1:end-1] .== new_tag_parts[1:end-1]) &&
+                new_tag_parts[end] == "im" )
+                # then we are ok
+                val_im = summary.simple_value
+                result = tag[1:end-3], old_val + im*val_im, 1
+            end
+        end
+    end
+
+    return result
 end
 
 """
@@ -150,6 +205,8 @@ function map_summaries(fun::Function, logdir; purge=true, tags=nothing, steps=no
 
     for event_file in TBEventFileCollectionIterator(logdir, purge=purge)
         for event in event_file
+            # if event.summary is not defined, don't bother processing this event,
+            # as it's probably a "start file" event or a graph event.
             !isdefined(event, :summary) && continue
 
             step = event.step

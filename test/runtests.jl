@@ -13,6 +13,7 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = true
 @testset "TBLogger" begin
     include("test_TBLogger.jl")
 end
+
 @testset "Scalar Value Logger" begin
     logger = TBLogger("test_logs/t", tb_overwrite)
     step = 1
