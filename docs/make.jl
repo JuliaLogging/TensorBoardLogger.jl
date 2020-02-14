@@ -13,6 +13,7 @@ makedocs(
                 "Explicit Interface" => "explicit_interface.md"
             ],
             "Examples"      => Any[
+                "Flux.jl"  => "examples/flux.md"
                 "Optim.jl"  => "examples/optim.md"
             ]
     ]

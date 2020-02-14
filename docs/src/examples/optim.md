@@ -1,4 +1,4 @@
-# Using TensorBoard with `Optim.jl`
+# Using TensorBoard with [Optim](https://github.com/JuliaNLSolvers/Optim.jl)
 
 ```julia
 using TensorBoardLogger
