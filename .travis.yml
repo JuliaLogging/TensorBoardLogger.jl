@@ -1,23 +1,27 @@
 language: julia
+
 os:
     - osx
     - linux
+
 julia:
     - 1.0
     - 1
     - nightly
-matrix:
-    allow_failures:
-        - julia: nightly
+
 notifications:
     email: false
+
 script:
     - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
     - julia --color=yes -e 'using Pkg; Pkg.activate(); Pkg.instantiate(); Pkg.test(coverage=true)';
+
 after_success:
     - julia -e 'using Pkg; cd(Pkg.dir("TensorBoardLogger")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
 
 jobs:
+  allow_failures:
+    - julia: nightly
   include:
     - stage: "Documentation"
       julia: 1.0
