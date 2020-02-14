@@ -3,7 +3,7 @@ using Tracker
 using Test
 
 @testset "Optional: Tracker.jl" begin
-    logger = TBLogger("test_logs/Tracker-jl", tb_overwrite)
+    logger = TBLogger(test_log_dir*"Tracker-jl", tb_overwrite)
     tr = Tracker.TrackedReal(1)
     ta = Tracker.TrackedArray(ones(10))
     with_logger(logger) do

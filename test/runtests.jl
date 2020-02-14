@@ -8,6 +8,8 @@ using ColorTypes
 using FileIO
 using LightGraphs
 
+test_log_dir = "test_logs/"
+
 ENV["DATADEPS_ALWAYS_ACCEPT"] = true
 
 @testset "TBLogger" begin
@@ -15,7 +17,7 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = true
 end
 
 @testset "Scalar Value Logger" begin
-    logger = TBLogger("test_logs/t", tb_overwrite)
+    logger = TBLogger(test_log_dir*"t", tb_overwrite)
     step = 1
 
     ss = TensorBoardLogger.scalar_summary("test", 12.0)
@@ -43,7 +45,7 @@ end
 end
 
 @testset "Histogram Value Logger" begin
-    logger = TBLogger("test_logs/t", tb_overwrite)
+    logger = TBLogger(test_log_dir*"t", tb_overwrite)
     step = 1
 
     x0 = 0.5+step/30; s0 = 0.5/(step/20);
@@ -88,7 +90,7 @@ end
 end
 
 @testset "Text Logger" begin
-    logger = TBLogger("test_logs/t", tb_overwrite)
+    logger = TBLogger(test_log_dir*"t", tb_overwrite)
     step = 1
 
     ss = TensorBoardLogger.text_summary("test", "Hello World")
@@ -117,7 +119,7 @@ end
 end
 
 @testset "Image Logger" begin
-    logger = TBLogger("test_logs/t", tb_overwrite)
+    logger = TBLogger(test_log_dir*"t", tb_overwrite)
     step = 1
 
     # The following tests are akin to @test_nothrow, which does not exist.
@@ -203,7 +205,7 @@ end
 end
 
 @testset "LogInterface" begin
-    logger = TBLogger("log/", tb_overwrite)
+    logger = TBLogger(test_log_dir*"t", tb_overwrite)
     woman = testimage("woman_blonde")
     mri = testimage("mri")
     with_logger(logger) do
@@ -222,7 +224,7 @@ end
 end
 
 @testset "Audio Logger" begin
-    logger = TBLogger("test_logs/t", tb_overwrite)
+    logger = TBLogger(test_log_dir*"t", tb_overwrite)
     step = 1
 
     ss = TensorBoardLogger.audio_summary("test", rand(800), 800)
@@ -237,7 +239,7 @@ end
 end
 
 @testset "Graph Logger" begin
-    logger = TBLogger("test_logs/t", tb_overwrite)
+    logger = TBLogger(test_log_dir*"t", tb_overwrite)
     step = 1
     ss = TensorBoardLogger.graph_summary(DiGraph(1), ["1"], ["1"], ["cpu"], [nothing])
     @test isa(ss, TensorBoardLogger.GraphDef)
@@ -252,7 +254,7 @@ end
 end
 
 @testset "Embedding Logger" begin
-    logger = TBLogger("test_logs/t", tb_overwrite)
+    logger = TBLogger(test_log_dir*"t", tb_overwrite)
     step = 1
     mat = rand(4, 4)
     metadata = rand(4, 10)
@@ -272,3 +274,6 @@ end
     #include("Optional/test_PyPlot.jl")
     include("Optional/test_Tracker.jl")
 end
+
+#cleanup
+rm(test_log_dir, force=true, recursive=true)
