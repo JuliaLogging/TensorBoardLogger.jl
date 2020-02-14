@@ -145,34 +145,43 @@ function lookahead_deserialize(old_tag, old_val, evs::Summary, state, type)
     tag = summary.tag
 
     if type == :histo && isdefined(summary, :histo)
-        if old_tag[end-2:end] == "/re"
-            old_tag_parts = split(old_tag, "/")
-            new_tag_parts = split(tag, "/")
-            if ( all(old_tag_parts[1:end-1] .== new_tag_parts[1:end-1]) &&
-                new_tag_parts[end] == "im" )
-                val_im = deserialize_histogram_summary(summary)
-                result = tag[1:end-3], old_val + im*val_im, 1
-            end
+        if tags_match_re_im(old_tag, tag)
+            val_im = deserialize_histogram_summary(summary)
+            result = tag[1:end-3], old_val + im*val_im, 1
         end
     elseif isdefined(summary, :image)
+        nothing
     elseif isdefined(summary, :audio)
         nothing
     elseif isdefined(summary, :tensor)
         nothing
     elseif type == :simple_value
-        if old_tag[end-2:end] == "/re"
-            old_tag_parts = split(old_tag, "/")
-            new_tag_parts = split(tag, "/")
-            if ( all(old_tag_parts[1:end-1] .== new_tag_parts[1:end-1]) &&
-                new_tag_parts[end] == "im" )
-                # then we are ok
-                val_im = summary.simple_value
-                result = tag[1:end-3], old_val + im*val_im, 1
-            end
+        if tags_match_re_im(old_tag, tag)
+            val_im = summary.simple_value
+            result = tag[1:end-3], old_val + im*val_im, 1
         end
     end
 
     return result
+end
+
+"""
+    tags_match_re_im(old_tag, new_tag)
+
+If `old_tag` and `new_tag` tag the real part and imaginary part of the same
+quantity, such as `old_tag = "test/struct/re"` and `new_tag = "test/struct/im"`
+then returns true. False otherwise
+"""
+function tags_match_re_im(old_tag, new_tag)
+    if old_tag[end-2:end] == "/re"
+        old_tag_parts = split(old_tag, "/")
+        new_tag_parts = split(new_tag, "/")
+        if ( all(old_tag_parts[1:end-1] .== new_tag_parts[1:end-1]) &&
+            new_tag_parts[end] == "im" )
+            return true
+        end
+    end
+    return false
 end
 
 """

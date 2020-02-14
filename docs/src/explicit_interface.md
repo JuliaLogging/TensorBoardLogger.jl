@@ -17,7 +17,7 @@ log_histogram
 log_vector
 ```
 
-# Text backend
+# Text backend
 ```@docs
 log_text
 ```
