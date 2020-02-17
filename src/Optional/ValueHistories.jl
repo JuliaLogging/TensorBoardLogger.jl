@@ -10,4 +10,8 @@ function Base.convert(::Type{MVHistory}, tbl::TBLogger; kwargs...)
     return hist
 end
 
+function Base.getindex(mvhist::MVHistory, tag::AbstractString)
+    return getindex(mvhist, Symbol(tag))
+end
+
 ValueHistories.MVHistory(tbl::TBLogger; kwargs...) = convert(MVHistory, tbl; kwargs...)
