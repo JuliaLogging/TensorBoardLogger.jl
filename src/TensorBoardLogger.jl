@@ -61,6 +61,7 @@ include("logger_dispatch_overrides.jl")
 include("Loggers/LogImage.jl")
 
 include("Deserialization/deserialization.jl")
+include("Deserialization/lookahead.jl")
 include("Deserialization/helpers.jl")
 include("Deserialization/audio.jl")
 include("Deserialization/histograms.jl")
