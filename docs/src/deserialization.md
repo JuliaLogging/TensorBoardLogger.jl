@@ -1,8 +1,7 @@
 # Reading back TensorBoard data
 
 !!! warning
-    The functionality described in this page are still experimental, and the
-    interface might change without warning in future releases.
+    The functionality described in this page is still experimental, and the interface might change without warning in future releases.
 
 
 TensorBoardLogger allows you to read data that has been serialized to TensorBoard, either from Julia or from other applications (e.g. Python).

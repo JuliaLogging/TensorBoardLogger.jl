@@ -275,5 +275,9 @@ end
     include("Optional/test_Tracker.jl")
 end
 
+@testset "Logger dispatch overrides" begin
+    include("deserialization.jl")
+end
+
 #cleanup
 rm(test_log_dir, force=true, recursive=true)

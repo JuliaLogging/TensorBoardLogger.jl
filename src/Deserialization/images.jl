@@ -20,7 +20,8 @@ function lookahead_deserialize_image_summary(old_tag, old_val, evs::Summary,
         # iteration body
         typ = summary_type(summary)
         typ !== :image && break
-        tag !== old_tag && break
+        tag != old_tag && break
+
         push!(combined_imgs, deserialize_image_summary(summary))
 
         # end iterate
