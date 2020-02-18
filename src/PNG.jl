@@ -1,4 +1,11 @@
 # Official spec : http://www.libpng.org/pub/png/spec/1.2/png-1.2.pdf
+module PNGImage
+
+using FileIO: @format_str, Stream, save
+using ImageCore: Colorant, Gray, GrayA, RGB, RGBA
+using FixedPointNumbers: Normed
+
+export PngImage, png_color_T
 
 """
     PngImage
@@ -80,5 +87,41 @@ function Base.convert(::Type{PngImage}, img::AbstractArray{<:Colorant})
     return PngImage(pb)
 end
 
-Base.show(io::IO, ::MIME"image/png", x::TensorBoardLogger.PngImage) =
+# Utility function, for seeing those objects in Juno/iJulia.
+Base.show(io::IO, ::MIME"image/png", x::PngImage) =
     write(io, x.data)
+
+# Things for deserializing
+const PNG_COLOR_MASK_PALETTE = 1
+const PNG_COLOR_MASK_COLOR = 2
+const PNG_COLOR_MASK_ALPHA = 4
+
+const PNG_COLOR_TYPE_GRAY = 0
+const PNG_COLOR_TYPE_PALETTE = PNG_COLOR_MASK_COLOR | PNG_COLOR_MASK_PALETTE
+const PNG_COLOR_TYPE_RGB = PNG_COLOR_MASK_COLOR
+const PNG_COLOR_TYPE_RGB_ALPHA = PNG_COLOR_MASK_COLOR | PNG_COLOR_MASK_ALPHA
+const PNG_COLOR_TYPE_GRAY_ALPHA = PNG_COLOR_MASK_ALPHA
+const PNG_COLOR_TYPE_RGBA = PNG_COLOR_TYPE_RGB_ALPHA
+const PNG_COLOR_TYPE_GA = PNG_COLOR_TYPE_GRAY_ALPHA
+
+function png_color_T(attributes)
+    color_type = attributes[:colorspace]
+    bit_depth  = attributes[:bitdepth]
+
+    if color_type == PNG_COLOR_TYPE_GRAY
+        colors_type = Gray{bit_depth > 8 ? Normed{UInt16,bit_depth} : Normed{UInt8,bit_depth}}
+    elseif color_type == PNG_COLOR_TYPE_PALETTE
+        colors_type = RGB{bit_depth == 16 ? N0f16 : N0f8}
+    elseif color_type == PNG_COLOR_TYPE_RGB
+        colors_type = RGB{bit_depth == 16 ? N0f16 : N0f8}
+    elseif color_type == PNG_COLOR_TYPE_RGB_ALPHA
+        colors_type = RGBA{bit_depth == 16 ? N0f16 : N0f8}
+    elseif color_type == PNG_COLOR_TYPE_GRAY_ALPHA
+        colors_type = GrayA{bit_depth > 8 ? Normed{UInt16,bit_depth} : Normed{UInt8,bit_depth}}
+    else
+        throw(error("Unknown color type: $color_type"))
+    end
+    return colors_type
+end
+
+end

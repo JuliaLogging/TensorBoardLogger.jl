@@ -4,6 +4,7 @@ using TestImages
 using ValueHistories
 
 test_log_dir = "test_logs/"
+ENV["GKSwstype"] = "100"
 
 @testset "Deserialization_simple" begin
     logger = TBLogger(test_log_dir*"d", tb_overwrite)

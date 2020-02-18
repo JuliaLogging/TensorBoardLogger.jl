@@ -3,7 +3,7 @@ module TensorBoardLogger
 using ProtoBuf, CRC32c
 
 using ImageCore, ColorTypes
-using FileIO: @format_str, Stream, save, load
+using FileIO: FileIO, @format_str, Stream, save, load
 
 using StatsBase  #TODO: remove this. Only needed to compute histogram bins.
 
@@ -38,6 +38,7 @@ include("protojl/event_pb.jl")
 include("protojl/plugin_text_pb.jl")
 
 include("PNG.jl")
+using .PNGImage
 include("ImageFormat.jl")
 
 # Plugin name used to store julia-specific metadata.
