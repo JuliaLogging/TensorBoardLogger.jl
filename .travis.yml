@@ -8,9 +8,18 @@ julia:
     - 1.0
     - 1
     - nightly
-
 notifications:
     email: false
+
+# only needed on linux for deserialization tests
+addons:
+  apt:
+    packages:
+    - libxt6
+    - libxrender1
+    - libxext6
+    - libgl1-mesa-glx
+    - libqt5widgets5
 
 script:
     - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi

@@ -9,6 +9,8 @@ using FileIO
 using LightGraphs
 
 test_log_dir = "test_logs/"
+ENV["DATADEPS_ALWAYS_ACCEPT"] = true
+ENV["GKSwstype"] = "100"
 
 ENV["DATADEPS_ALWAYS_ACCEPT"] = true
 
