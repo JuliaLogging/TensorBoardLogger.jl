@@ -215,11 +215,11 @@ function map_summaries(fun::Function, logdir; purge=true, tags=nothing, steps=no
             !isdefined(event, :summary) && continue
 
             step = event.step
-            !isnothing(steps) && step ∉ steps && continue
+            steps !== nothing && step ∉ steps && continue
 
             iter = SummaryDeserializingIterator(event.summary, smart)
             for (name, val) in iter
-                !isnothing(tags) && name ∉ tags && continue
+                tags !== nothing && name ∉ tags && continue
 
                 fun(name, step, val)
             end
@@ -248,7 +248,7 @@ function map_events(fun::Function, logdir; purge=true, steps=nothing)
     for event_file in TBEventFileCollectionIterator(logdir, purge=purge)
         for event in event_file
             step = event.step
-            !isnothing(steps) && step ∈ steps
+            steps !== nothing && step ∈ steps
 
             fun(event)
         end
