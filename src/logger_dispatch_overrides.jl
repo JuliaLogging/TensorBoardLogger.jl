@@ -157,7 +157,7 @@ function preprocess(name, val::TBImage, data)
         format = strip_obs[format]
         for n in 1:size(imgArray, obsdim)
             nth_img = selectdim(imgArray, obsdim, n)
-            preprocess(name*"/$n", convert(PngImage, TBImage(nth_img, format)), data)
+            preprocess(name, convert(PngImage, TBImage(nth_img, format)), data)
         end
     end
     return data

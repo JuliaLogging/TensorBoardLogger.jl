@@ -1,12 +1,14 @@
 using TensorBoardLogger, Logging
 using TensorBoardLogger: preprocess, summary_impl
 using Test
-using Flux, Flux.Data.MNIST
+using MLDatasets
 using TestImages
 using ImageCore
 using ColorTypes
 using FileIO
 using LightGraphs
+
+ENV["DATADEPS_ALWAYS_ACCEPT"] = true
 
 @testset "TBLogger" begin
     include("test_TBLogger.jl")
@@ -132,16 +134,18 @@ end
     @test π != log_image(logger, "rand/CLN", rand(3, 10, 2), CLN, step = step)
     @test π != log_image(logger, "rand/LCN", rand(10, 3, 2), LCN, step = step)
 
-    sample = MNIST.images()[1:3]
-    sample = hcat(sample...)
-    sample = reshape(sample, (28, 28, 3))
+    sample = MNIST.traintensor(1:3)
     @test  π != log_image(logger, "mnist/HWN", sample, HWN, step = step)
+    @test  π != log_image(logger, "mnist2/HWN", Gray.(sample), step = step)
     sample = permutedims(sample, (2, 1, 3))
     @test  π != log_image(logger, "mnist/WHN", sample, WHN, step = step)
+    @test  π != log_image(logger, "mnist2/WHN", Gray.(sample), WHN, step = step)
     sample = permutedims(sample, (3, 2, 1))
     @test  π != log_image(logger, "mnist/NHW", sample, NHW, step = step)
+    @test  π != log_image(logger, "mnist2/NHW", Gray.(sample), NHW, step = step)
     sample = permutedims(sample, (1, 3, 2))
     @test  π != log_image(logger, "mnist/NWH", sample, NWH, step = step)
+    @test  π != log_image(logger, "mnist2/NWH", Gray.(sample), NWH, step = step)
     sample = testimage("toucan")
     @test  π != log_image(logger, "toucan/auto", sample, step = step)
     sample = [sample, sample, sample]
