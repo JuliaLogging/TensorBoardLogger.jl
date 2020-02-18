@@ -134,7 +134,7 @@ end
     @test π != log_image(logger, "rand/CLN", rand(3, 10, 2), CLN, step = step)
     @test π != log_image(logger, "rand/LCN", rand(10, 3, 2), LCN, step = step)
 
-    sample = MNIST.traintensor()[:,:,1:3]
+    sample = MNIST.traintensor(1:3)
     @test  π != log_image(logger, "mnist/HWN", sample, HWN, step = step)
     @test  π != log_image(logger, "mnist2/HWN", Gray.(sample), step = step)
     sample = permutedims(sample, (2, 1, 3))
