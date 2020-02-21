@@ -75,8 +75,19 @@ summary_impl(name, value::Any) = text_summary(name, value)
 
 
 ########## For things going to LogHistograms ########################
-preprocess(name,   (bins,weights)::Tuple{AbstractVector,AbstractVector}, data) = push!(data, name=>(bins, weights))
-summary_impl(name, (bins,weights)::Tuple{AbstractVector,AbstractVector}) = histogram_summary(name, bins, weights)
+# Only consider 1D histograms for histogram plotting
+preprocess(name, hist::StatsBase.Histogram{T,1}, data) where T = push!(data, name=>hist)
+summary_impl(name, hist::StatsBase.Histogram) = histogram_summary(name, hist)
+
+# TODO: maybe deprecate? tuple means histogram (only if bins/weights match)
+function preprocess(name,   (bins,weights)::Tuple{AbstractVector,AbstractVector}, data)
+    # if ... this is an histogram
+    if length(bins) == length(weights)+1
+        return preprocess(name, Histogram(bins,weights), data)
+    end
+    preprocess(name*"/1", bins, data)
+    preprocess(name*"/2", weights, data)
+end
 
 preprocess(name, val::AbstractArray{<:Real}, data) = push!(data, name=>val)
 summary_impl(name, val::AbstractArray{<:Real}) = histogram_arr_summary(name, val)
