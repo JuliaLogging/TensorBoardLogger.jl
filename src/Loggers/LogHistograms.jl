@@ -40,10 +40,15 @@ end
 
 function histogram_summary(name::AbstractString, edges::AbstractVector{<:Number}, hist_vals::AbstractVector{<:Number})
     @assert length(edges) == length(hist_vals)+1
+    return histogram_summary(name, Histogram(edges, hist_vals))
+end
 
+function histogram_summary(name::AbstractString, hist::StatsBase.Histogram{T,1}) where T
+    edges     = first(hist.edges)
+    hist_vals = hist.weights
 
-    hp = HistogramProto(min=minimum(edges), max=maximum(edges),
-                        bucket_limit=edges[2:end],
+    hp = HistogramProto(min=first(edges), max=last(edges),
+                        bucket_limit=collect(edges[2:end]),
                         bucket=hist_vals)
     return Summary_Value(tag=name, histo=hp)
 end
