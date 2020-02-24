@@ -18,6 +18,9 @@ export map_summaries
 export ImageFormat, L, CL, LC, LN, NL, NCL, NLC, CLN, LCN, HW, WH, HWC, WHC,
        CHW, CWH,HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH
 
+# Custom Scalar Plugin
+export tb_multiline, tb_margin
+
 # Wrapper types
 export TBText, TBVector, TBHistogram, TBImage, TBImages, TBAudio, TBAudios
 
@@ -51,11 +54,13 @@ include("utils.jl")  # CRC Utils
 include("event.jl")
 include("Loggers/base.jl")
 include("Loggers/LogValue.jl")
-include("Loggers/LogCustomScalar.jl")
 include("Loggers/LogText.jl")
 include("Loggers/LogHistograms.jl")
 include("Loggers/LogAudio.jl")
 include("Loggers/LogEmbeddings.jl")
+
+# Custom Scalar Plugin
+include("Loggers/LogCustomScalar.jl")
 
 include("logger_dispatch.jl")
 include("logger_dispatch_overrides.jl")

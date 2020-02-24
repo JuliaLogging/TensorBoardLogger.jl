@@ -1,4 +1,9 @@
+# possible chart types
+@enum tb_chart_type tb_multiline=1 tb_margin=2
+
 """
+log_custom_scalar(logger, layout::AbstractDict; step = step(logger))
+
 Groups multiple scalars in the same plot to be visualized by the CUSTOM_SCALARS
 plugin. Note that this function sets the metadata: the actual values must be
 logged separately with `log_value` and referenced with the correct tag.
@@ -8,7 +13,7 @@ The `layout` argument is structured as follows:
 layout = Dict(category => Dict(name => (chart_type, [tag1, tag2, ...])))
 
 where `category` is the main tag for the plot, `name` is the plot's name,
-`chart_type` is one between "Multiline" and "Margin" and the array of tags
+`chart_type` is one between `tb_multiline` and `tb_margin` and the array of tags
 contains the actual references to the logged scalars.
 """
 function log_custom_scalar(logger::TBLogger, layout::AbstractDict; step = nothing)
@@ -16,20 +21,20 @@ function log_custom_scalar(logger::TBLogger, layout::AbstractDict; step = nothin
     write_event(logger.file, make_event(logger, summ, step = step))
 end
 
-function chart(name::String, metadata::Tuple{AbstractString, AbstractArray})
+function chart(name::String, metadata::Tuple{tb_chart_type, AbstractArray})
     chart_type, tags = metadata
 
-    if chart_type == "Multiline"
+    if chart_type == tb_multiline
         content = MultilineChartContent(tag = tags)
         return Chart(title = name, multiline = content)
-    else if chart_type == "Margin"
+    elseif chart_type == tb_margin
         @assert length(tags) == 3
         args = Dict(k => v for (k, v) in zip([:value, :lower, :upper], tags))
         content = MarginChartContent(
-                    series = [MarginChartContent_Series(args...)])
+                    series = [MarginChartContent_Series(; args...)])
         return Chart(title = name, margin = content)
     else
-        @error "The chart type must be \"Multiline\" or \"Margin\""
+        @error "The chart type must be `tb_multiline` or `tb_margin`"
     end
 end
 
