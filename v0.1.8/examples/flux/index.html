@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Flux.jl · TensorBoardLogger.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">TensorBoardLogger.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../custom_behaviour/">Backends</a></li><li><a class="tocitem" href="../../deserialization/">Reading back data</a></li><li><a class="tocitem" href="../../extending_behaviour/">Extending</a></li><li><a class="tocitem" href="../../explicit_interface/">Explicit Interface</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li class="is-active"><a class="tocitem" href>Flux.jl</a></li><li><a class="tocitem" href="../optim/">Optim.jl</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Flux.jl</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Flux.jl</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/PhilipVinc/TensorBoardLogger.jl/blob/master/docs/src/examples/flux.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Using-TensorBoard-with-[Flux](https://fluxml.ai)-1"><a class="docs-heading-anchor" href="#Using-TensorBoard-with-[Flux](https://fluxml.ai)-1">Using TensorBoard with <a href="https://fluxml.ai">Flux</a></a><a class="docs-heading-anchor-permalink" href="#Using-TensorBoard-with-[Flux](https://fluxml.ai)-1" title="Permalink"></a></h1><p>For a Google Colab version of this example, go <a href="https://colab.research.google.com/drive/1xfUsBn9GEqbRjBF-UX_jnGjHZNtNsMae">here</a> The most important part of the example is the callback <code>TBCallback</code> which handles logging to TensorBoard.</p><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>This example necessitates a GPU and it will run for a couple of minutes. You could simplify it but... well. I&#39;m lazy.</p></div></div><pre><code class="language-julia">using TensorBoardLogger
+using Flux
+using Logging
+using MLDatasets: FashionMNIST
+using Statistics
+using CuArrays
+
+# Create tensorboard logger
+logger = TBLogger(&quot;content/log&quot;, tb_overwrite)
+
+# Load data
+traindata, trainlabels = FashionMNIST.traindata();
+testdata, testlabels = FashionMNIST.testdata();
+trainsize = size(traindata, 3);
+testsize = size(testdata, 3);
+
+# Log some images as samples (not needed)
+with_logger(logger) do
+    images = TBImage(traindata[:, :, 1:10], WHN)
+    @info &quot;fmnist/samples&quot; pics = images log_step_increment=0
+end
+
+# Create a FFNN model
+model = Chain(
+    x -&gt; reshape(x, :, size(x, 4)),
+    Dense(28^2, 32, relu),
+    Dense(32, 10),
+    softmax
+)
+
+loss(x, y) = Flux.crossentropy(model(x), y)
+
+accuracy(x, y) = mean(Flux.onecold(model(x) |&gt; cpu) .== Flux.onecold(y |&gt; cpu))
+
+opt = ADAM()
+
+# Load the training data
+traindata = permutedims(reshape(traindata, (28, 28, 60000, 1)), (1, 2, 4, 3));
+testdata = permutedims(reshape(testdata, (28, 28, 10000, 1)), (1, 2, 4, 3));
+trainlabels = Flux.onehotbatch(trainlabels, collect(0:9));
+testlabels = Flux.onehotbatch(testlabels, collect(0:9));
+
+# Function to get dictionary of model parameters
+function fill_param_dict!(dict, m, prefix)
+    if m isa Chain
+        for (i, layer) in enumerate(m.layers)
+            fill_param_dict!(dict, layer, prefix*&quot;layer_&quot;*string(i)*&quot;/&quot;*string(layer)*&quot;/&quot;)
+        end
+    else
+        for fieldname in fieldnames(typeof(m))
+            val = getfield(m, fieldname)
+            if val isa AbstractArray
+                val = vec(val)
+            end
+            dict[prefix*string(fieldname)] = val
+        end
+    end
+end
+
+# Callback to log information after every epoch
+function TBCallback()
+  param_dict = Dict{String, Any}()
+  fill_param_dict!(param_dict, model, &quot;&quot;)
+  with_logger(logger) do
+    @info &quot;model&quot; params=param_dict log_step_increment=0
+    @info &quot;train&quot; loss=loss(traindata, trainlabels) acc=accuracy(traindata, trainlabels) log_step_increment=0
+    @info &quot;test&quot; loss=loss(testdata, testlabels) acc=accuracy(testdata, testlabels)
+  end
+end
+
+# Create minibatches
+minibatches = []
+batchsize = 100
+for i in range(1, stop = trainsize÷batchsize)
+  lbound = (i-1)*batchsize+1
+  ubound = min(trainsize, i*batchsize)
+  push!(minibatches, (traindata[:, :, :, lbound:ubound], trainlabels[:, lbound:ubound]))
+end
+
+# Move data and model to gpu
+traindata = traindata |&gt; gpu
+testdata = testdata |&gt; gpu
+trainlabels = trainlabels |&gt; gpu
+testlabels = testlabels |&gt; gpu
+model = model |&gt; gpu
+minibatches = minibatches |&gt; gpu
+
+# Train
+@Flux.epochs 15 Flux.train!(loss, params(model), minibatches, opt, cb = Flux.throttle(TBCallback, 5))</code></pre><p>The resulting TensorBoard interface will be:</p><pre><code class="language-bash">tensorboard --logdir content</code></pre><p><img src="../flux1.png" alt="flux1_plot"/> <img src="../flux2.png" alt="flux2_plot"/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../explicit_interface/">« Explicit Interface</a><a class="docs-footer-nextpage" href="../optim/">Optim.jl »</a></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Monday 24 February 2020 21:34">Monday 24 February 2020</span>. Using Julia version 1.0.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
