@@ -12,7 +12,7 @@ using  Base.CoreLogging: CoreLogging, AbstractLogger, LogLevel, Info,
 
 export TBLogger, reset!, set_step!, increment_step!
 export log_histogram, log_value, log_vector, log_text, log_image, log_images,
-       log_audio, log_audios, log_graph, log_embeddings
+       log_audio, log_audios, log_graph, log_embeddings, log_custom_scalar
 export ImageFormat, L, CL, LC, LN, NL, NCL, NLC, CLN, LCN, HW, WH, HWC, WHC,
        CHW, CWH,HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH
 
@@ -34,6 +34,8 @@ include("protojl/types_pb.jl")
 include("protojl/summary_pb.jl")
 include("protojl/event_pb.jl")
 include("protojl/plugin_text_pb.jl")
+include("protojl/tensorboard.jl")
+include("protojl/layout_pb.jl")
 
 include("PNG.jl")
 include("ImageFormat.jl")
@@ -43,6 +45,7 @@ include("utils.jl")  # CRC Utils
 include("event.jl")
 include("Loggers/base.jl")
 include("Loggers/LogValue.jl")
+include("Loggers/LogCustomScalar.jl")
 include("Loggers/LogText.jl")
 include("Loggers/LogHistograms.jl")
 include("Loggers/LogAudio.jl")
