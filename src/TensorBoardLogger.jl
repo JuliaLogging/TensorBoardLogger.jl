@@ -3,7 +3,7 @@ module TensorBoardLogger
 using ProtoBuf, CRC32c
 
 using ImageCore, ColorTypes
-using FileIO: @format_str, Stream, save
+using FileIO: FileIO, @format_str, Stream, save, load
 
 using StatsBase  #TODO: remove this. Only needed to compute histogram bins.
 
@@ -13,6 +13,8 @@ using  Base.CoreLogging: CoreLogging, AbstractLogger, LogLevel, Info,
 export TBLogger, reset!, set_step!, increment_step!
 export log_histogram, log_value, log_vector, log_text, log_image, log_images,
        log_audio, log_audios, log_graph, log_embeddings, log_custom_scalar
+export map_summaries
+
 export ImageFormat, L, CL, LC, LN, NL, NCL, NLC, CLN, LCN, HW, WH, HWC, WHC,
        CHW, CWH,HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH
 
@@ -38,7 +40,11 @@ include("protojl/tensorboard.jl")
 include("protojl/layout_pb.jl")
 
 include("PNG.jl")
+using .PNGImage
 include("ImageFormat.jl")
+
+# Plugin name used to store julia-specific metadata.
+const TB_PLUGIN_JLARRAY_NAME = "_jl_tbl_array_sz"
 
 include("TBLogger.jl")
 include("utils.jl")  # CRC Utils
@@ -58,6 +64,14 @@ include("logger_dispatch_overrides.jl")
 # maybe we could split the explicit and the @log interfaces?
 include("Loggers/LogImage.jl")
 
+include("Deserialization/deserialization.jl")
+include("Deserialization/lookahead.jl")
+include("Deserialization/helpers.jl")
+include("Deserialization/audio.jl")
+include("Deserialization/histograms.jl")
+include("Deserialization/images.jl")
+include("Deserialization/tensor.jl")
+
 using Requires
 function __init__()
     @require LightGraphs="093fc24a-ae57-5d10-9952-331d41423f4d" begin
@@ -72,6 +86,9 @@ function __init__()
     end
     @require Tracker="9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c" begin
         include("Optional/Tracker.jl")
+    end
+    @require ValueHistories="98cad3c8-aec3-5f06-8e41-884608649ab7" begin
+        include("Optional/ValueHistories.jl")
     end
 end
 

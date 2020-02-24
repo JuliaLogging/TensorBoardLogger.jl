@@ -15,6 +15,7 @@ To install this Julia package run the following command in the julia REPL:
 ```
 
 !!! note
+    If you need to log audio files, you must also install `WAV`.
     If you need to log Images, you must also install `ImageMagick`
     (on MacOS, you will also need `QuartzImageIO`).
     You only need to install those dependencies, and you will never need to load them.
@@ -100,11 +101,17 @@ how to specify a desired backend refer to [Specifying a backend](@ref).
 If you want to define a new default behaviour for a custom type refer to section
 [Extending TensorBoardLogger](@ref).
 
+## Deserialization
+
+If you want to read back the data stored in TensorBoard/.proto files, have a look
+at [Reading back TensorBoard data](@ref)
+
 ## Third-party packages
 We also support logging custom types from a the following third-party libraries:
  - [Plots.jl](https://github.com/JuliaPlots/Plots.jl): the `Plots.Plot` type will be rendered to PNG at the resolution specified by the object and logged as an image
  - [PyPlot.jl](https://github.com/JuliaPy/PyPlot.jl): the `PyPlot.Figure` type will be rendered to PNG at the resolution specified by the object and logged as an image
  - [Tracker.jl](https://github.com/FluxML/Tracker.jl): the `TrackedReal` and `TrackedArray` types will be logged as vector data
+ - [ValueHistories.jl](https://github.com/JuliaML/ValueHistories.jl): the `MVHistory` type is used to store the deserialized content of .proto files.
 
 ## Explicit logging
 

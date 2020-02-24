@@ -3,7 +3,7 @@ using Test
 
 
 @testset "Optional: Plots.jl" begin
-logger = TBLogger("test_logs/Plots-jl", tb_overwrite)
+logger = TBLogger(test_log_dir*"Plots-jl", tb_overwrite)
 p = plot(rand(5))
 p2 = plot(rand(10))
 with_logger(logger) do
