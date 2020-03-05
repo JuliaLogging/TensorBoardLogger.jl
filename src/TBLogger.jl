@@ -3,6 +3,7 @@ mutable struct TBLogger <: AbstractLogger
     file::IOStream
     all_files::Dict{String, IOStream}
     global_step::Int
+    step_increment::Int
     min_level::LogLevel
 end
 
@@ -17,21 +18,27 @@ already exists.
 export tb_append, tb_overwrite, tb_increment
 
 """
-    TBLogger(logdir, [tb_increment ; time=time(), purge_step::Int, min_level=Logging.Info])
+    TBLogger(logdir[, tb_increment]; 
+            time=time(), 
+            purge_step=nothing, 
+            step_increment=1, 
+            min_level=Logging.Info)
 
 Creates a TensorBoardLogger in the folder `logdir`. The second (optional)
 argument specifies the behaviour if the `logdir` already exhists: the default
-choice `tb_increment` appends an increasing number 1,2... to logdir. Other
-choices are `tb_overwrite`, which overwrites the previous folder and `tb_append`.
+choice `tb_increment` appends an increasing number 1,2... to `logdir`. Other
+choices are `tb_overwrite`, which overwrites the previous folder, and `tb_append`.
 
-If `purge_step::Int` is passed, every step before `purge_step` will be ignored
+If a `purge_step::Int` is passed, every step before `purge_step` will be ignored
 by tensorboard (usefull in the case of restarting a crashed computation).
 
-`min_level=Logging.Info` specifies the minimum level of messages logged to
-tensorboard
+`min_level` specifies the minimum level of messages logged to
+tensorboard.
 """
 function TBLogger(logdir="tensorboard_logs/run", overwrite=tb_increment;
-                  time=time(), purge_step::Union{Int,Nothing}=nothing,
+                  time=time(), 
+                  purge_step::Union{Int,Nothing}=nothing,
+                  step_increment = 1, 
                   min_level::LogLevel=Info)
 
     logdir = init_logdir(logdir, overwrite)
@@ -40,7 +47,7 @@ function TBLogger(logdir="tensorboard_logs/run", overwrite=tb_increment;
     all_files  = Dict(fpath => evfile)
     start_step = something(purge_step, 0)
 
-    TBLogger(logdir, evfile, all_files, start_step, min_level)
+    TBLogger(logdir, evfile, all_files, start_step, step_increment, min_level)
 end
 
 """
@@ -160,6 +167,16 @@ logger when no value is passed by the user.
 set_step!(lg::TBLogger, step) = lg.global_step = step
 
 """
+    set_step_increment!(lg, increment) -> Int
+
+Sets the default increment applyed to logger `lg`'s iteration counter
+each time logging is performed.
+
+Can be overidden by passing `log_step_increment=some_increment` when logging.
+"""
+set_step_increment!(lg::TBLogger, step) = lg.global_step = step
+
+"""
 	increment_step!(lg, Δ_Step) -> Int
 
 Increments the step counter in the logger by `Δ_Step` and returns the new value.
@@ -208,7 +225,7 @@ function CoreLogging.handle_message(lg::TBLogger, level, message, _module, group
 									id, file, line; kwargs...)
     # Unpack the message
     summ    = SummaryCollection()
-    i_step = 1 # :log_step_increment default value
+    i_step = lg.step_increment # :log_step_increment default value
 
     if !isempty(kwargs)
         data = Vector{Pair{String,Any}}()

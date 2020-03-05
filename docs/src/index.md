@@ -52,6 +52,7 @@ it will increment the internal counter by 1.
 
 If you want to increase the counter by a different amount, or prevent it from increasing, you can log the additional message
 `log_step_increment=N`. The default behaviour corresponds to `N=1`. If you set `N=0` the internal counter will not be modified.
+The defaul behaviour for logger `lg` can be changed executing `set_step_increment!(lg, N)`.
 
 See the example below:
 ```julia
