@@ -67,6 +67,10 @@ end
 
     @test set_step!(tbl, 1) == 1
     @test tb_step(tbl) == 1
+
+    @test set_step_increment!(tbl, 10) == 10
+    # changing the increment should not affect the step
+    @test tb_step(tbl) == 1
 end
 
 @testset "resetting" begin

@@ -174,7 +174,7 @@ each time logging is performed.
 
 Can be overidden by passing `log_step_increment=some_increment` when logging.
 """
-set_step_increment!(lg::TBLogger, step) = lg.global_step = step
+set_step_increment!(lg::TBLogger, Δstep) = lg.step_increment = Δstep
 
 """
 	increment_step!(lg, Δ_Step) -> Int
