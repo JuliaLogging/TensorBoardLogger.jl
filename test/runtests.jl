@@ -1,7 +1,6 @@
 using TensorBoardLogger, Logging
 using TensorBoardLogger: preprocess, summary_impl
 using Test
-using MLDatasets
 using TestImages
 using ImageCore
 using ColorTypes
@@ -139,43 +138,46 @@ end
     @test π != log_image(logger, "rand/CLN", rand(3, 10, 2), CLN, step = step)
     @test π != log_image(logger, "rand/LCN", rand(10, 3, 2), LCN, step = step)
 
-    sample = MNIST.traintensor(1:3)
-    @test  π != log_image(logger, "mnist/HWN", sample, HWN, step = step)
-    @test  π != log_image(logger, "mnist2/HWN", Gray.(sample), step = step)
-    sample = permutedims(sample, (2, 1, 3))
-    @test  π != log_image(logger, "mnist/WHN", sample, WHN, step = step)
-    @test  π != log_image(logger, "mnist2/WHN", Gray.(sample), WHN, step = step)
-    sample = permutedims(sample, (3, 2, 1))
-    @test  π != log_image(logger, "mnist/NHW", sample, NHW, step = step)
-    @test  π != log_image(logger, "mnist2/NHW", Gray.(sample), NHW, step = step)
-    sample = permutedims(sample, (1, 3, 2))
-    @test  π != log_image(logger, "mnist/NWH", sample, NWH, step = step)
-    @test  π != log_image(logger, "mnist2/NWH", Gray.(sample), NWH, step = step)
-    sample = testimage("toucan")
-    @test  π != log_image(logger, "toucan/auto", sample, step = step)
-    sample = [sample, sample, sample]
-    @test  π != log_images(logger, "toucans/auto", sample, step = step)
-    @test  π != log_images(logger, "toucans", sample, CHW, step = step)
+    if VERSION >= v"1.3.0"
+        using MLDatasets: MNIST 
 
-    sample = hcat(sample...)
-    sample = reshape(sample, (150, 162, 3))
-    @test  π != log_image(logger, "toucan/CHWN", sample, CHWN, step = step)
-    sample = permutedims(sample, (2, 1, 3))
-    @test  π != log_image(logger, "toucan/CWHN", sample, CWHN, step = step)
-    sample = channelview(sample) #CWHN
-    sample = permutedims(sample, (4, 1, 2, 3))
-    @test  π != log_image(logger, "toucan/NCWH", sample, NCWH, step = step)
-    sample = permutedims(sample, (1, 2, 4, 3))
-    @test  π != log_image(logger, "toucan/NCHW", sample, NCHW, step = step)
-    sample = permutedims(sample, (1, 4, 3, 2))
-    @test  π != log_image(logger, "toucan/NWHC", sample, NWHC, step = step)
-    sample = permutedims(sample, (1, 3, 2, 4))
-    @test  π != log_image(logger, "toucan/NHWC", sample, NHWC, step = step)
-    sample = permutedims(sample, (2, 3, 4, 1))
-    @test  π != log_image(logger, "toucan/HWCN", sample, HWCN, step = step)
-    sample = permutedims(sample, (2, 1, 3, 4))
-    @test  π != log_image(logger, "toucan/WHCN", sample, WHCN, step = step)
+        sample = MNIST.traintensor(1:3)
+        @test  π != log_image(logger, "mnist/HWN", sample, HWN, step = step)
+        @test  π != log_image(logger, "mnist2/HWN", Gray.(sample), step = step)
+        sample = permutedims(sample, (2, 1, 3))
+        @test  π != log_image(logger, "mnist/WHN", sample, WHN, step = step)
+        @test  π != log_image(logger, "mnist2/WHN", Gray.(sample), WHN, step = step)
+        sample = permutedims(sample, (3, 2, 1))
+        @test  π != log_image(logger, "mnist/NHW", sample, NHW, step = step)
+        @test  π != log_image(logger, "mnist2/NHW", Gray.(sample), NHW, step = step)
+        sample = permutedims(sample, (1, 3, 2))
+        @test  π != log_image(logger, "mnist/NWH", sample, NWH, step = step)
+        @test  π != log_image(logger, "mnist2/NWH", Gray.(sample), NWH, step = step)
+        sample = testimage("toucan")
+        @test  π != log_image(logger, "toucan/auto", sample, step = step)
+        sample = [sample, sample, sample]
+        @test  π != log_images(logger, "toucans/auto", sample, step = step)
+        @test  π != log_images(logger, "toucans", sample, CHW, step = step)
 
+        sample = hcat(sample...)
+        sample = reshape(sample, (150, 162, 3))
+        @test  π != log_image(logger, "toucan/CHWN", sample, CHWN, step = step)
+        sample = permutedims(sample, (2, 1, 3))
+        @test  π != log_image(logger, "toucan/CWHN", sample, CWHN, step = step)
+        sample = channelview(sample) #CWHN
+        sample = permutedims(sample, (4, 1, 2, 3))
+        @test  π != log_image(logger, "toucan/NCWH", sample, NCWH, step = step)
+        sample = permutedims(sample, (1, 2, 4, 3))
+        @test  π != log_image(logger, "toucan/NCHW", sample, NCHW, step = step)
+        sample = permutedims(sample, (1, 4, 3, 2))
+        @test  π != log_image(logger, "toucan/NWHC", sample, NWHC, step = step)
+        sample = permutedims(sample, (1, 3, 2, 4))
+        @test  π != log_image(logger, "toucan/NHWC", sample, NHWC, step = step)
+        sample = permutedims(sample, (2, 3, 4, 1))
+        @test  π != log_image(logger, "toucan/HWCN", sample, HWCN, step = step)
+        sample = permutedims(sample, (2, 1, 3, 4))
+        @test  π != log_image(logger, "toucan/WHCN", sample, WHCN, step = step)
+    end
 end
 
 @testset "Image processing interface" begin
@@ -274,7 +276,9 @@ end
     include("Optional/test_Plots.jl")
     # Don't run PyPlot tests until I figure a way to install the dependencies
     #include("Optional/test_PyPlot.jl")
-    include("Optional/test_Tracker.jl")
+    if VERSION >= v"1.5.0"
+        include("Optional/test_Tracker.jl")
+    end
 end
 
 @testset "Logger dispatch overrides" begin

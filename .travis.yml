@@ -23,7 +23,9 @@ addons:
 
 script:
     - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-    - julia --color=yes -e 'using Pkg; Pkg.activate(); Pkg.instantiate(); Pkg.test(coverage=true)';
+    - if [[ $(julia --version) == *'1.0.'* ]]; then echo 'Overriding project toml' && cp compat/Project.toml Project.toml; fi
+    - export JULIA_PROJECT=$(pwd)
+    - travis_wait 30 julia --color=yes -e 'using Pkg; Pkg.activate(); Pkg.instantiate(); Pkg.test(coverage=true)';
 
 after_success:
     - julia -e 'using Pkg; cd(Pkg.dir("TensorBoardLogger")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
@@ -33,7 +35,7 @@ jobs:
     - julia: nightly
   include:
     - stage: "Documentation"
-      julia: 1.0
+      julia: 1
       os: linux
       script:
         - julia --project=docs/ -e 'using Pkg; Pkg.add("Documenter"); Pkg.develop(PackageSpec(path=pwd()));
