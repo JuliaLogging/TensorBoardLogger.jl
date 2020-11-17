@@ -5,14 +5,18 @@ function deserialize_histogram_summary(summary)
             val = reshape(summary.histo.bucket,
                           reinterpret(Int,
                                       summary.metadata.plugin_data.content)...)
-        else
-            val = summary.histo
+
+            return val
         end
-    else
-        val = summary.histo
     end
 
-    return val
+    # deserialize histogramproto
+    hist_proto = summary.histo
+    bin_edges = similar(hist_proto.bucket_limit, length(hist_proto.bucket_limit)+1)
+    bin_edges[1] = hist_proto.min
+    bin_edges[2:end] .= hist_proto.bucket_limit
+
+    return Histogram(bin_edges, hist_proto.bucket)
 end
 
 # Lookahead for histograms .
