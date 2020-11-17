@@ -43,7 +43,7 @@ function histogram_summary(name::AbstractString, edges::AbstractVector{<:Number}
     return histogram_summary(name, Histogram(edges, hist_vals))
 end
 
-function histogram_summary(name::AbstractString, hist::StatsBase.Histogram{T,1}) where T
+function histogram_summary(name::AbstractString, hist::Histogram{T,1}) where T
     edges     = first(hist.edges)
     hist_vals = hist.weights
 

@@ -1,11 +1,15 @@
 module TensorBoardLogger
 
-using ProtoBuf, CRC32c
+using ProtoBuf: readproto, writeproto, ProtoType
+using CRC32c
 
-using ImageCore, ColorTypes
+using ImageCore: colorview, channelview
+using ColorTypes: Colorant, Gray, GrayA, RGB, RGBA
+
 using FileIO: FileIO, @format_str, Stream, save, load
 
-using StatsBase  #TODO: remove this. Only needed to compute histogram bins.
+#TODO: Is there a more lightweight package for compmuting an histogram?
+using StatsBase: Histogram, fit
 
 using  Base.CoreLogging: CoreLogging, AbstractLogger, LogLevel, Info,
     handle_message, shouldlog, min_enabled_level, catch_exceptions
