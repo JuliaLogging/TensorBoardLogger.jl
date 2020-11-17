@@ -45,7 +45,6 @@ jobs:
 
     - name: Disable broken dependencies on old Julia v1.0
         if: contains(matrix.julia_version, '1.0')
-
        run: cp compat/Project.toml Project.toml 
 
     - uses: julia-actions/julia-runtest@latest
