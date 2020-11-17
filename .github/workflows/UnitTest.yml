@@ -9,7 +9,6 @@ on:
 
 jobs:
   Test:
-    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
