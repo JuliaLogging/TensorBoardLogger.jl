@@ -15,9 +15,9 @@ jobs:
         os: [macos-latest, ubuntu-latest]
         julia_version: ["1.0", "1", "nightly"]
         exclude:
-          - os: macOS-latest
+          - os: macos-latest
             julia-version: "1.0"
-            
+
     runs-on: ${{ matrix.os }}
     env:
       MPICH_INTERFACE_HOSTNAME: localhost
