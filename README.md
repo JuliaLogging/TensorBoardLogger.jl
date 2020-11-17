@@ -1,5 +1,5 @@
 # TensorBoardLogger
-[![Build Status](https://travis-ci.org/PhilipVinc/TensorBoardLogger.jl.svg?branch=master)](https://travis-ci.org/PhilipVinc/TensorBoardLogger.jl) [![codecov](https://codecov.io/gh/PhilipVinc/TensorBoardLogger.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/PhilipVinc/TensorBoardLogger.jl)
+[![codecov](https://codecov.io/gh/PhilipVinc/TensorBoardLogger.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/PhilipVinc/TensorBoardLogger.jl)
 [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://philipvinc.github.io/TensorBoardLogger.jl/dev/)
 
 **TensorBoardLogger.jl** is a native library for logging arbitrary data to

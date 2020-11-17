@@ -1,0 +1,53 @@
+name: Unit Tests
+
+on:
+  pull_request:
+
+  push:
+    branches:
+      - master
+
+jobs:
+  Test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+        julia_version: ["1.0", "1", "nightly"]
+        exclude:
+          - os: macos-latest
+            julia_version: '1.0'
+
+    runs-on: ${{ matrix.os }}
+    env:
+      MPICH_INTERFACE_HOSTNAME: localhost
+      JULIA_MPIEXEC_ARGS: ${{ matrix.mpiexec_args }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Install Julia 
+      uses: julia-actions/setup-julia@latest
+      with:
+        version: ${{ matrix.julia_version }}
+
+    # https://discourse.julialang.org/t/recommendation-cache-julia-artifacts-in-ci-services/35484
+    - name: Cache artifacts
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-artifacts
+      with:
+        path: ~/.julia/artifacts
+        key: ${{ runner.os }}-test-${{ env.cache-name }}-${{ hashFiles('**/Project.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-test-${{ env.cache-name }}-
+          ${{ runner.os }}-test-
+          ${{ runner.os }}-
+
+    - name: Disable broken dependencies on old Julia v1.0
+      if: matrix.julia_version == '1.0'
+      run: cp compat/Project.toml Project.toml 
+
+    - uses: julia-actions/julia-runtest@latest
+
