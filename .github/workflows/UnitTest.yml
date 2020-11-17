@@ -16,7 +16,7 @@ jobs:
         julia_version: ["1.0", "1", "nightly"]
         exclude:
           - os: macos-latest
-            julia-version: "1.0"
+            julia_version: '1.0'
 
     runs-on: ${{ matrix.os }}
     env:
