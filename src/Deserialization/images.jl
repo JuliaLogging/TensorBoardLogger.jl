@@ -1,7 +1,7 @@
 function deserialize_image_summary(summary)
     img = summary.image
 
-    value = _deserialize_png(img.encoded_image_string)
+    value = load(Stream(format"PNG", IOBuffer(img.encoded_image_string)))
 
     return value
 end
@@ -36,35 +36,4 @@ function lookahead_deserialize_image_summary(old_tag, old_val, evs::Summary,
     end
 
     return result
-end
-
-
-# Ugly-ugly hack to work around
-# https://github.com/JuliaIO/FileIO.jl/issues/174
-# Essentially, ImageMagick.load() cannot handle an in-memory stream
-# but only files. Instead, ImageMagick.readblob() should be used.
-# On MacOs it's not a problem thanks to QuartzImageIO
-if !Sys.isapple()
-    did_patch_imagemagick = false
-
-    function _deserialize_png(data)
-        if !did_patch_imagemagick
-            global did_patch_imagemagick = true
-
-            # First load ImageMagick
-            FileIO.checked_import(:ImageMagick)
-        end
-        # attempt to mimick ImageMagick type reconstruction
-        attributes = PNGImage.read_info(data)
-        T = PNGImage.png_color_T(attributes)
-
-        # This errors becase we are loading ImageMagick after defining func.
-        # data = FileIO.ImageMagick.readblob(data)
-        # ERROR: MethodError: no method matching readblob(::Array{UInt8,1})
-        # The applicable method may be too new
-        _data = Base.invokelatest(FileIO.ImageMagick.readblob, data)
-        return reinterpret(T, _data)
-    end
-else
-    _deserialize_png(data) = load(Stream(format"PNG", IOBuffer(data)))
 end
