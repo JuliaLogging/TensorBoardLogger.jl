@@ -3,3 +3,6 @@
 events.out.tfevents*
 docs/build
 test/test_logs
+
+gen/proto
+gen/protojl
