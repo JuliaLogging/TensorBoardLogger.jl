@@ -1,3 +1,5 @@
+using .tensorboard: Summary_Image
+
 function image_summary(name::AbstractString, img::PngImage)
 
     attr    = img.attr
