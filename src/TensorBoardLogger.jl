@@ -2,6 +2,11 @@ module TensorBoardLogger
 
 using ProtoBuf, CRC32c
 
+# hasproperty is not defined before 1.2. This is Compat.hasproperty
+if VERSION < v"1.2.0-DEV.272"
+    using ProtoBuf: hasproperty
+end
+
 using ImageCore, ColorTypes
 using FileIO: FileIO, @format_str, Stream, save, load
 
@@ -25,22 +30,10 @@ export tb_multiline, tb_margin
 export TBText, TBVector, TBHistogram, TBImage, TBImages, TBAudio, TBAudios
 
 # Protobuffer definitions for tensorboard
-include("protojl/tensorflow.jl")
-include("protojl/tensor_shape_pb.jl")
-include("protojl/resource_handle_pb.jl")
-include("protojl/tensor_pb.jl")
-include("protojl/attr_value_pb.jl")
-include("protojl/op_def_pb.jl")
-include("protojl/node_def_pb.jl")
-include("protojl/function_pb.jl")
-include("protojl/versions_pb.jl")
-include("protojl/graph_pb.jl")
-include("protojl/types_pb.jl")
-include("protojl/summary_pb.jl")
-include("protojl/event_pb.jl")
-include("protojl/plugin_text_pb.jl")
-include("protojl/tensorboard.jl")
-include("protojl/layout_pb.jl")
+include("protojl/tensorboard/tensorboard.jl")
+using .tensorboard: Summary_Value, GraphDef, Summary, Event, SessionLog_SessionStatus, SessionLog
+using .tensorboard: TensorShapeProto_Dim, TensorShapeProto, TextPluginData
+using .tensorboard: TensorProto, SummaryMetadata, SummaryMetadata_PluginData, _DataType
 
 include("PNG.jl")
 using .PNGImage

@@ -1,3 +1,5 @@
+using .tensorboard: TextPluginData
+
 """
     log_text(logger::TBLogger, name::String, text::Any; step=step(logger))
 

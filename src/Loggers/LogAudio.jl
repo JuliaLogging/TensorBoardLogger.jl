@@ -1,3 +1,5 @@
+using .tensorboard: Summary_Audio
+
 """
     log_audios(logger::TBLogger, name::AbstractString, samples::AbstractArray, samplerate::Real; step=step(logger))
 

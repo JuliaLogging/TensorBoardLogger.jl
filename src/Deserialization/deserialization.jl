@@ -94,15 +94,15 @@ end
 Returns the type of a summary
 """
 function summary_type(summary)
-    if isdefined(summary, :histo)
+    if hasproperty(summary, :histo)
         return :histo
-    elseif isdefined(summary, :image)
+    elseif hasproperty(summary, :image)
         return :image
-    elseif isdefined(summary, :audio)
+    elseif hasproperty(summary, :audio)
         return :audio
-    elseif isdefined(summary, :tensor)
+    elseif hasproperty(summary, :tensor)
         return :tensor
-    #elseif isdefined(summary, :simple_value)
+    #elseif hasproperty(summary, :simple_value)
     end
     # always defined
     return :simple_value
@@ -212,7 +212,7 @@ function map_summaries(fun::Function, logdir; purge=true, tags=nothing, steps=no
         for event in event_file
             # if event.summary is not defined, don't bother processing this event,
             # as it's probably a "start file" event or a graph event.
-            !isdefined(event, :summary) && continue
+            !hasproperty(event, :summary) && continue
 
             step = event.step
             steps !== nothing && step ∉ steps && continue
@@ -239,7 +239,7 @@ When the keyword argument `purge==true`, if the i+1-th file begins with a purge
 at step `s`, the i-th file is read only up to step `s`.
 
 Also metadata events, without any real data attached are mapped.
-You can detect those by `isdefined(event, :summary) == false`
+You can detect those by `hasproperty(event, :summary) == false`
 
 Optional kwargs `steps` takes as input a collection of integers, and will
 only iterate across events with step within that collection.
