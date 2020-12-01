@@ -1,16 +1,19 @@
 module TensorBoardLogger
 
-using ProtoBuf, CRC32c
+using ProtoBuf: readproto, writeproto, ProtoType
+using CRC32c
+
+using ImageCore: colorview, channelview
+using ColorTypes: Colorant, Gray, GrayA, RGB, RGBA
+using FileIO: FileIO, @format_str, Stream, save, load
 
 # hasproperty is not defined before 1.2. This is Compat.hasproperty
 if VERSION < v"1.2.0-DEV.272"
     using ProtoBuf: hasproperty
 end
 
-using ImageCore, ColorTypes
-using FileIO: FileIO, @format_str, Stream, save, load
-
-using StatsBase  #TODO: remove this. Only needed to compute histogram bins.
+#TODO: Is there a more lightweight package for compmuting an histogram?
+using StatsBase: Histogram, fit
 
 using  Base.CoreLogging: CoreLogging, AbstractLogger, LogLevel, Info,
     handle_message, shouldlog, min_enabled_level, catch_exceptions

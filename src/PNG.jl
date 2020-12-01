@@ -2,7 +2,7 @@
 module PNGImage
 
 using FileIO: @format_str, Stream, save
-using ImageCore: Colorant, Gray, GrayA, RGB, RGBA
+using ColorTypes: Colorant, Gray, GrayA, RGB, RGBA
 using FixedPointNumbers: Normed
 
 export PngImage, png_color_T
