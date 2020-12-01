@@ -1,0 +1,60 @@
+# syntax: proto3
+using ProtoBuf
+import ProtoBuf.meta
+
+const _DataType = (;[
+    Symbol("DT_INVALID") => Int32(0),
+    Symbol("DT_FLOAT") => Int32(1),
+    Symbol("DT_DOUBLE") => Int32(2),
+    Symbol("DT_INT32") => Int32(3),
+    Symbol("DT_UINT8") => Int32(4),
+    Symbol("DT_INT16") => Int32(5),
+    Symbol("DT_INT8") => Int32(6),
+    Symbol("DT_STRING") => Int32(7),
+    Symbol("DT_COMPLEX64") => Int32(8),
+    Symbol("DT_INT64") => Int32(9),
+    Symbol("DT_BOOL") => Int32(10),
+    Symbol("DT_QINT8") => Int32(11),
+    Symbol("DT_QUINT8") => Int32(12),
+    Symbol("DT_QINT32") => Int32(13),
+    Symbol("DT_BFLOAT16") => Int32(14),
+    Symbol("DT_QINT16") => Int32(15),
+    Symbol("DT_QUINT16") => Int32(16),
+    Symbol("DT_UINT16") => Int32(17),
+    Symbol("DT_COMPLEX128") => Int32(18),
+    Symbol("DT_HALF") => Int32(19),
+    Symbol("DT_RESOURCE") => Int32(20),
+    Symbol("DT_VARIANT") => Int32(21),
+    Symbol("DT_UINT32") => Int32(22),
+    Symbol("DT_UINT64") => Int32(23),
+    Symbol("DT_FLOAT_REF") => Int32(101),
+    Symbol("DT_DOUBLE_REF") => Int32(102),
+    Symbol("DT_INT32_REF") => Int32(103),
+    Symbol("DT_UINT8_REF") => Int32(104),
+    Symbol("DT_INT16_REF") => Int32(105),
+    Symbol("DT_INT8_REF") => Int32(106),
+    Symbol("DT_STRING_REF") => Int32(107),
+    Symbol("DT_COMPLEX64_REF") => Int32(108),
+    Symbol("DT_INT64_REF") => Int32(109),
+    Symbol("DT_BOOL_REF") => Int32(110),
+    Symbol("DT_QINT8_REF") => Int32(111),
+    Symbol("DT_QUINT8_REF") => Int32(112),
+    Symbol("DT_QINT32_REF") => Int32(113),
+    Symbol("DT_BFLOAT16_REF") => Int32(114),
+    Symbol("DT_QINT16_REF") => Int32(115),
+    Symbol("DT_QUINT16_REF") => Int32(116),
+    Symbol("DT_UINT16_REF") => Int32(117),
+    Symbol("DT_COMPLEX128_REF") => Int32(118),
+    Symbol("DT_HALF_REF") => Int32(119),
+    Symbol("DT_RESOURCE_REF") => Int32(120),
+    Symbol("DT_VARIANT_REF") => Int32(121),
+    Symbol("DT_UINT32_REF") => Int32(122),
+    Symbol("DT_UINT64_REF") => Int32(123),
+]...)
+
+const SpecializedType = (;[
+    Symbol("ST_INVALID") => Int32(0),
+    Symbol("ST_TENSOR_LIST") => Int32(1),
+]...)
+
+export _DataType, SpecializedType

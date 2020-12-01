@@ -1,0 +1,7 @@
+README.md
+
+Download proto files from tensorboard and tensorflow git master using download_proto_source bash script
+
+Commpile them using compile_proto
+
+then move gen/protojl/tensorboard to src/ and add submodules to protojl/tensorboard.jl

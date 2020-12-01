@@ -52,5 +52,5 @@ log_custom_scalar(lg, layout)
 
 See also the documentation below
 ```@docs
-log_custom_scalars
+log_custom_scalar
 ```

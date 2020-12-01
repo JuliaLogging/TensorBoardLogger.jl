@@ -1,3 +1,5 @@
+using .tensorboard: HistogramProto
+
 """
     log_histogram(logger, name, (bins,weights); step=step(logger))
 

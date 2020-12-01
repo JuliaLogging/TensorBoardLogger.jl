@@ -1,3 +1,5 @@
+using .tensorboard: NodeDef, AttrValue_ListValue, AttrValue, NameAttrList
+
 """
 	log_graph
 """

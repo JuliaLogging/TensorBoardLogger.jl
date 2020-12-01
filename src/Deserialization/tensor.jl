@@ -1,3 +1,5 @@
+using .tensorboard: TextPluginData
+
 function deserialize_tensor_summary(summary)
     metadata    = summary.metadata
     plugin_data = metadata.plugin_data
