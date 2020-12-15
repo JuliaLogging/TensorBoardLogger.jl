@@ -207,3 +207,19 @@ preprocess(name, val::TBVector{T,N}, data) where {T<:Complex,N} =
     push!(data, name*"/re"=>TBVector(real.(content(val))), name*"/im"=>TBVector(imag.(content(val))))
 summary_impl(name, val::TBVector) = histogram_summary(name, collect(0:length(val.data)),
                                                             val.data)
+
+########## Hyperparameters ########################
+
+"""
+    TBHyperParams(TODO)
+
+TODO
+"""
+struct TBHyperParams <: WrapperLogType
+    version::Int32
+    experiment::Experiment
+    session_start_info::SessionStartInfo
+    session_end_info::SessionEndInfo
+end
+preprocess(name, val::TBHyperParams, data) = push!(data, name=>val)
+summary_impl(name, val::TBHyperParams) = hparams_summary(name, val)

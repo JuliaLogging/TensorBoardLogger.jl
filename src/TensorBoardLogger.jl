@@ -30,13 +30,16 @@ export ImageFormat, L, CL, LC, LN, NL, NCL, NLC, CLN, LCN, HW, WH, HWC, WHC,
 export tb_multiline, tb_margin
 
 # Wrapper types
-export TBText, TBVector, TBHistogram, TBImage, TBImages, TBAudio, TBAudios
+export TBText, TBVector, TBHistogram, TBImage, TBImages, TBAudio, TBAudios, TBHParam
 
 # Protobuffer definitions for tensorboard
 include("protojl/tensorboard/tensorboard.jl")
 using .tensorboard: Summary_Value, GraphDef, Summary, Event, SessionLog_SessionStatus, SessionLog
 using .tensorboard: TensorShapeProto_Dim, TensorShapeProto, TextPluginData
 using .tensorboard: TensorProto, SummaryMetadata, SummaryMetadata_PluginData, _DataType
+using .tensorboard.hparams: HParamsPluginData, Experiment, SessionStartInfo, SessionEndInfo, HParamInfo, MetricInfo, HParamInfo, Interval, MetricName
+
+using ProtoBuf.google.protobuf: ListValue, Value
 
 include("PNG.jl")
 using .PNGImage
@@ -55,6 +58,7 @@ include("Loggers/LogHistograms.jl")
 include("Loggers/LogAudio.jl")
 include("Loggers/LogEmbeddings.jl")
 
+include("Loggers/LogHParams.jl")
 # Custom Scalar Plugin
 include("Loggers/LogCustomScalar.jl")
 

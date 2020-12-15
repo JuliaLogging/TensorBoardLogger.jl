@@ -34,6 +34,10 @@ module tensorboard
   include("plugins/custom_scalar/layout_pb.jl")
   include("plugins/text/plugin_data_pb.jl")
 
-  #include("plugins/hparams/hparams.jl")
-
+  # Needs separate module due to conflicting "_DataType" export
+  module hparams
+    include("plugins/hparams/api_pb.jl")
+    include("plugins/hparams/hparams_util_pb.jl")
+    include("plugins/hparams/plugin_data_pb.jl")
+  end
 end
