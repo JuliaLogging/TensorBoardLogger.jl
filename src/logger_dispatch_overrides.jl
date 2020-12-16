@@ -218,7 +218,7 @@ content(x::HParamsConfig) = x.data
 summary_impl(name, val::TBHParamsConfig) = hparams_config_summary(val.data)
 
 struct TBHParams <: WrapperLogType
-    # TODO: The types in the hparam domain and this dicts values are constrained.
+    # TODO: The types in the hparam domain and this dict's values are constrained.
     # e.g. an hparam with a discrete domain of ["a", "b"] must have string values
     # Consider ways to enforce this relationship in the type system.
     data::Dict{HParam, Any}
