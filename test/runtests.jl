@@ -268,6 +268,38 @@ end
     @test π != log_embeddings(logger, "random2", mat, step = step+1)
 end
 
+@testset "HParamConfig Logger" begin
+    logger = TBLogger(test_log_dir*"t", tb_overwrite)
+    step = 1
+
+    interval = Interval(min_value=0.1, max_value=3.0)
+    hparam1 = HParam("interval_hparam", interval, "display_name1", "description1")
+    hparam1
+
+    discrete_domain_strs = ["a", "b", "c"]
+    discrete_domain = DiscreteDomain()
+    hparam2 = HParam("discrete_domain_hparam", discrete_domain, "display_name2", "description2")
+
+    hparams = [hparam1, hparam2]
+
+    metric = Metric("tag", "group", "display_name", "description", :DATASET_VALIDATION)
+    metrics = [metric]
+    hparams_config = HParamsConfig(hparams, metrics, 1.2)
+    ss = hparams_config_summary(hparams_config)
+
+    @test isa(ss, TensorBoardLogger.Summary_Value)
+    @test ss.tag == TensorBoardLogger.EXPERIMENT_TAG
+
+    @test ss.metadata.experiment.hparam_infos[1].domain_interval == interval
+
+    @test ss.metadata.experiment.hparam_infos[2]._type == tensorboard.hparams._DataType[:DATA_TYPE_STRING]
+    dd_values = ss.metadata.experiment.hparam_infos[2].discrete_domain.values
+    @test all([dd_values[i].string_value == s for (i, s) in enumerate(discrete_domain_strs)])
+
+
+end
+
+
 @testset "Logger dispatch overrides" begin
     include("test_logger_dispatch_overrides.jl")
 end
