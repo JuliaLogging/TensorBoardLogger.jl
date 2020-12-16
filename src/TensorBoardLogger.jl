@@ -30,7 +30,7 @@ export ImageFormat, L, CL, LC, LN, NL, NCL, NLC, CLN, LCN, HW, WH, HWC, WHC,
 export tb_multiline, tb_margin
 
 # Wrapper types
-export TBText, TBVector, TBHistogram, TBImage, TBImages, TBAudio, TBAudios, TBHParam
+export TBText, TBVector, TBHistogram, TBImage, TBImages, TBAudio, TBAudios, TBHParamsConfig, TBHParams
 
 # Protobuffer definitions for tensorboard
 include("protojl/tensorboard/tensorboard.jl")

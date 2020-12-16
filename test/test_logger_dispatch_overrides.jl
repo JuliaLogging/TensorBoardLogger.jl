@@ -1,5 +1,6 @@
 using TensorBoardLogger, Test
 using TensorBoardLogger: preprocess, content
+using TensorBoardLogger: TBHParamsConfig, TBHParams
 using TestImages
 using ImageCore
 @testset "TBText" begin
@@ -66,15 +67,15 @@ end
     data = Vector{Pair{String,Any}}()
     hparam = HParam("interval_hparam", IntervalDomain(0.1, 3.0), "display_name1", "description1")
     metric = Metric("tag", "group", "display_name", "description", :DATASET_VALIDATION)
-    hparams_config = HParamsConfig([hparam], [metric], 1.2)
-    preprocess("test", hparams_config, data)
-    @test first(data) == ("test"=>hparams_config)
+    tbhparams_config = TBHParamsConfig(HParamsConfig([hparam], [metric], 1.2))
+    preprocess("test", tbhparams_config, data)
+    @test first(data) == ("test"=>tbhparams_config)
 end
 
 @testset "TBHParams" begin
     data = Vector{Pair{String,Any}}()
     hparam = HParam("interval_hparam", IntervalDomain(0.1, 3.0), "display_name1", "description1")
-    hparams_dict = Dict(hparam1 => 1.2, hparam2 => "b")
+    hparams_dict = Dict(hparam => 1.2)
     tbh_params = TBHParams(hparams_dict, "group_name", "trial_id", nothing)
     preprocess("test", tbh_params, data)
     @test first(data) == ("test"=>tbh_params)
