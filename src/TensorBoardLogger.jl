@@ -37,9 +37,14 @@ include("protojl/tensorboard/tensorboard.jl")
 using .tensorboard: Summary_Value, GraphDef, Summary, Event, SessionLog_SessionStatus, SessionLog
 using .tensorboard: TensorShapeProto_Dim, TensorShapeProto, TextPluginData
 using .tensorboard: TensorProto, SummaryMetadata, SummaryMetadata_PluginData, _DataType
-using .tensorboard.hparams: HParamsPluginData, Experiment, SessionStartInfo, SessionEndInfo, HParamInfo, MetricInfo, HParamInfo, Interval, MetricName
+using .tensorboard.hparams: HParamsPluginData, Experiment, SessionStartInfo, SessionEndInfo, \
+                            HParamInfo, MetricInfo, HParamInfo, Interval, MetricName, DatasetType
+using .tensorboard.hparams
+import .tensorboard: SummaryMetadata, Summary
+import .tensorboard.hparams: HParamInfo, MetricInfo,
 
-using ProtoBuf.google.protobuf: ListValue, Value
+using ProtoBuf
+import ProtoBuf.google.protobuf: Value, ListValue
 
 include("PNG.jl")
 using .PNGImage
@@ -58,9 +63,11 @@ include("Loggers/LogHistograms.jl")
 include("Loggers/LogAudio.jl")
 include("Loggers/LogEmbeddings.jl")
 
-include("Loggers/LogHParams.jl")
 # Custom Scalar Plugin
 include("Loggers/LogCustomScalar.jl")
+
+include("Loggers/LogHParams.jl")
+
 
 include("logger_dispatch.jl")
 include("logger_dispatch_overrides.jl")

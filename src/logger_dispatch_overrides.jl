@@ -210,16 +210,19 @@ summary_impl(name, val::TBVector) = histogram_summary(name, collect(0:length(val
 
 ########## Hyperparameters ########################
 
-"""
-    TBHyperParams(TODO)
-
-TODO
-"""
-struct TBHyperParams <: WrapperLogType
-    version::Int32
-    experiment::Experiment
-    session_start_info::SessionStartInfo
-    session_end_info::SessionEndInfo
+struct TBHParamsConfig <: WrapperLogType
+    data::HParamConfig
 end
-preprocess(name, val::TBHyperParams, data) = push!(data, name=>val)
-summary_impl(name, val::TBHyperParams) = hparams_summary(name, val)
+content(x::HParamConfig) = x.data
+# FIXME: name unused?
+summary_impl(name, val::TBHParamsConfig) = hparams_config_summary(val.data)
+
+struct TBHParams <: WrapperLogType
+    data::Dict{HParam, HParamValue}
+     # FIXME: group_name auto generated in the Python implementation (Tensorboard)
+    group_name::AbstractString
+    trial_id::AbstractString
+    start_time_secs::Union{Float64, Nothing}
+end
+content(x::HParams) = x.data
+summary_impl(name, val::TBHParams) = hparams_summary(val.data, val.group_name, val.trial_id, val.start_time_secs)
