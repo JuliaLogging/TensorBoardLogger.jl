@@ -3,7 +3,6 @@ PLUGIN_DATA_VERSION = 0
 
 EXPERIMENT_TAG = "_hparams_/experiment"
 SESSION_START_INFO_TAG = "_hparams_/session_start_info"
-SESSION_END_INFO_TAG = "_hparams_/session_end_info"
 
 
 struct DiscreteDomain{T}
