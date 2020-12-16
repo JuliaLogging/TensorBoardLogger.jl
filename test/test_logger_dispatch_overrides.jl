@@ -61,3 +61,21 @@ end
     @test first(data) == ("test/1"=>TBAudio(y, sample_rate))
     @test last(data) == ("test/2"=>TBAudio(y, sample_rate))
 end
+
+@testset "TBHParamsConfig" begin
+    data = Vector{Pair{String,Any}}()
+    hparam = HParam("interval_hparam", IntervalDomain(0.1, 3.0), "display_name1", "description1")
+    metric = Metric("tag", "group", "display_name", "description", :DATASET_VALIDATION)
+    hparams_config = HParamsConfig([hparam], [metric], 1.2)
+    preprocess("test", hparams_config, data)
+    @test first(data) == ("test"=>hparams_config)
+end
+
+@testset "TBHParams" begin
+    data = Vector{Pair{String,Any}}()
+    hparam = HParam("interval_hparam", IntervalDomain(0.1, 3.0), "display_name1", "description1")
+    hparams_dict = Dict(hparam1 => 1.2, hparam2 => "b")
+    tbh_params = TBHParams(hparams_dict, "group_name", "trial_id", nothing)
+    preprocess("test", tbh_params, data)
+    @test first(data) == ("test"=>tbh_params)
+end
