@@ -23,6 +23,11 @@ end
 ProtoBuf.google.protobuf.Value(x::Number) = Value(number_value=x)
 ProtoBuf.google.protobuf.Value(x::Bool) = Value(bool_value=x)
 ProtoBuf.google.protobuf.Value(x::AbstractString) = Value(string_value=x)
+function ProtoBuf.google.protobuf.Value(x)
+    @warn "Cannot create a ProtoBuf.google.protobuf.Value of type $(typeof(x)), defaulting to null."
+    Value(null_value=Int32(0))
+end
+
 
 function ProtoBuf.google.protobuf.ListValue(domain::DiscreteDomain{T}) where T <: DiscreteDomainElem
     ProtoBuf.google.protobuf.ListValue(
@@ -30,7 +35,14 @@ function ProtoBuf.google.protobuf.ListValue(domain::DiscreteDomain{T}) where T <
     )
 end
 
-HParamDomain = Union{Interval, DiscreteDomain}
+struct IntervalDomain
+    min_value::Float64
+    max_value::Float64
+end
+
+Interval(d::IntervalDomain) = Interval(min_value=d.min_value, max_value=d.max_value)
+
+HParamDomain = Union{IntervalDomain, DiscreteDomain}
 
 struct HParam
     name::AbstractString
@@ -39,28 +51,20 @@ struct HParam
     description::AbstractString
 end
 
-HParamValue = Union{String, Int64, Float64, Bool}
-
 
 function HParamInfo(hparam::HParam)
-    kwargs = (
-        name = hparam.name,
-        description = hparam.description,
-        display_name = hparam.display_name,
-    )
     domain = hparam.domain
-    if isa(domain, Interval)
-        HParamInfo(;
-                   domain_interval = domain,
-                   kwargs...
-                   )
-    elseif isa(domain, DiscreteDomain)
-        HParamInfo(;
-                   _type = hparams_datatype(domain),
-                   domain_discrete = ProtoBuf.google.protobuf.ListValue(domain),
-                   kwargs...
-                   )
-    end
+    domain_kwargs = if isa(domain, IntervalDomain)
+                        (;domain_interval = Interval(domain))
+                    else
+                        @assert isa(domain, DiscreteDomain)
+                        (_type = hparams_datatype(domain),
+                        domain_discrete = ProtoBuf.google.protobuf.ListValue(domain))
+                    end
+    HParamInfo(;name = hparam.name,
+               description = hparam.description,
+               display_name = hparam.display_name,
+               domain_kwargs...)
 end
 
 struct Metric
@@ -134,9 +138,9 @@ function hparams_config_summary(config::HParamsConfig)
     )
 end
 
-function hparams_summary(hparams_dict::Dict{HParam, HParamValue},
-                         trial_id::AbstractString,
+function hparams_summary(hparams_dict::Dict{HParam, Any},
                          group_name::AbstractString,
+                         trial_id::AbstractString,
                          start_time_secs=Union{Float64, Nothing})
     if isnothing(start_time_secs)
         start_time_secs = time()

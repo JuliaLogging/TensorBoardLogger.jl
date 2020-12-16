@@ -218,7 +218,10 @@ content(x::HParamsConfig) = x.data
 summary_impl(name, val::TBHParamsConfig) = hparams_config_summary(val.data)
 
 struct TBHParams <: WrapperLogType
-    data::Dict{HParam, HParamValue}
+    # TODO: The types in the hparam domain and this dicts values are constrained.
+    # e.g. an hparam with a discrete domain of ["a", "b"] must have string values
+    # Consider ways to enforce this relationship in the type system.
+    data::Dict{HParam, Any}
      # FIXME: group_name auto generated in the Python implementation (Tensorboard)
     group_name::AbstractString
     trial_id::AbstractString

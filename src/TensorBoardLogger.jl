@@ -40,7 +40,7 @@ using .tensorboard: TensorProto, SummaryMetadata, SummaryMetadata_PluginData, _D
 using .tensorboard.hparams: HParamsPluginData, Experiment, SessionStartInfo, SessionEndInfo, HParamInfo, MetricInfo, HParamInfo, Interval, MetricName, DatasetType
 import .tensorboard.hparams
 import .tensorboard: SummaryMetadata, Summary
-import .tensorboard.hparams: HParamInfo, MetricInfo
+import .tensorboard.hparams: HParamInfo, MetricInfo, Interval
 
 using ProtoBuf
 import ProtoBuf.google.protobuf: Value, ListValue
