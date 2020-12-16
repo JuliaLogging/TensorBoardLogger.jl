@@ -210,12 +210,9 @@ summary_impl(name, val::TBVector) = histogram_summary(name, collect(0:length(val
 
 ########## Hyperparameters ########################
 
-struct TBHParamsConfig <: WrapperLogType
-    data::HParamsConfig
-end
-content(x::HParamsConfig) = x.data
 # FIXME: name unused?
-summary_impl(name, val::TBHParamsConfig) = hparams_config_summary(val.data)
+summary_impl(name, val::HParamsConfig) = hparams_config_summary(val.data)
+preprocess(name, val::HParamsConfig, data) = push!(data, name=>val)
 
 struct TBHParams <: WrapperLogType
     # TODO: The types in the hparam domain and this dict's values are constrained.
