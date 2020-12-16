@@ -37,11 +37,10 @@ include("protojl/tensorboard/tensorboard.jl")
 using .tensorboard: Summary_Value, GraphDef, Summary, Event, SessionLog_SessionStatus, SessionLog
 using .tensorboard: TensorShapeProto_Dim, TensorShapeProto, TextPluginData
 using .tensorboard: TensorProto, SummaryMetadata, SummaryMetadata_PluginData, _DataType
-using .tensorboard.hparams: HParamsPluginData, Experiment, SessionStartInfo, SessionEndInfo, \
-                            HParamInfo, MetricInfo, HParamInfo, Interval, MetricName, DatasetType
-using .tensorboard.hparams
+using .tensorboard.hparams: HParamsPluginData, Experiment, SessionStartInfo, SessionEndInfo, HParamInfo, MetricInfo, HParamInfo, Interval, MetricName, DatasetType
+import .tensorboard.hparams
 import .tensorboard: SummaryMetadata, Summary
-import .tensorboard.hparams: HParamInfo, MetricInfo,
+import .tensorboard.hparams: HParamInfo, MetricInfo
 
 using ProtoBuf
 import ProtoBuf.google.protobuf: Value, ListValue

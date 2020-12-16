@@ -211,9 +211,9 @@ summary_impl(name, val::TBVector) = histogram_summary(name, collect(0:length(val
 ########## Hyperparameters ########################
 
 struct TBHParamsConfig <: WrapperLogType
-    data::HParamConfig
+    data::HParamsConfig
 end
-content(x::HParamConfig) = x.data
+content(x::HParamsConfig) = x.data
 # FIXME: name unused?
 summary_impl(name, val::TBHParamsConfig) = hparams_config_summary(val.data)
 
@@ -224,5 +224,5 @@ struct TBHParams <: WrapperLogType
     trial_id::AbstractString
     start_time_secs::Union{Float64, Nothing}
 end
-content(x::HParams) = x.data
+content(x::TBHParams) = x.data
 summary_impl(name, val::TBHParams) = hparams_summary(val.data, val.group_name, val.trial_id, val.start_time_secs)

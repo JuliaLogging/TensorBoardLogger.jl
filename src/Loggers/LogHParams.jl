@@ -6,9 +6,6 @@ SESSION_START_INFO_TAG = "_hparams_/session_start_info"
 SESSION_END_INFO_TAG = "_hparams_/session_end_info"
 
 
-NULL_TENSOR = TensorProto(dtype = _DataType.DT_FLOAT, tensor_shape = TensorShapeProto(dim=[]))
-
-
 struct DiscreteDomain{T}
     values::AbstractVector{T}
 end
@@ -99,7 +96,7 @@ function MetricInfo(metric::Metric)
     )
 end
 
-struct HParamConfig
+struct HParamsConfig
     hparams::AbstractVector{HParam}
     metrics::AbstractVector{Metric}
     time_created_secs::Float64
@@ -115,14 +112,15 @@ function SummaryMetadata(hparams_plugin_data::HParamsPluginData)
 end
 
 function Summary_Value(tag, hparams_plugin_data::HParamsPluginData)
+    null_tensor = TensorProto(dtype = _DataType.DT_FLOAT, tensor_shape = TensorShapeProto(dim=[]))
     Summary_Value(
         tag = tag,
         metadata = SummaryMetadata(hparams_plugin_data),
-        tensor = NULL_TENSOR
+        tensor = null_tensor
     )
 end
 
-function hparams_config_summary(config::HparamsConfig)
+function hparams_config_summary(config::HParamsConfig)
     Summary_Value(
         EXPERIMENT_TAG,
         HParamsPluginData(
@@ -137,8 +135,8 @@ function hparams_config_summary(config::HparamsConfig)
 end
 
 function hparams_summary(hparams_dict::Dict{HParam, HParamValue},
-                         group_name::AbstractString,
                          trial_id::AbstractString,
+                         group_name::AbstractString,
                          start_time_secs=Union{Float64, Nothing})
     if isnothing(start_time_secs)
         start_time_secs = time()
