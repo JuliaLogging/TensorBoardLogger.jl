@@ -20,7 +20,8 @@ using  Base.CoreLogging: CoreLogging, AbstractLogger, LogLevel, Info,
 
 export TBLogger, reset!, set_step!, increment_step!, set_step_increment!
 export log_histogram, log_value, log_vector, log_text, log_image, log_images,
-       log_audio, log_audios, log_graph, log_embeddings, log_custom_scalar
+    log_audio, log_audios, log_graph, log_embeddings, log_custom_scalar,
+    log_hparams, log_hparams_config
 export map_summaries
 
 export ImageFormat, L, CL, LC, LN, NL, NCL, NLC, CLN, LCN, HW, WH, HWC, WHC,

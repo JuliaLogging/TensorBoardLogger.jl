@@ -124,6 +124,15 @@ function Summary_Value(tag, hparams_plugin_data::HParamsPluginData)
     )
 end
 
+function log_hparams_config(logger::TBLogger,
+                            hparams_config::HParamsConfig;
+                            step=nothing)
+    summ = SummaryCollection(
+        hparams_config_summary(hparams_config)
+    )
+    write_event(logger.file, make_event(logger, summ, step=step))
+end
+
 function hparams_config_summary(config::HParamsConfig)
     Summary_Value(
         EXPERIMENT_TAG,
@@ -136,6 +145,21 @@ function hparams_config_summary(config::HParamsConfig)
             )
         )
     )
+end
+
+function log_hparams(logger::TBLogger,
+                     hparams_dict::Dict{HParam, Any},
+                     group_name::AbstractString,
+                     trial_id::AbstractString,
+                     start_time_secs::Union{Float64, Nothing};
+                     step=nothing)
+    summ = SummaryCollection(
+        hparams_summary(hparams_dict,
+                        group_name,
+                        trial_id,
+                        start_time_secs)
+    )
+    write_event(logger.file, make_event(logger, summ, step=step))
 end
 
 function hparams_summary(hparams_dict::Dict{HParam, Any},
@@ -161,3 +185,4 @@ function hparams_summary(hparams_dict::Dict{HParam, Any},
         )
     )
 end
+

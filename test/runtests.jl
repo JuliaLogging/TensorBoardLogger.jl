@@ -291,6 +291,8 @@ end
     @test ss.tag == TensorBoardLogger.EXPERIMENT_TAG
 
     # TODO: Deserialize and test more properties
+
+    log_hparams_config(logger, hparams_config ;step=step)
 end
 
 @testset "HParams Logger" begin
@@ -312,6 +314,7 @@ end
     @test ss.tag == TensorBoardLogger.SESSION_START_INFO_TAG
 
     # TODO: Deserialize and test more properties
+    log_hparams(logger, hparams_dict, "group_name", "trial_id", nothing ;step=step)
 end
 
 
