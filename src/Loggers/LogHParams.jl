@@ -165,7 +165,7 @@ function hparams_summary(hparams_dict::Dict{HParam, Any},
                          group_name::AbstractString,
                          trial_id::AbstractString,
                          start_time_secs=Union{Float64, Nothing})
-    if start_time_secs === nothing:
+    if start_time_secs === nothing
         start_time_secs = time()
     end
 
