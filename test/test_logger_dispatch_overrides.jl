@@ -1,5 +1,6 @@
 using TensorBoardLogger, Test
 using TensorBoardLogger: preprocess, content
+using TensorBoardLogger: TBHParams
 using TestImages
 using ImageCore
 @testset "TBText" begin
@@ -60,4 +61,22 @@ end
     preprocess("test", TBAudios([y, y], sample_rate), data)
     @test first(data) == ("test/1"=>TBAudio(y, sample_rate))
     @test last(data) == ("test/2"=>TBAudio(y, sample_rate))
+end
+
+@testset "HParamsConfig" begin
+    data = Vector{Pair{String,Any}}()
+    hparam = HParam("interval_hparam", IntervalDomain(0.1, 3.0), "display_name1", "description1")
+    metric = Metric("tag", "group", "display_name", "description", :DATASET_VALIDATION)
+    params_config = HParamsConfig([hparam], [metric], 1.2)
+    preprocess("test", params_config, data)
+    @test first(data) == ("test"=>params_config)
+end
+
+@testset "TBHParams" begin
+    data = Vector{Pair{String,Any}}()
+    hparam = HParam("interval_hparam", IntervalDomain(0.1, 3.0), "display_name1", "description1")
+    hparams_dict = Dict(hparam => 1.2)
+    tbh_params = TBHParams(hparams_dict, "group_name", "trial_id", nothing)
+    preprocess("test", tbh_params, data)
+    @test first(data) == ("test"=>tbh_params)
 end

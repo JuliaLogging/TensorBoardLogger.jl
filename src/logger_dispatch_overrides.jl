@@ -207,3 +207,22 @@ preprocess(name, val::TBVector{T,N}, data) where {T<:Complex,N} =
     push!(data, name*"/re"=>TBVector(real.(content(val))), name*"/im"=>TBVector(imag.(content(val))))
 summary_impl(name, val::TBVector) = histogram_summary(name, collect(0:length(val.data)),
                                                             val.data)
+
+########## Hyperparameters ########################
+
+# FIXME: name unused?
+summary_impl(name, val::HParamsConfig) = hparams_config_summary(val.data)
+preprocess(name, val::HParamsConfig, data) = push!(data, name=>val)
+
+struct TBHParams <: WrapperLogType
+    # TODO: The types in the hparam domain and this dict's values are constrained.
+    # e.g. an hparam with a discrete domain of ["a", "b"] must have string values
+    # Consider ways to enforce this relationship in the type system.
+    data::Dict{HParam, Any}
+     # FIXME: group_name auto generated in the Python implementation (Tensorboard)
+    group_name::AbstractString
+    trial_id::AbstractString
+    start_time_secs::Union{Float64, Nothing}
+end
+content(x::TBHParams) = x.data
+summary_impl(name, val::TBHParams) = hparams_summary(val.data, val.group_name, val.trial_id, val.start_time_secs)

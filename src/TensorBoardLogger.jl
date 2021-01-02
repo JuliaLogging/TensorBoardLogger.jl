@@ -20,7 +20,8 @@ using  Base.CoreLogging: CoreLogging, AbstractLogger, LogLevel, Info,
 
 export TBLogger, reset!, set_step!, increment_step!, set_step_increment!
 export log_histogram, log_value, log_vector, log_text, log_image, log_images,
-       log_audio, log_audios, log_graph, log_embeddings, log_custom_scalar
+    log_audio, log_audios, log_graph, log_embeddings, log_custom_scalar,
+    log_hparams, log_hparams_config
 export map_summaries, TBReader
 
 export ImageFormat, L, CL, LC, LN, NL, NCL, NLC, CLN, LCN, HW, WH, HWC, WHC,
@@ -30,7 +31,7 @@ export ImageFormat, L, CL, LC, LN, NL, NCL, NLC, CLN, LCN, HW, WH, HWC, WHC,
 export tb_multiline, tb_margin
 
 # Wrapper types
-export TBText, TBVector, TBHistogram, TBImage, TBImages, TBAudio, TBAudios
+export TBText, TBVector, TBHistogram, TBImage, TBImages, TBAudio, TBAudios, TBHParams
 
 # workaround for FileIO pre 1.6
 include("FileIO_workaround.jl")
@@ -40,6 +41,13 @@ include("protojl/tensorboard/tensorboard.jl")
 using .tensorboard: Summary_Value, GraphDef, Summary, Event, SessionLog_SessionStatus, SessionLog
 using .tensorboard: TensorShapeProto_Dim, TensorShapeProto, TextPluginData
 using .tensorboard: TensorProto, SummaryMetadata, SummaryMetadata_PluginData, _DataType
+using .tensorboard.hparams: HParamsPluginData, Experiment, SessionStartInfo, SessionEndInfo, HParamInfo, MetricInfo, HParamInfo, Interval, MetricName, DatasetType
+import .tensorboard.hparams
+import .tensorboard: SummaryMetadata, Summary
+import .tensorboard.hparams: HParamInfo, MetricInfo, Interval
+
+using ProtoBuf
+import ProtoBuf.google.protobuf: Value, ListValue
 
 include("PNG.jl")
 using .PNGImage
@@ -60,6 +68,9 @@ include("Loggers/LogEmbeddings.jl")
 
 # Custom Scalar Plugin
 include("Loggers/LogCustomScalar.jl")
+
+include("Loggers/LogHParams.jl")
+
 
 include("logger_dispatch.jl")
 include("logger_dispatch_overrides.jl")
