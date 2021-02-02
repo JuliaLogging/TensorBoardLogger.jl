@@ -13,7 +13,9 @@ function read_event(f::IOStream)
 
     # check
     crc_header_ck = reinterpret(UInt8, UInt32[masked_crc32c(header)])
-    @assert crc_header == crc_header_ck
+    if crc_header != crc_header_ck
+        return nothing
+    end
 
     # read data
     data_len = first(reinterpret(Int64, header))
@@ -82,6 +84,7 @@ TBEventFileIterator(fstream) = TBEventFileIterator(fstream, typemax(Int))
 function Base.iterate(it::TBEventFileIterator, state=0)
     eof(it.fstream) && return nothing
     ev=read_event(it.fstream)
+    isnothing(ev) && return nothing
     ev.step >= it.stop_at_step && @info "stopping!!!!!"
     ev.step >= it.stop_at_step && return nothing
 
