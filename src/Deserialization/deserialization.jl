@@ -1,6 +1,28 @@
 export summary_iterator
 
 """
+    is_valid_event(f::IOStream) => Bool
+
+Returns true if the stream points to a valid TensorBoard event, false overwise.
+This is accomplished by checeking the crc checksum on the header (first 8
+bytes) of the event.
+"""
+function is_valid_event(f::IOStream)
+    eof(f) && return false
+
+    header = read(f, 8)
+    length(header) != 8 && return false
+
+    crc_header = read(f, 4)
+    length(header) != 4 && return false
+
+    # check
+    crc_header_ck = reinterpret(UInt8, UInt32[masked_crc32c(header)])
+    return crc_header == crc_header_ck
+end
+
+
+"""
     read_event(f::IOStream) => Event
 
 Reads the stream `f`, assuming it's encoded according to TensorBoard format,
@@ -13,7 +35,9 @@ function read_event(f::IOStream)
 
     # check
     crc_header_ck = reinterpret(UInt8, UInt32[masked_crc32c(header)])
-    @assert crc_header == crc_header_ck
+    if crc_header != crc_header_ck
+        error("Invalid event checksum for stream", f)
+    end
 
     # read data
     data_len = first(reinterpret(Int64, header))
@@ -42,11 +66,26 @@ struct TBEventFileCollectionIterator
 
     purge::Bool
 end
-TBEventFileCollectionIterator(path; purge=true) =
-    TBEventFileCollectionIterator(path, sort(readdir(path)), purge)
 
 TBEventFileCollectionIterator(logger::TBLogger; purge=true) =
     TBEventFileCollectionIterator(logdir(logger), purge=true)
+
+function TBEventFileCollectionIterator(path; purge=true)
+    fnames = sort(readdir(path))
+    good_fnames = typeof(fnames)()
+
+    # Only consider files whose first event file would be valid.
+    # So if there are other files in this folder, we ignore them.
+    for fname in fnames
+        open(joinpath(path,fname), "r") do f
+            is_valid_event(f) && push!(good_fnames, fname)
+        end
+    end
+
+    @debug "Valid TensorBoard event files" good_fnames
+
+    TBEventFileCollectionIterator(path, good_fnames, purge)
+end
 
 function Base.iterate(it::TBEventFileCollectionIterator, state=1)
     state > length(it.files) && return nothing
