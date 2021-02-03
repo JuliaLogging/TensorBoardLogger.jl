@@ -17,6 +17,12 @@ ENV["GKSwstype"] = "100"
         end
     end
 
+    # Issue #88: ignore non -tensorboard files
+    dir = TensorBoardLogger.logdir(logger)
+    f = open(joinpath(dir, "mockdata"), "w")
+    write(f, "baddta")
+    close(f)
+    
     tgs = TensorBoardLogger.tags(logger)
     @test "test/val" ∈ tgs
     @test "test/b" ∈ tgs
@@ -29,4 +35,5 @@ ENV["GKSwstype"] = "100"
     @test all(hist["test/val"].values .== (1-0.5*im).* is)
     @test all(hist["test/b"].values == is .* 2)
     @test all([v == mri for v=hist["test2/mri"].values])
+
 end
