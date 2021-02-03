@@ -14,7 +14,7 @@ function is_valid_event(f::IOStream)
     length(header) != 8 && return false
 
     crc_header = read(f, 4)
-    length(header) != 4 && return false
+    length(crc_header) != 4 && return false
 
     # check
     crc_header_ck = reinterpret(UInt8, UInt32[masked_crc32c(header)])
