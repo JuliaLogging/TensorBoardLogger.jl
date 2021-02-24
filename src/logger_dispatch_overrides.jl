@@ -193,7 +193,7 @@ end
 content(x::TBHistogram) = x.data
 preprocess(name, val::TBHistogram{T,N}, data) where {T<:Complex,N} =
     push!(data, name*"/re"=>TBHistogram(real.(content(val))), name*"/im"=>TBHistogram(imag.(content(val))))
-preprocess(name, val::TBHistogram, data) = preprocess(data, fit(Histogram, val.data), data)
+preprocess(name, val::TBHistogram, data) = preprocess(name, fit(Histogram, val.data), data)
 
 """
     TBVector(data)
