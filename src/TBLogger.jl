@@ -1,12 +1,11 @@
 mutable struct TBLogger <: AbstractLogger
     logdir::String
-    file::IOStream
+    file::Union{IOStream, Nothing}
     all_files::Dict{String, IOStream}
     global_step::Int
     step_increment::Int
     min_level::LogLevel
 end
-
 
 """
     InitPolicy
@@ -14,8 +13,8 @@ end
 An enum that describes how to behave if the folder that tensorboard should log
 already exists.
 """
-@enum InitPolicy tb_append=1 tb_overwrite=2 tb_increment=3
-export tb_append, tb_overwrite, tb_increment
+@enum InitPolicy tb_append=1 tb_overwrite=2 tb_increment=3 tb_read=4
+export tb_append, tb_overwrite, tb_increment, tb_read
 
 """
     TBLogger(logdir[, tb_increment]; 
@@ -42,9 +41,15 @@ function TBLogger(logdir="tensorboard_logs/run", overwrite=tb_increment;
                   min_level::LogLevel=Info)
 
     logdir = init_logdir(logdir, overwrite)
-    fpath, evfile = create_eventfile(logdir, purge_step, time)
 
-    all_files  = Dict(fpath => evfile)
+    if overwrite == tb_read
+        fpath, evfile = create_eventfile(logdir, purge_step, time)
+        all_files  = Dict(fpath => evfile)
+    else
+        evfile = nothing
+        all_files = Dict{String, IOStream}()
+    end
+
     start_step = something(purge_step, 0)
 
     TBLogger(logdir, evfile, all_files, start_step, step_increment, min_level)
@@ -59,12 +64,16 @@ is determined by `overwrite`.
  - `overwrite=tb_increment` appends an increasing number 1,2... to logdir.
  - `overwrite=tb_overwrite` overwrites the folder, deleting it's content.
  - `overwrite=tb_append` appends to it's previous content.
+ - `overwrite=tb_read` reads for deserialization only.
 """
 function init_logdir(logdir, overwrite=tb_increment)
     if overwrite == tb_overwrite
         rm(logdir; force=true, recursive=true)
     elseif overwrite == tb_append
         # do nothing
+    elseif overwrite == tb_read
+        # logdir must exist
+        ispath(logdir) || throw(ArgumentError("Logdir $logdir does not exist!"))
     elseif overwrite == tb_increment
         # find the next viable name
         if ispath(logdir)
