@@ -42,7 +42,7 @@ function TBLogger(logdir="tensorboard_logs/run", overwrite=tb_increment;
 
     logdir = init_logdir(logdir, overwrite)
 
-    if overwrite == tb_read
+    if overwrite != tb_read
         fpath, evfile = create_eventfile(logdir, purge_step, time)
         all_files  = Dict(fpath => evfile)
     else
