@@ -67,7 +67,7 @@ struct TBEventFileCollectionIterator
     purge::Bool
 end
 
-TBEventFileCollectionIterator(logger::TBLogger; purge=true) =
+TBEventFileCollectionIterator(logger::TBReadable; purge=true) =
     TBEventFileCollectionIterator(logdir(logger), purge=true)
 
 function TBEventFileCollectionIterator(path; purge=true)
