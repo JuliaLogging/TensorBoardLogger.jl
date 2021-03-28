@@ -10,4 +10,6 @@ using Test
         @info "dispatch" tr=tr
         @info "dispatch" ta=ta
     end
+
+    close.(values(logger.all_files))
 end
