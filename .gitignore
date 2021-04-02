@@ -3,6 +3,7 @@
 events.out.tfevents*
 docs/build
 test/test_logs
+docs/Manifest.toml
 
 gen/proto
 gen/protojl

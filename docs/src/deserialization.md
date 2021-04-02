@@ -22,7 +22,9 @@ end
 hist = convert(MVHistory, tb_logger)
 ```
 
-Alternatively, you can use the method ```map_summaries``` to iterate a function of your choice among the data contained in a logger. This function
+If you want to read data that have been saved previously, you can also construct a read-only object [`TBReader`](@ref) by passing it the path of the folder containing the data to be deserialized.
+
+Alternatively, you can use the method [`map_summaries`](@ref) to iterate a function of your choice among the data contained in a logger. This function
 takes two arguments: a function and the path/`TBLogger` to the data.
 
 The function is mapped across all logged summaries. It's signature should be
@@ -43,8 +45,10 @@ All those functions also take as optional keywork arguments a collection of iter
 ## Reference
 
 ```@docs
+TBReader
 TensorBoardLogger.tags
 TensorBoardLogger.steps
 map_summaries
 TensorBoardLogger.map_events
+TensorBoardLogger.map_summaries
 ```
