@@ -8,17 +8,22 @@ test_log_dir = "test_logs/"
     isdir(test_log_dir) && rm(test_log_dir, force=true, recursive=true)
 
     # Check tb_append
-    TBLogger(test_log_dir*"run")
+    tbl1 = TBLogger(test_log_dir*"run")
     @test isdir(test_log_dir*"run")
-    TBLogger(test_log_dir*"run") #tb_append by default
+    tbl2 = TBLogger(test_log_dir*"run") #tb_append by default
     @test isdir(test_log_dir*"run_1")
-    TBLogger(test_log_dir*"run", tb_increment)
+    tbl3 = TBLogger(test_log_dir*"run", tb_increment)
     @test isdir(test_log_dir*"run_2")
 
     # check tb_overwrite
-    close(open(test_log_dir*"run_2/testfile", "w"))
-    TBLogger(test_log_dir*"run_2", tb_overwrite)
+    close.(values(tbl3.all_files))
+    tbl4 = TBLogger(test_log_dir*"run_2", tb_overwrite)
     @test !isfile(test_log_dir*"run_2/testfile")
+    
+    # close all event files
+    close.(values(tbl1.all_files))
+    close.(values(tbl2.all_files))
+    close.(values(tbl4.all_files))
 end
 
 @testset "create log directory" begin
@@ -46,9 +51,11 @@ end
 
     fname, file = create_eventfile(logdir)
     @test isfile(joinpath(logdir, fname))
+    close(file)
 
     fname, file = create_eventfile(logdir, prepend="test/")
     @test isfile(joinpath(logdir, fname))
+    close(file)
 end
 
 @testset "stepping" begin
@@ -58,6 +65,8 @@ end
 
     tbl = TBLogger(test_log_dir*"run", tb_overwrite)
     @test tb_step(tbl) == 0
+
+    close.(values(tbl.all_files))
 
     tbl = TBLogger(test_log_dir*"run", purge_step=12)
     @test tb_step(tbl) == 12
@@ -71,6 +80,8 @@ end
     @test set_step_increment!(tbl, 10) == 10
     # changing the increment should not affect the step
     @test tb_step(tbl) == 1
+
+    close.(values(tbl.all_files))
 end
 
 @testset "resetting" begin

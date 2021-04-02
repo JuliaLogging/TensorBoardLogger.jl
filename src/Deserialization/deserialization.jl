@@ -67,7 +67,7 @@ struct TBEventFileCollectionIterator
     purge::Bool
 end
 
-TBEventFileCollectionIterator(logger::TBLogger; purge=true) =
+TBEventFileCollectionIterator(logger::TBReadable; purge=true) =
     TBEventFileCollectionIterator(logdir(logger), purge=true)
 
 function TBEventFileCollectionIterator(path; purge=true)
@@ -119,11 +119,16 @@ end
 TBEventFileIterator(fstream) = TBEventFileIterator(fstream, typemax(Int))
 
 function Base.iterate(it::TBEventFileIterator, state=0)
-    eof(it.fstream) && return nothing
+    if eof(it.fstream) 
+        close(it.fstream)
+        return nothing
+    end
     ev=read_event(it.fstream)
-    ev.step >= it.stop_at_step && @info "stopping!!!!!"
-    ev.step >= it.stop_at_step && return nothing
-
+    if ev.step >= it.stop_at_step
+        @info "stopping!!!!!"
+        close(it.fstream)
+        return nothing
+    end
     return ev, state+1
 end
 

@@ -21,7 +21,7 @@ using  Base.CoreLogging: CoreLogging, AbstractLogger, LogLevel, Info,
 export TBLogger, reset!, set_step!, increment_step!, set_step_increment!
 export log_histogram, log_value, log_vector, log_text, log_image, log_images,
        log_audio, log_audios, log_graph, log_embeddings, log_custom_scalar
-export map_summaries
+export map_summaries, TBReader
 
 export ImageFormat, L, CL, LC, LN, NL, NCL, NLC, CLN, LCN, HW, WH, HWC, WHC,
        CHW, CWH,HWN, WHN, NHW, NWH, HWCN, WHCN, CHWN, CWHN, NHWC, NWHC, NCHW, NCWH
@@ -65,6 +65,7 @@ include("logger_dispatch_overrides.jl")
 # maybe we could split the explicit and the @log interfaces?
 include("Loggers/LogImage.jl")
 
+include("Deserialization/reader.jl")
 include("Deserialization/deserialization.jl")
 include("Deserialization/lookahead.jl")
 include("Deserialization/helpers.jl")

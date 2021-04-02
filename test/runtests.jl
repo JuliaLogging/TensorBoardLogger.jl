@@ -30,6 +30,8 @@ end
     log_value(logger, "float64", 1.5, step=step)
     log_value(logger, "irr", pi, step=step)
     log_value(logger, "complex", 1.0 + 1.0im, step=step)
+    
+    close.(values(logger.all_files))
 end
 
 @testset "Scalar Value processing interface" begin
@@ -68,6 +70,8 @@ end
     log_histogram(logger, "hist/cust", rand(100), step=step)
     log_histogram(logger, "hist/cust", rand(10,10), step=step)
     log_vector(logger, "hist/cust", rand(10), step=step)
+
+    close.(values(logger.all_files))
 end
 
 @testset "Histogram processing interface" begin
@@ -106,6 +110,8 @@ end
     log_text(logger, "docstring", """This should work too""", step = step)
     log_text(logger, "Array", collect(1:10), step = step)
     log_text(logger, "Matrix", rand(4, 4), step = step)
+
+    close.(values(logger.all_files))
 end
 
 @testset "Text processing interface" begin
@@ -178,6 +184,7 @@ end
         sample = permutedims(sample, (2, 1, 3, 4))
         @test  π != log_image(logger, "toucan/WHCN", sample, WHCN, step = step)
     end
+    close.(values(logger.all_files))
 end
 
 @testset "Image processing interface" begin
@@ -225,6 +232,8 @@ end
         end
     end
     @test TensorBoardLogger.step(logger) == 10
+
+    close.(values(logger.all_files))
 end
 
 @testset "Audio Logger" begin
@@ -240,6 +249,8 @@ end
     sample = clip[1]
     samples = [sample, sample, sample]
     log_audios(logger, "audiosample", samples, fs, step = step)
+
+    close.(values(logger.all_files))
 end
 
 @testset "Graph Logger" begin
@@ -255,6 +266,8 @@ end
     add_edge!(g, 5, 6)
     add_edge!(g, 5, 7)
     log_graph(logger, g, step = step, nodedevice = ["cpu", "cpu", "gpu", "gpu", "gpu", "gpu", "cpu"], nodevalue = [1, "tf", 3.14, [1.0 2.0; 3.0 4.0], true, +, (10, "julia", 12.4)])
+
+    close.(values(logger.all_files))
 end
 
 @testset "Embedding Logger" begin
@@ -266,6 +279,8 @@ end
     imgs = TBImages(rand(8, 8, 3, 4), HWCN)
     @test π != log_embeddings(logger, "random1", mat, metadata = metadata, metadata_header = metadata_header, img_labels = imgs, step = step)
     @test π != log_embeddings(logger, "random2", mat, step = step+1)
+
+    close.(values(logger.all_files))
 end
 
 @testset "Logger dispatch overrides" begin
@@ -281,7 +296,7 @@ end
     end
 end
 
-@testset "Logger dispatch overrides" begin
+@testset "Logger deserialization" begin
     include("deserialization.jl")
 end
 

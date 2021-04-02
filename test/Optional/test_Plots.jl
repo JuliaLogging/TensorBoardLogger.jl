@@ -28,4 +28,6 @@ data = TensorBoardLogger.preprocess("key", [p, p], Vector())
 @test first(data[2]) == "key/2"
 @test last(data[1]) isa TensorBoardLogger.PngImage
 @test last(data[2]) isa TensorBoardLogger.PngImage
+
+close.(values(logger.all_files))
 end
