@@ -1,7 +1,7 @@
 name = "TensorBoardLogger"
 uuid = "899adc3e-224a-11e9-021f-63837185c80f"
 authors = ["Filippo Vicentini <filippovicentini@gmail.com>"]
-version = "0.1.15"
+version = "0.1.16"
 
 [deps]
 CRC32c = "8bf52ea8-c179-5cab-976a-9e18b702a9bc"
