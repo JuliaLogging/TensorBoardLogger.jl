@@ -83,7 +83,7 @@ end
 
 function Base.convert(::Type{PngImage}, img::AbstractArray{<:Colorant})
     pb = PipeBuffer()
-    save(Stream(format"PNG", pb), img)
+    save(Stream{format"PNG"}(pb), img)
     return PngImage(pb)
 end
 
