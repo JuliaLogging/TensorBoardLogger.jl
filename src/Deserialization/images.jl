@@ -1,7 +1,7 @@
 function deserialize_image_summary(summary)
     img = summary.image
 
-    value = load(Stream(format"PNG", IOBuffer(img.encoded_image_string)))
+    value = load(_format_stream(format"PNG", IOBuffer(img.encoded_image_string)))
 
     return value
 end

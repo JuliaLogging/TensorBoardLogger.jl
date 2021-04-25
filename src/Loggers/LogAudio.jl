@@ -30,7 +30,7 @@ function audio_summary(name::AbstractString, samples::AbstractArray, samplerate:
     samples = samples./max(maximum(samples), 1)
     samples = Int16.(floor.(samples.*32767))
     io = IOBuffer()
-    save(Stream{format"WAV"}(io), samples)
+    save(_format_stream(format"WAV",io), samples)
     eas = io.data
     audio = Summary_Audio(sample_rate = samplerate, num_channels = ndims(samples), length_frames = size(samples, 1), encoded_audio_string = eas, content_type = "audio/wav")
     Summary_Value(tag=name, audio=audio)

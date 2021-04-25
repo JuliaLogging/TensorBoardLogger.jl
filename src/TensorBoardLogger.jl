@@ -32,6 +32,9 @@ export tb_multiline, tb_margin
 # Wrapper types
 export TBText, TBVector, TBHistogram, TBImage, TBImages, TBAudio, TBAudios
 
+# workaround for FileIO pre 1.6
+include("FileIO_workaround.jl")
+
 # Protobuffer definitions for tensorboard
 include("protojl/tensorboard/tensorboard.jl")
 using .tensorboard: Summary_Value, GraphDef, Summary, Event, SessionLog_SessionStatus, SessionLog
