@@ -3,7 +3,6 @@ using TensorBoardLogger: preprocess, summary_impl
 using Test
 using TestImages
 using ImageCore
-using ColorTypes
 using FileIO
 using LightGraphs
 
