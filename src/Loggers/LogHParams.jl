@@ -20,17 +20,17 @@ function hparams_datatype(domain::DiscreteDomain{T}) where T <: DiscreteDomainEl
 end
 
 # custom constructors for ProtoBuf.google.protobuf.Value
-function _Protobuf_Value(x)
+function _ProtoBuf_Value(x)
     @warn "Cannot create a ProtoBuf.google.protobuf.Value of type $(typeof(x)), defaulting to null."
     Value(null_value=Int32(0))
 end
-_Protobuf_Value(x::Bool) = Value(bool_value=x)
-_Protobuf_Value(x::Number) = Value(number_value=x)
-_Protobuf_Value(x::AbstractString) = Value(string_value=x)
+_ProtoBuf_Value(x::Bool) = Value(bool_value=x)
+_ProtoBuf_Value(x::Number) = Value(number_value=x)
+_ProtoBuf_Value(x::AbstractString) = Value(string_value=x)
 
-function _Protobuf_ListValue(domain::DiscreteDomain{T})where T <: DiscreteDomainElem
+function _ProtoBuf_ListValue(domain::DiscreteDomain{T})where T <: DiscreteDomainElem
     ProtoBuf.google.protobuf.ListValue(
-        values = ProtoBuf.google.protobuf.Value.(domain.values)
+        values = _ProtoBuf_Value.(domain.values)
     )
 end
 
@@ -58,7 +58,7 @@ function HParamInfo(hparam::HParam)
                     else
                         @assert isa(domain, DiscreteDomain)
                         (_type = hparams_datatype(domain),
-                        domain_discrete = _Protobuf_ListValue(domain))
+                        domain_discrete = _ProtoBuf_ListValue(domain))
                     end
     HParamInfo(;name = hparam.name,
                description = hparam.description,
@@ -67,10 +67,10 @@ function HParamInfo(hparam::HParam)
 end
 
 struct Metric
-    tag::AbstractString
-    group::AbstractString
-    display_name::AbstractString
-    description::AbstractString
+    tag::String
+    group::String
+    display_name::String
+    description::String
     dataset_type::Symbol
 
     function Metric(tag::AbstractString,
@@ -79,11 +79,8 @@ struct Metric
                     description::AbstractString,
                     dataset_type::Symbol)
         valid_dataset_types = keys(tensorboard.hparams.DatasetType)
-        if dataset_type ∉ valid_dataset_types
-            throw(ArgumentError("dataset_type of $(dataset_type) is not one of $(map(string, valid_dataset_types))."))
-        else
-            new(tag, group, display_name, description, dataset_type)
-        end
+        dataset_type ∉ valid_dataset_types && throw(ArgumentError("dataset_type of $(dataset_type) is not one of $(map(string, valid_dataset_types))."))
+        new(convert(String,tag), convert(String,group), convert(String, display_name), convert(String, description), dataset_type)
     end
 end
 
@@ -100,8 +97,8 @@ function MetricInfo(metric::Metric)
 end
 
 struct HParamsConfig
-    hparams::AbstractVector{HParam}
-    metrics::AbstractVector{Metric}
+    hparams::Vector{HParam}
+    metrics::Vector{Metric}
     time_created_secs::Float64
 end
 
