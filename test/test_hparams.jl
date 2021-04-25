@@ -1,3 +1,12 @@
+using TensorBoardLogger
+using Logging
+using TensorBoardLogger: preprocess, summary_impl
+using TensorBoardLogger: IntervalDomain, DiscreteDomain, HParam, Metric, HParamsConfig
+using Test
+
+test_log_dir = "test_logs/"
+ENV["DATADEPS_ALWAYS_ACCEPT"] = true
+
 @testset "HParamConfig Logger" begin
     logger = TBLogger(test_log_dir*"t", tb_overwrite)
     step = 1

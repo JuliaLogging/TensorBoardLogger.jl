@@ -1,6 +1,5 @@
 using TensorBoardLogger, Logging
 using TensorBoardLogger: preprocess, summary_impl
-using TensorBoardLogger: IntervalDomain, DiscreteDomain, HParam, Metric, HParamsConfig
 using Test
 using TestImages
 using ImageCore
