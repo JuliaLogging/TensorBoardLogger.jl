@@ -289,7 +289,11 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = true
     end
 
     @testset "Optional dependency tests" begin
-        include("Optional/test_Plots.jl")
+        if VERSION >= v"1.4.0"
+            # Plots v1.6, which is the last version compatible to Julia v1.3 is somehow buggy
+            # "UndefVarError: HDF5Group not defined"
+            include("Optional/test_Plots.jl")
+        end
         # Don't run PyPlot tests until I figure a way to install the dependencies
         #include("Optional/test_PyPlot.jl")
         if VERSION >= v"1.5.0"

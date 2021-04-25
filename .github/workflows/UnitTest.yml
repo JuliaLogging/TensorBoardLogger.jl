@@ -42,5 +42,15 @@ jobs:
           ${{ runner.os }}-test-
           ${{ runner.os }}-
 
+    - name: "Compat fix for Julia == v1.3.0"
+      if: ${{ matrix.julia_version == '1.3' }}
+      run: |
+        using Pkg
+        Pkg.add([
+          PackageSpec(name="Reexport", version="0.2"),
+          PackageSpec(name="Plots", version="1.6"),
+        ])
+      shell: julia --project=. --startup=no --color=yes {0}
+
     - uses: julia-actions/julia-runtest@latest
 
