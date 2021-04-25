@@ -4,7 +4,7 @@ using ProtoBuf: readproto, writeproto, ProtoType
 using CRC32c
 
 using ImageCore: colorview, channelview
-using ColorTypes: Colorant, Gray, GrayA, RGB, RGBA
+using ImageCore: Colorant, Gray, GrayA, RGB, RGBA
 using FileIO: FileIO, @format_str, Stream, save, load
 
 # hasproperty is not defined before 1.2. This is Compat.hasproperty
