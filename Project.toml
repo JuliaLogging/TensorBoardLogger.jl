@@ -15,7 +15,7 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
 ColorTypes = "0.7, 0.8, 0.9, 0.10"
-FileIO = "1"
+FileIO = "1.2.3"
 FixedPointNumbers = "0.6, 0.7, 0.8"
 ImageCore = "0.7, 0.8, 0.9"
 ProtoBuf = "0.10, 0.11"
@@ -24,6 +24,7 @@ StatsBase = "0.27, 0.28, 0.29, 0.30, 0.31, 0.32, 0.33"
 julia = "1.3"
 
 [extras]
+ImageIO = "82e4d734-157c-48bb-816b-45c225c6df19"
 ImageMagick = "6218d12a-5da1-5696-b52f-db25d2ecc6d1"
 LightGraphs = "093fc24a-ae57-5d10-9952-331d41423f4d"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
@@ -38,4 +39,4 @@ ValueHistories = "98cad3c8-aec3-5f06-8e41-884608649ab7"
 WAV = "8149f6b0-98f6-5db9-b78f-408fbbb8ef88"
 
 [targets]
-test = ["Test", "MLDatasets", "TestImages", "ImageMagick", "Logging", "LightGraphs", "Plots", "PyPlot", "WAV", "Tracker", "ValueHistories", "QuartzImageIO"]
+test = ["Test", "MLDatasets", "TestImages", "ImageMagick", "Logging", "LightGraphs", "Plots", "PyPlot", "WAV", "Tracker", "ValueHistories", "QuartzImageIO", "ImageIO"]

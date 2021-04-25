@@ -7,6 +7,9 @@ using FixedPointNumbers: Normed
 
 export PngImage, png_color_T
 
+# workaround for FileIO pre 1.6
+include("FileIO_workaround.jl")
+
 """
     PngImage
 
@@ -83,7 +86,7 @@ end
 
 function Base.convert(::Type{PngImage}, img::AbstractArray{<:Colorant})
     pb = PipeBuffer()
-    save(Stream{format"PNG"}(pb), img)
+    save(_format_stream(format"PNG", pb), img)
     return PngImage(pb)
 end
 
