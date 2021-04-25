@@ -198,29 +198,29 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = true
         @test last(data[1]) isa TensorBoardLogger.PngImage
         #3-d MRI image
         data = Vector{Pair{String,Any}}()
-        #mri = testimage("mri-stack")
-        #@test data == preprocess("test2", mri, data)
-        #@test length(data) == size(mri, 3)
-        ## check that all slices have been logged with same tag
-        #isok = true
-        #for (tag,val)=data
-        #    tag == "test2" && continue
-        #    isok = false
-        #end
-        #@test isok
-        ## check that all slices have been converted to PngImage
-        #isok = true
-        #for (tag,val)=data
-        #    val isa TensorBoardLogger.PngImage && continue
-        #    isok = false
-        #end
-        #@test isok
+        mri = testimage("mri-stack")
+        @test data == preprocess("test2", mri, data)
+        @test length(data) == size(mri, 3)
+        # check that all slices have been logged with same tag
+        isok = true
+        for (tag,val)=data
+            tag == "test2" && continue
+            isok = false
+        end
+        @test isok
+        # check that all slices have been converted to PngImage
+        isok = true
+        for (tag,val)=data
+            val isa TensorBoardLogger.PngImage && continue
+            isok = false
+        end
+        @test isok
     end
 
     @testset "LogInterface" begin
         logger = TBLogger(test_log_dir*"t", tb_overwrite)
         woman = testimage("woman_blonde")
-        #mri = testimage("mri")
+        mri = testimage("mri")
         with_logger(logger) do
             for i=1:5
                 x0 = 0.5+i/30; s0 = 0.5/(i/20);
@@ -228,12 +228,12 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = true
                 centers = collect(edges[1:end-1] .+0.05)
                 histvals = [exp(-((c-x0)/s0)^2) for c=centers]
                 data_tuple = (edges, histvals)
-                #@info "test1" simpletext = "simple text" woman = woman mriimg = mri
+                @info "test1" simpletext = "simple text" woman = woman mriimg = mri
                 @info "test2" i=i j=i^2 dd=rand(10).+0.1*i hh=data_tuple
                 @info "test3" i=i j=2^i dd=rand(10).-0.1*i hh=data_tuple log_step_increment=0
             end
         end
-        @test TensorBoardLogger.step(logger) == 5
+        @test TensorBoardLogger.step(logger) == 10
 
         close.(values(logger.all_files))
     end
