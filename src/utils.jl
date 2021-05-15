@@ -8,7 +8,7 @@ end
 
 function serialize_proto(data::ProtoType)
     pb = PipeBuffer()
-    logless_writeproto(pb, data)
+    _writeproto(pb, data)
     pb.data
 end
 
@@ -22,7 +22,7 @@ end
     wrapper for writeproto that supresses logging to prevent infinite
     recursion.
 """
-function logless_writeproto(pb::IO, obj)
+function _writeproto(pb::IO, obj)
     with_logger(NullLogger()) do
         writeproto(pb, obj)
     end
