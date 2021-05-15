@@ -8,7 +8,7 @@ end
 
 function serialize_proto(data::ProtoType)
     pb = PipeBuffer()
-    writeproto(pb, data)
+    logless_writeproto(pb, data)
     pb.data
 end
 
@@ -16,4 +16,14 @@ function serialize_proto(data::Any)
     pb = PipeBuffer()
     write(pb, data)
     pb.data
+end
+
+"""
+    wrapper for writeproto that supresses logging to prevent infinite
+    recursion.
+"""
+function logless_writeproto(pb::IO, obj)
+    with_logger(NullLogger()) do
+        writeproto(pb, obj)
+    end
 end

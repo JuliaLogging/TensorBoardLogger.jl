@@ -305,6 +305,15 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = true
         include("deserialization.jl")
     end
 
+    @testset "Debug level" begin
+        logger = TBLogger("tensorboard_logs/run", min_level=Logging.Debug)
+        with_logger(logger) do
+            @info "loss" loss=10.
+            @debug "loss" loss=10.
+        end
+        @test TensorBoardLogger.step(logger) == 2
+    end
+
     #cleanup
     rm(test_log_dir, force=true, recursive=true)
 

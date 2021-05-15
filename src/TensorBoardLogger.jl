@@ -16,7 +16,8 @@ end
 using StatsBase: Histogram, fit
 
 using  Base.CoreLogging: CoreLogging, AbstractLogger, LogLevel, Info,
-    handle_message, shouldlog, min_enabled_level, catch_exceptions
+    handle_message, shouldlog, min_enabled_level, catch_exceptions, with_logger,
+    NullLogger
 
 export TBLogger, reset!, set_step!, increment_step!, set_step_increment!
 export log_histogram, log_value, log_vector, log_text, log_image, log_images,
