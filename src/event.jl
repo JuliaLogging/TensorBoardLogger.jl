@@ -28,7 +28,7 @@ format. The format follows the following rule (in bytes)
 """
 function write_event(out::IOStream, event::Event)
     data = PipeBuffer();
-    writeproto(data, event)
+    _writeproto(data, event)
 
     #header
     header     = collect(reinterpret(UInt8, [data.size]))
