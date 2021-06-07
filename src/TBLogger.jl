@@ -20,6 +20,7 @@ export tb_append, tb_overwrite, tb_increment
 """
     TBLogger(logdir[, tb_increment]; 
             time=time(), 
+            prepend="",
             purge_step=nothing, 
             step_increment=1, 
             min_level=Logging.Info)
@@ -36,13 +37,14 @@ by tensorboard (usefull in the case of restarting a crashed computation).
 tensorboard.
 """
 function TBLogger(logdir="tensorboard_logs/run", overwrite=tb_increment;
-                  time=time(), 
+                  time=time(),
+                  prepend="",
                   purge_step::Union{Int,Nothing}=nothing,
                   step_increment = 1, 
                   min_level::LogLevel=Info)
 
     logdir = init_logdir(logdir, overwrite)
-    fpath, evfile = create_eventfile(logdir, purge_step, time)
+    fpath, evfile = create_eventfile(logdir, purge_step, time; prepend)
 
     all_files  = Dict(fpath => evfile)
     start_step = something(purge_step, 0)
