@@ -20,10 +20,15 @@ test_log_dir = "test_logs/"
     tbl4 = TBLogger(test_log_dir*"run_2", tb_overwrite)
     @test !isfile(test_log_dir*"run_2/testfile")
     
+    # check custom file prefix
+    tbl5 = TBLogger(test_log_dir*"run_3"; time = 0, prefix = "test.")
+    @test isfile(test_log_dir*"run_3/test.events.out.tfevents.0.$(gethostname())")
+
     # close all event files
     close.(values(tbl1.all_files))
     close.(values(tbl2.all_files))
     close.(values(tbl4.all_files))
+    close.(values(tbl5.all_files))
 end
 
 @testset "create log directory" begin

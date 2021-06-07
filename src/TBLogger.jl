@@ -20,6 +20,7 @@ export tb_append, tb_overwrite, tb_increment
 """
     TBLogger(logdir[, tb_increment]; 
             time=time(), 
+            prefix="",
             purge_step=nothing, 
             step_increment=1, 
             min_level=Logging.Info)
@@ -29,6 +30,9 @@ argument specifies the behaviour if the `logdir` already exhists: the default
 choice `tb_increment` appends an increasing number 1,2... to `logdir`. Other
 choices are `tb_overwrite`, which overwrites the previous folder, and `tb_append`.
 
+Optional keyword argument `prefix` can be passed to prepend a path to the file
+name (note, not the log directory). See `create_eventfile()`
+
 If a `purge_step::Int` is passed, every step before `purge_step` will be ignored
 by tensorboard (usefull in the case of restarting a crashed computation).
 
@@ -36,13 +40,14 @@ by tensorboard (usefull in the case of restarting a crashed computation).
 tensorboard.
 """
 function TBLogger(logdir="tensorboard_logs/run", overwrite=tb_increment;
-                  time=time(), 
+                  time=time(),
+                  prefix="",
                   purge_step::Union{Int,Nothing}=nothing,
                   step_increment = 1, 
                   min_level::LogLevel=Info)
 
     logdir = init_logdir(logdir, overwrite)
-    fpath, evfile = create_eventfile(logdir, purge_step, time)
+    fpath, evfile = create_eventfile(logdir, purge_step, time; prepend = prefix)
 
     all_files  = Dict(fpath => evfile)
     start_step = something(purge_step, 0)
