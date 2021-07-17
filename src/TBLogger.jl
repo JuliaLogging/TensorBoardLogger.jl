@@ -1,7 +1,7 @@
 mutable struct TBLogger <: AbstractLogger
-    logdir::String
-    file::IOStream
-    all_files::Dict{String, IOStream}
+    logdir::Any
+    file::IO
+    all_files::Dict{String, IO}
     global_step::Int
     step_increment::Int
     min_level::LogLevel
@@ -89,7 +89,7 @@ function init_logdir(logdir, overwrite=tb_increment)
 end
 
 """
-	create_eventfile(logdir, [purge_step=nothing; time=time()]) -> IOStream
+	create_eventfile(logdir, [purge_step=nothing; time=time()]) -> IO
 
 Creates a protobuffer events file in the logdir and returns the IO buffer for
 writing to it. If `purge_step::Int` is passed then a special event is written
@@ -144,14 +144,14 @@ logdir(lg::TBLogger)   = lg.logdir
 """
     get_file(lg::TBLogger) -> IOS
 
-Returns the main `file` IOStream object of Logger `lg`.
+Returns the main `file` IO object of Logger `lg`.
 """
 get_file(lg::TBLogger) = lg.file
 
 """
     get_file(lg, tags::String...) -> IOS
 
-Returns the `file` IOStream object of Logger `lg` writing to the tag
+Returns the `file` IO object of Logger `lg` writing to the tag
 `tags1/tags2.../tagsN`.
 """
 function get_file(lg::TBLogger, tags::String...)

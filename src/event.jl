@@ -16,7 +16,7 @@ function make_event(logger::TBLogger, summary::GraphDef; step=TensorBoardLogger.
 end
 
 """
-    write_event(out::IOStream, event::Event)
+    write_event(out::IO, event::Event)
 
 Serializes the Event `event` to the `out` stream according to the TensorBoard
 format. The format follows the following rule (in bytes)
@@ -26,7 +26,7 @@ format. The format follows the following rule (in bytes)
 #3 16...N        -     serialized `event` as protobuffer
 #4 N..N+8      UInt32  masked_CRC of #3
 """
-function write_event(out::IOStream, event::Event)
+function write_event(out::IO, event::Event)
     data = PipeBuffer();
     _writeproto(data, event)
 

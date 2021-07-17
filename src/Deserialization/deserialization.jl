@@ -1,13 +1,13 @@
 export summary_iterator
 
 """
-    is_valid_event(f::IOStream) => Bool
+    is_valid_event(f::IO) => Bool
 
 Returns true if the stream points to a valid TensorBoard event, false overwise.
 This is accomplished by checeking the crc checksum on the header (first 8
 bytes) of the event.
 """
-function is_valid_event(f::IOStream)
+function is_valid_event(f::IO)
     eof(f) && return false
 
     header = read(f, 8)
@@ -23,13 +23,13 @@ end
 
 
 """
-    read_event(f::IOStream) => Event
+    read_event(f::IO) => Event
 
 Reads the stream `f`, assuming it's encoded according to TensorBoard format,
 and decodes a single event.
 This function assumes that `eof(f) == false`.
 """
-function read_event(f::IOStream)
+function read_event(f::IO)
     header = read(f, 8)
     crc_header = read(f, 4)
 
@@ -113,7 +113,7 @@ Iterator for iterating along a fstream.
 The optional argument `stop_at_step` tells at what step the iterator should stop.
 """
 struct TBEventFileIterator
-    fstream::IOStream
+    fstream::IO
     stop_at_step::Int
 end
 TBEventFileIterator(fstream) = TBEventFileIterator(fstream, typemax(Int))
