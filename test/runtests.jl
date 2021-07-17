@@ -5,20 +5,23 @@ using TestImages
 using ImageCore
 using FileIO
 using LightGraphs
-using Minio
-
 
 ENV["DATADEPS_ALWAYS_ACCEPT"] = true
 ENV["GKSwstype"] = "100"
 ENV["DATADEPS_ALWAYS_ACCEPT"] = true
 
-# Setup Minio server to test s3 paths
-minio_server = Minio.Server(mktempdir(); address="localhost:9001")
-run(minio_server, wait=false)
-config = MinioConfig("http://localhost:9001")
-s3_create_bucket(config, "tensorboard-tests")
-s3_log_dir = S3Path("s3://tensorboard-tests/logdir/"; config=config)
+log_dirs = Any["test_logs/"]
 
+if VERSION >= v"1.5"
+    using Minio
+    # Setup Minio server to test s3 paths
+    minio_server = Minio.Server(mktempdir(); address="localhost:9001")
+    run(minio_server, wait=false)
+    config = MinioConfig("http://localhost:9001")
+    s3_create_bucket(config, "tensorboard-tests")
+    s3_log_dir = S3Path("s3://tensorboard-tests/logdir/"; config=config)
+    push!(log_dirs, s3_log_dir)
+end
 
 @testset "TensorBoardLogger with path $(test_log_dir)" for test_log_dir in ("test_logs/", s3_log_dir)
 
