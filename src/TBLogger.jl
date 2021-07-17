@@ -1,7 +1,7 @@
-mutable struct TBLogger <: AbstractLogger
-    logdir::Any
-    file::IO
-    all_files::Dict{String, IO}
+mutable struct TBLogger{P,S} <: AbstractLogger
+    logdir::P
+    file::S
+    all_files::Dict{String, S}
     global_step::Int
     step_increment::Int
     min_level::LogLevel
@@ -52,7 +52,7 @@ function TBLogger(logdir="tensorboard_logs/run", overwrite=tb_increment;
     all_files  = Dict(fpath => evfile)
     start_step = something(purge_step, 0)
 
-    TBLogger(logdir, evfile, all_files, start_step, step_increment, min_level)
+    TBLogger{typeof(logdir), typeof(ev_file)}(logdir, evfile, all_files, start_step, step_increment, min_level)
 end
 
 """
