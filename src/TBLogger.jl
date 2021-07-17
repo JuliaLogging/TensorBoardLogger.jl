@@ -52,7 +52,7 @@ function TBLogger(logdir="tensorboard_logs/run", overwrite=tb_increment;
     all_files  = Dict(fpath => evfile)
     start_step = something(purge_step, 0)
 
-    TBLogger{typeof(logdir), typeof(ev_file)}(logdir, evfile, all_files, start_step, step_increment, min_level)
+    TBLogger{typeof(logdir), typeof(evfile)}(logdir, evfile, all_files, start_step, step_increment, min_level)
 end
 
 """
