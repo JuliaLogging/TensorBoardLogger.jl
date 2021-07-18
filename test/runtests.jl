@@ -10,7 +10,7 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = true
 ENV["GKSwstype"] = "100"
 ENV["DATADEPS_ALWAYS_ACCEPT"] = true
 
-log_dirs = Any["test_logs/"]
+LOG_DIRS = Any["test_logs/"]
 
 if VERSION >= v"1.5"
     using Minio
@@ -20,10 +20,10 @@ if VERSION >= v"1.5"
     config = MinioConfig("http://localhost:9001")
     s3_create_bucket(config, "tensorboard-tests")
     s3_log_dir = S3Path("s3://tensorboard-tests/logdir/"; config=config)
-    push!(log_dirs, s3_log_dir)
+    push!(LOG_DIRS, s3_log_dir)
 end
 
-@testset "TensorBoardLogger with path $(test_log_dir)" for test_log_dir in ("test_logs/", s3_log_dir)
+@testset "TensorBoardLogger with path $(test_log_dir)" for test_log_dir in LOG_DIRS
 
     @testset "TBLogger" begin
         include("test_TBLogger.jl")
@@ -330,4 +330,6 @@ end
 
 end
 
-kill(minio_server)
+if VERSION >= v"1.5"
+    kill(minio_server)
+end
