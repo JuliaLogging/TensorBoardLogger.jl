@@ -23,6 +23,7 @@ If you need to log Images, you must also install `ImageMagick`
 ```
 
 ## Usage
+
 The fundamental type defined in this package is a `TBLogger`, which behaves like
 other standard loggers in Julia such as `ConsoleLogger` or `TextLogger`. You can
 create one by passing it the path to the folder where you want to store the data.
