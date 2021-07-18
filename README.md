@@ -4,6 +4,7 @@
 
 **TensorBoardLogger.jl** is a native library for logging arbitrary data to
 [Tensorboard](https://www.tensorflow.org/guide/summaries_and_tensorboard), extending Julia's standard Logging framework.
+It can also be used to deserialize TensoBoard's `.proto` files.
 
 Many ideas are taken from [UniversalTensorBoard](https://github.com/oxinabox/UniversalTensorBoard.jl)
 and from [TensorBoardX](https://tensorboardx.readthedocs.io/en/latest/). It is based on
