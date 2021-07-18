@@ -6,20 +6,31 @@ using ImageCore
 using FileIO
 using LightGraphs
 
-test_log_dir = "test_logs/"
 ENV["DATADEPS_ALWAYS_ACCEPT"] = true
 ENV["GKSwstype"] = "100"
-
 ENV["DATADEPS_ALWAYS_ACCEPT"] = true
 
-@testset "TensorBoardLogger" begin
+LOG_DIRS = Any["test_logs/"]
+
+if VERSION >= v"1.5"
+    using Minio
+    # Setup Minio server to test s3 paths
+    minio_server = Minio.Server(mktempdir(); address="localhost:9001")
+    run(minio_server, wait=false)
+    config = MinioConfig("http://localhost:9001")
+    s3_create_bucket(config, "tensorboard-tests")
+    s3_log_dir = S3Path("s3://tensorboard-tests/logdir/"; config=config)
+    push!(LOG_DIRS, s3_log_dir)
+end
+
+@testset "TensorBoardLogger with path $(test_log_dir)" for test_log_dir in LOG_DIRS
 
     @testset "TBLogger" begin
         include("test_TBLogger.jl")
     end
 
     @testset "Scalar Value Logger" begin
-        logger = TBLogger(test_log_dir*"t", tb_overwrite)
+        logger = TBLogger(joinpath(test_log_dir, "t/"), tb_overwrite)
         step = 1
 
         ss = TensorBoardLogger.scalar_summary("test", 12.0)
@@ -49,7 +60,7 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = true
     end
 
     @testset "Histogram Value Logger" begin
-        logger = TBLogger(test_log_dir*"t", tb_overwrite)
+        logger = TBLogger(joinpath(test_log_dir, "t/"), tb_overwrite)
         step = 1
 
         x0 = 0.5+step/30; s0 = 0.5/(step/20);
@@ -96,7 +107,7 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = true
     end
 
     @testset "Text Logger" begin
-        logger = TBLogger(test_log_dir*"t", tb_overwrite)
+        logger = TBLogger(joinpath(test_log_dir, "t/"), tb_overwrite)
         step = 1
 
         ss = TensorBoardLogger.text_summary("test", "Hello World")
@@ -127,7 +138,7 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = true
     end
 
     @testset "Image Logger" begin
-        logger = TBLogger(test_log_dir*"t", tb_overwrite)
+        logger = TBLogger(joinpath(test_log_dir, "t/"), tb_overwrite)
         step = 1
 
         # The following tests are akin to @test_nothrow, which does not exist.
@@ -217,7 +228,7 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = true
     end
 
     @testset "LogInterface" begin
-        logger = TBLogger(test_log_dir*"t", tb_overwrite)
+        logger = TBLogger(joinpath(test_log_dir, "t/"), tb_overwrite)
         woman = testimage("woman_blonde")
         mri = testimage("mri")
         with_logger(logger) do
@@ -238,7 +249,7 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = true
     end
 
     @testset "Audio Logger" begin
-        logger = TBLogger(test_log_dir*"t", tb_overwrite)
+        logger = TBLogger(joinpath(test_log_dir, "t/"), tb_overwrite)
         step = 1
 
         ss = TensorBoardLogger.audio_summary("test", rand(800), 800)
@@ -255,7 +266,7 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = true
     end
 
     @testset "Graph Logger" begin
-        logger = TBLogger(test_log_dir*"t", tb_overwrite)
+        logger = TBLogger(joinpath(test_log_dir, "t/"), tb_overwrite)
         step = 1
         ss = TensorBoardLogger.graph_summary(DiGraph(1), ["1"], ["1"], ["cpu"], [nothing])
         @test isa(ss, TensorBoardLogger.GraphDef)
@@ -272,14 +283,14 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = true
     end
 
     @testset "Embedding Logger" begin
-        logger = TBLogger(test_log_dir*"t", tb_overwrite)
+        logger = TBLogger(joinpath(test_log_dir, "t/"), tb_overwrite)
         step = 1
         mat = rand(4, 4)
         metadata = rand(4, 10)
         metadata_header = Array(collect(1:10))
         imgs = TBImages(rand(8, 8, 3, 4), HWCN)
-        @test π != log_embeddings(logger, "random1", mat, metadata = metadata, metadata_header = metadata_header, img_labels = imgs, step = step)
-        @test π != log_embeddings(logger, "random2", mat, step = step+1)
+        @test π != log_embeddings(logger, "random1/", mat, metadata = metadata, metadata_header = metadata_header, img_labels = imgs, step = step)
+        @test π != log_embeddings(logger, "random2/", mat, step = step+1)
 
         close.(values(logger.all_files))
     end
@@ -317,4 +328,8 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = true
     #cleanup
     rm(test_log_dir, force=true, recursive=true)
 
+end
+
+if VERSION >= v"1.5"
+    kill(minio_server)
 end

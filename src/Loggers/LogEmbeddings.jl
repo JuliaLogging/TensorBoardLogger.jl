@@ -34,7 +34,7 @@ function log_embeddings(logger::TBLogger, name::AbstractString, mat::AbstractMat
     write_pbtext(name, logger.logdir, matrix_path, metadata, img_labels, step)
 end
 
-function write_matrix(mat::AbstractMatrix, matrix_path::AbstractString)
+function write_matrix(mat::AbstractMatrix, matrix_path)
     matrix_path = joinpath(matrix_path, "tensor.tsv")
     mat = convert(Array{Float64,2}, mat)
     open(matrix_path, "w") do file
@@ -45,7 +45,7 @@ function write_matrix(mat::AbstractMatrix, matrix_path::AbstractString)
     end
 end
 
-function write_metadata(metadata::AbstractArray, matrix_path::AbstractString)
+function write_metadata(metadata::AbstractArray, matrix_path)
     matrix_path = joinpath(matrix_path, "metadata.tsv")
     open(matrix_path, "w") do file
         for x in metadata
@@ -54,7 +54,7 @@ function write_metadata(metadata::AbstractArray, matrix_path::AbstractString)
     end
 end
 
-function write_sprite(img_labels::AbstractArray, matrix_path::AbstractString)
+function write_sprite(img_labels::AbstractArray, matrix_path)
     n, _, _, w = size(img_labels)
     sqrt(n)*w <= 8192 || throw(ErrorException("the value √N * W must be less than or equal to 8192 because of tensorboard restrictions"))
     total_pixels = size(img_labels, 1)*size(img_labels, 3)*size(img_labels, 4)
@@ -65,7 +65,9 @@ function write_sprite(img_labels::AbstractArray, matrix_path::AbstractString)
     arranged_augment_square_CHW = zeros((3, sprite_size, sprite_size))
     arranged_augment_square_CHW[:, 1:size(arranged_img_CHW, 2), :] = arranged_img_CHW
     sprite_path = joinpath(matrix_path, "sprite.png")
-    save(sprite_path, colorview(RGB, arranged_augment_square_CHW))
+    open(sprite_path; write=true) do io
+        save(Stream{format"PNG"}(io), colorview(RGB, arranged_augment_square_CHW))
+    end
 end
 
 function make_grid_of_images(img_labels::AbstractArray, ncols::Integer)
@@ -89,21 +91,22 @@ function make_grid_of_images(img_labels::AbstractArray, ncols::Integer)
     grid
 end
 
-function write_pbtext(name::AbstractString, path::AbstractString, matrix_path::AbstractString, metadata, img_labels, step)
+function write_pbtext(name::AbstractString, path, matrix_path, metadata, img_labels, step)
     metadata_path = joinpath(matrix_path, "metadata.tsv")
     img_labels_path = joinpath(matrix_path, "sprite.png")
     matrix_path = joinpath(matrix_path, "tensor.tsv")
     path = joinpath(path, "projector_config.pbtxt")
+    isfile(path) || write(path, "") # workaround https://github.com/JuliaCloud/AWSS3.jl/issues/173
     open(path, "a") do file
         write(file, "embeddings {\n")
         write(file, "tensor_name: \""*name*":"*repr(step)*"\"\n")
-        write(file, "tensor_path: \""*matrix_path*"\"\n")
+        write(file, string("tensor_path: \"", matrix_path, "\"\n"))
         if metadata != nothing
-            write(file, "metadata_path: \""*metadata_path*"\"\n")
+            write(file, string("metadata_path: \"", metadata_path, "\"\n"))
         end
         if img_labels != nothing
             write(file, "sprite {\n")
-            write(file, "image_path: \""*img_labels_path*"\"\n")
+            write(file, string("image_path: \"", img_labels_path, "\"\n"))
             write(file, "single_image_dim: "*string(size(img_labels, 4))*"\n")
             write(file, "single_image_dim: "*string(size(img_labels, 3))*"\n")
             write(file, "}\n")

@@ -50,7 +50,8 @@ jobs:
           PackageSpec(name="Reexport", version="0.2"),
           PackageSpec(name="Plots", version="1.6"),
         ])
+        # Remove Minio from the test project
+        write("Project.toml", read(`grep -v '^Minio =' Project.toml`, String))
+        run(`sed -i -e 's/, "Minio"//' Project.toml`)
       shell: julia --project=. --startup=no --color=yes {0}
-
     - uses: julia-actions/julia-runtest@latest
-
