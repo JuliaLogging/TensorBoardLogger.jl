@@ -1,6 +1,6 @@
 # TensorBoardLogger
-[![codecov](https://codecov.io/gh/PhilipVinc/TensorBoardLogger.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/PhilipVinc/TensorBoardLogger.jl)
-[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://philipvinc.github.io/TensorBoardLogger.jl/dev/)
+[![codecov](https://codecov.io/gh/JuliaLogging/TensorBoardLogger.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaLogging/TensorBoardLogger.jl)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://julialogging.github.io/TensorBoardLogger.jl/dev/)
 
 **TensorBoardLogger.jl** is a native library for logging arbitrary data to
 [Tensorboard](https://www.tensorflow.org/guide/summaries_and_tensorboard), extending Julia's standard Logging framework.
