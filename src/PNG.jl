@@ -12,7 +12,7 @@ include("FileIO_workaround.jl")
 """
     PngImage
 
-A wrapper around the binary encoding of a PNG image, holding it's attributes
+A wrapper around the binary encoding of a PNG image, holding its attributes
 """
 struct PngImage
     attr::Dict

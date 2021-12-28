@@ -27,7 +27,7 @@ If you want to read data that have been saved previously, you can also construct
 Alternatively, you can use the method [`map_summaries`](@ref) to iterate a function of your choice among the data contained in a logger. This function
 takes two arguments: a function and the path/`TBLogger` to the data.
 
-The function is mapped across all logged summaries. It's signature should be
+The function is mapped across all logged summaries. Its signature should be
 `fun(tag, iteration, value)`, where tag is a `String` with the tag used to serialize the data, `iteration` is an `Int` corresponding to the iteration at which the data was serialized, and `value` is the serialized value.
 
 An attempt is made to reconstruct as much as possible the original data, but in the serialization process data is usually converted to lower precision and compressed, so sometimes it's not the case.

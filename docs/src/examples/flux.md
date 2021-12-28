@@ -1,5 +1,5 @@
 # Using TensorBoard with [Flux](https://fluxml.ai)
-For a Google Colab version of this example, go [here](https://colab.research.google.com/drive/1xfUsBn9GEqbRjBF-UX_jnGjHZNtNsMae)
+For a Google Colab version of this example, go [here](https://colab.research.google.com/drive/1xfUsBn9GEqbRjBF-UX_jnGjHZNtNsMae).
 The most important part of the example is the callback `TBCallback` which
 handles logging to TensorBoard.
 

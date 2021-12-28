@@ -1,6 +1,6 @@
 # Specifying a backend
 
-By default TensorBoardLogger follows those rules to chose what backend a certain
+By default TensorBoardLogger follows these rules to choose what backend a certain
 value is sent to:
 
   - `::AbstractVector{<:Real}` -> [Histogram backend](https://www.tensorflow.org/guide/tensorboard_histograms) as a vector

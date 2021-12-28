@@ -91,8 +91,8 @@ end
 
 When you log data to tensorboard, it is processed to convert it to the format
 used by TensorBoard.
-In particoular, fields in structures are logged individually individually and complex
-numbers/arrays are split into their real and imaginary parts. Depending on it's type, an
+In particular, fields in structures are logged individually and complex
+numbers/arrays are split into their real and imaginary parts. Depending on its type, an
 object is serialized to the relevant backend, with the text backend being the
 default fallback.
 
@@ -116,6 +116,6 @@ We also support logging custom types from a the following third-party libraries:
 
 ## Explicit logging
 
-In alternative, you can also log data to TensorBoard through it's functional interface,
+In alternative, you can also log data to TensorBoard through its functional interface,
 by calling the relevant method with a tag string and the data. For information
-on this interface refer to [Explicit interface]@ref()...
+on this interface refer to [Explicit interface](@ref)...

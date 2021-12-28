@@ -2,7 +2,7 @@
 
 in addition to the standard logging interface, it is possible to log
 data to TensorBoard using the functions documented below.
-All the functions accept take as first argument a `TBLogger` object
+All the functions take as first argument a `TBLogger` object
 and as the second argument a `String` as the tag under which the
 data will be logged.
 

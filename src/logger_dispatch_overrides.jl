@@ -17,7 +17,7 @@ Returns the wrapped data inside of `x`.
 """
 content(x::WrapperLogType) = @error "You should define `content($(typeof(x)))`"
 
-# When we hit a wrapped type, we dispatch based on it's type.
+# When we hit a wrapped type, we dispatch based on its type.
 preprocess(name, val::WrapperLogType, data) = push!(data, name=>val)
 
 # When logging to text or console, unwrap the LogType to fix formatting.
