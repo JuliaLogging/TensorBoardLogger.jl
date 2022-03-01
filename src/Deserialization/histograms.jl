@@ -29,7 +29,7 @@ function lookahead_deserialize_histogram_summary(old_tag, old_val, evs::Summary,
     res = iterate(evs, state + 1)
     res == nothing && return result
 
-    # if the next event is identified, check it's type
+    # if the next event is identified, check its type
     (new_tag, summary), i_state = res
     typ = summary_type(summary)
 

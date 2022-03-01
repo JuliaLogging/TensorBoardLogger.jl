@@ -62,8 +62,8 @@ Creates a folder at path `logdir`. If the folder already exhists the behaviour
 is determined by `overwrite`.
 
  - `overwrite=tb_increment` appends an increasing number 1,2... to logdir.
- - `overwrite=tb_overwrite` overwrites the folder, deleting it's content.
- - `overwrite=tb_append` appends to it's previous content.
+ - `overwrite=tb_overwrite` overwrites the folder, deleting its content.
+ - `overwrite=tb_append` appends to its previous content.
 """
 function init_logdir(logdir, overwrite=tb_increment)
     if overwrite == tb_overwrite
@@ -122,9 +122,9 @@ function create_eventfile(logdir, purge_step=nothing, time=time(); prepend="")
 end
 
 """
-	add_eventfile(lg::TBLogger, path::String)
+    add_eventfile(lg::TBLogger, path::String)
 
-Adds an event file to `lg` with `path` prepended to it's name. It can be used
+Adds an event file to `lg` with `path` prepended to its name. It can be used
 to create sub-event collection in a single event collection.
 """
 function add_eventfile(lg::TBLogger, path="")
@@ -198,7 +198,7 @@ step(lg::TBLogger) = lg.global_step
 """
     reset!(lg)
 
-Reset the TBLogger `lg`, deleting everything in it's log directory.
+Reset the TBLogger `lg`, deleting everything in its log directory.
 """
 function reset!(lg::TBLogger)
     # close open streams
