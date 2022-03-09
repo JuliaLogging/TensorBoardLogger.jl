@@ -196,6 +196,18 @@ Returns the internal step counter of the logger.
 step(lg::TBLogger) = lg.global_step
 
 """
+    close(lg)
+
+Close the TBLogger `lg`, releasing all file handles.
+"""
+function Base.close(lg::TBLogger)
+    # close open streams
+    for k=keys(lg.all_files)
+        close(lg.all_files[k])
+    end
+end
+
+"""
     reset!(lg)
 
 Reset the TBLogger `lg`, deleting everything in its log directory.
