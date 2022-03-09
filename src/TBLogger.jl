@@ -5,6 +5,16 @@ mutable struct TBLogger{P,S} <: AbstractLogger
     global_step::Int
     step_increment::Int
     min_level::LogLevel
+
+    function TBLogger{P,S}(logdir::P,
+                           file::S,
+                           all_files::Dict{String, S},
+                           global_step::Int,
+                           step_increment::Int,
+                           min_level::LogLevel) where {P,S}
+        lg = new{P, S}(logdir, file, all_files, global_step, step_increment, min_level)
+        return Base.finalizer(Base.close, lg)
+    end
 end
 
 
