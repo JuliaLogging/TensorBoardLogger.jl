@@ -89,6 +89,31 @@ end
     close.(values(tbl.all_files))
 end
 
+@testset "closing" begin
+    tbl = TBLogger(test_log_dir*"run", tb_overwrite)
+    TensorBoardLogger.add_eventfile(tbl, "pp")
+    files = keys(tbl.all_files)
+
+    close(tbl)
+    @test begin
+        foreach(f -> rm(joinpath(test_log_dir*"run", f)), files)
+        # rm will error if the file is still open
+        true
+    end
+
+    tbl = TBLogger(test_log_dir*"run", tb_overwrite)
+    TensorBoardLogger.add_eventfile(tbl, "pp")
+    files = keys(tbl.all_files)
+
+    tbl = nothing
+    Base.finalize(tbl)
+    @test begin
+        foreach(f -> rm(joinpath(test_log_dir*"run", f)), files)
+        # rm will error if the file is still open
+        true
+    end
+end
+
 @testset "resetting" begin
     tbl = TBLogger(test_log_dir*"run", tb_overwrite)
     TensorBoardLogger.add_eventfile(tbl, "pp")
