@@ -29,7 +29,7 @@ The fundamental type defined in this package is a `TBLogger`, which behaves like
 other standard loggers in Julia such as `ConsoleLogger` or `TextLogger`. You can
 create one by passing it the path to the folder where you want to store the data.
 You can also pass an optional second argument to specify the behaviour in case
-there already exhist a document at the given path.
+there already exists a document at the given path.
 
 Once you have created a `TBLogger`, you can use it as you would use any other
 logger in Julia:
