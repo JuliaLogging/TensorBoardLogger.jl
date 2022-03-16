@@ -22,5 +22,5 @@ makedocs(
 )
 
 deploydocs(
-    repo   = "github.com/PhilipVinc/TensorBoardLogger.jl.git",
+    repo   = "github.com/JuliaLogging/TensorBoardLogger.jl.git",
     target = "build")
