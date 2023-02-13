@@ -6,7 +6,7 @@ quantity, such as `old_tag = "test/struct/re"` and `new_tag = "test/struct/im"`
 then returns true. False otherwise
 """
 function tags_match_re_im(old_tag, new_tag)
-    if old_tag[end-2:end] == "/re"
+    if isvalid(old_tag, lastindex(old_tag)-2) && old_tag[end-2:end] == "/re"
         old_tag_parts = split(old_tag, "/")
         new_tag_parts = split(new_tag, "/")
         if ( all(old_tag_parts[1:end-1] .== new_tag_parts[1:end-1]) &&
