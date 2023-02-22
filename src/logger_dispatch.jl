@@ -70,7 +70,7 @@ summary_impl(name, value::PngImage) = image_summary(name, value)
 
 
 ########## For things going to LogText ##############################
-preprocess(name, val::AbstractString, data) where T<:String = push!(data, name=>val)
+preprocess(name, val::AbstractString, data) = push!(data, name=>val)
 summary_impl(name, value::Any) = text_summary(name, value)
 
 
