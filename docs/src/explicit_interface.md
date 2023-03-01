@@ -44,7 +44,7 @@ See [TensorBoard Custom Scalar page](https://github.com/tensorflow/tensorboard/t
 
 For example, to combine in the same plot panel the two curves logged under tags `"Curve/1"` and `"Curve/2"` you can run once the command:
 ```julia
-layout = Dict("Cat" => Dict("Curve" => ("Multiline", ["Curve/1", "Curve/2"])))
+layout = Dict("Cat" => Dict("Curve" => (tb_multiline, ["Curve/1", "Curve/2"])))
 
 log_custom_scalar(lg, layout)
 
