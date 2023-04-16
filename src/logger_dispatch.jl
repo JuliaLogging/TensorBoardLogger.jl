@@ -76,7 +76,7 @@ summary_impl(name, value::Any) = text_summary(name, value)
 
 ########## For things going to LogHistograms ########################
 # Only consider 1D histograms for histogram plotting
-preprocess(name, hist::Histogram{T,1}, data) where T = push!(data, name=>hist)
+preprocess(name, hist::Histogram{<:Any,1}, data) = push!(data, name=>hist)
 summary_impl(name, hist::Histogram) = histogram_summary(name, hist)
 
 # TODO: maybe deprecate? tuple means histogram (only if bins/weights match)
