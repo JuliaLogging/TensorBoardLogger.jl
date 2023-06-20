@@ -1,4 +1,5 @@
-using .tensorboard: TextPluginData
+using .tensorboard_plugin_text: TextPluginData
+using .tensorboard: DataClass
 
 """
     log_text(logger::TBLogger, name::String, text::Any; step=step(logger))
@@ -23,12 +24,12 @@ you should define this method so that you can serialize the name to string.
 function construct_tensor_dims(data::AbstractArray)
     dims = Vector{TensorShapeProto_Dim}()
     for dim in size(data)
-        push!(dims, TensorShapeProto_Dim(size = dim))
+        push!(dims, TensorShapeProto_Dim(dim, ""))
     end
     return dims
 end
 
-construct_tensor_dims(data) = [TensorShapeProto_Dim(size=1)]
+construct_tensor_dims(data) = [TensorShapeProto_Dim(1, "")]
 
 function construct_tensor_string_val(data::AbstractArray)
     textstringval = Vector{Vector{UInt8}}()
@@ -53,16 +54,33 @@ function text_summary(name::String, text::Any)
 
     # Structure holding the shape of the tensor
     dims = construct_tensor_dims(text)
-    texttensorshape = TensorShapeProto(dim = dims)
+    texttensorshape = TensorShapeProto(dims, false)
 
     # Metadata for the text
-    textcontent = serialize_proto(TextPluginData(version = 0))
-    plugindata = SummaryMetadata_PluginData(plugin_name = "text", content = textcontent)
-    smd = SummaryMetadata(plugin_data = plugindata)
+    textcontent = serialize_proto(TextPluginData(0))
+    plugindata = SummaryMetadata_PluginData("text", textcontent)
+    smd = SummaryMetadata(plugindata, name, "text", DataClass.DATA_CLASS_TENSOR)
 
     # Create the tensor
-    texttensor = TensorProto(dtype = _DataType.DT_STRING, string_val = textstringval, tensor_shape = texttensorshape)
-    Summary_Value(tag = name, metadata = smd, tensor = texttensor)
+    texttensor = TensorProto(_DataType.DT_STRING, 
+                             texttensorshape, 
+                             Int32(0), 
+                             Vector{UInt8}(),
+                             Vector{Int32}(),
+                             Vector{Float32}(),
+                             Vector{Float64}(),
+                             Vector{Int32}(),
+                             textstringval,
+                             Vector{Float32}(),
+                             Vector{Int64}(),
+                             Vector{Bool}(),
+                             Vector{Float64}(),
+                             Vector{ResourceHandleProto}(),
+                             Vector{VariantTensorDataProto}(),
+                             Vector{UInt32}(),
+                             Vector{UInt64}(),
+                             UInt8[])
+    Summary_Value(name, name, smd, OneOf(:tensor, texttensor))
 end
 
 """

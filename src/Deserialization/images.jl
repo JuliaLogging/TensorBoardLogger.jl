@@ -1,5 +1,5 @@
-function deserialize_image_summary(summary)
-    img = summary.image
+function deserialize_image_summary(summary::Summary_Value)
+    img = summary.value.value
 
     value = load(_format_stream(format"PNG", IOBuffer(img.encoded_image_string)))
 
@@ -14,7 +14,7 @@ function lookahead_deserialize_image_summary(old_tag, old_val, evs::Summary,
 
     state = state_old + 1
     iter_result = iterate(evs, state)
-    while iter_result !== nothing
+    while !(iter_result isa Nothing)
         ((tag, summary), state) = iter_result
         # iteration body
         typ = summary_type(summary)

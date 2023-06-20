@@ -1,4 +1,5 @@
-using .tensorboard: NodeDef, AttrValue_ListValue, AttrValue, NameAttrList
+using .tensorboard: NodeDef, AttrValue, NameAttrList
+using .tensorboard: var"AttrValue.ListValue" as AttrValue_ListValue
 
 """
 	log_graph
@@ -22,35 +23,59 @@ function graph_summary(g, nodelabel, nodeop, nodedevice, nodevalue)
 		attr = Dict{String, AttrValue}()
 		x = nodevalue[v]
 		if isa(x, AbstractString)
-			attr["value"] = AttrValue(s = Vector{UInt8}(x))
-			attr["dtype"] = AttrValue(_type = jltype2tf(typeof(x)))
+			attr["value"] = AttrValue(OneOf(:s, Vector{UInt8}(x)))
+			attr["dtype"] = AttrValue(OneOf(:_type,jltype2tf(typeof(x))))
 		elseif isa(x, Integer)
-			attr["value"] = AttrValue(i = Int64(x))
-			attr["dtype"] = AttrValue(_type = jltype2tf(typeof(x)))
+			attr["value"] = AttrValue(OneOf(:i,Int64(x)))
+			attr["dtype"] = AttrValue(OneOf(:_type, jltype2tf(typeof(x))))
 		elseif isa(x, Real)
-			attr["value"] = AttrValue(f = Float32(x))
-			attr["dtype"] = AttrValue(_type = jltype2tf(typeof(x)))
+			attr["value"] = AttrValue(OneOf(:f, Float32(x)))
+			attr["dtype"] = AttrValue(OneOf(:_type, jltype2tf(typeof(x))))
 		elseif isa(x, Bool)
-			attr["value"] = AttrValue(b = x)
-			attr["dtype"] = AttrValue(_type = jltype2tf(typeof(x)))
+			attr["value"] = AttrValue(OneOf(:b, x))
+			attr["dtype"] = AttrValue(OneOf(:_type, jltype2tf(typeof(x))))
 		elseif isa(x, AbstractArray)
-			shape = TensorShapeProto(dim = [TensorShapeProto_Dim(size = d) for d in (collect(size(x)))])
+			shape = TensorShapeProto([TensorShapeProto_Dim(d, "") for d in (collect(size(x)))], false)
 			t = TensorProto(dtype = jltype2tf(eltype(x)), tensor_shape = shape, tensor_content = serialize_proto(string(x)))
-			attr["value"] = AttrValue(tensor = t)
-			attr["_output_shapes"] = AttrValue(list = AttrValue_ListValue(shape = [shape]))
+			attr["value"] = AttrValue(OneOf(:tensor, t))
+			listvalue = AttrValue_ListValue(Vector{Vector{UInt8}}(),
+											Vector{Int64}(),
+											Vector{Float32}(),
+											Vector{Bool}(),
+											Vector{var"#DataType".T}(), 
+											[shape],
+											Vector{TensorProto}(), 
+											Vector{NameAttrList}())
+			attr["_output_shapes"] = AttrValue(OneOf(:list, listvalue))
 		elseif isa(x, Tuple)
-			attr["value"] = AttrValue(list = AttrValue_ListValue(s = [Vector{UInt8}(repr(y)) for y in x]))
-			shape = TensorShapeProto(dim = [TensorShapeProto_Dim(size = length(x))])
-			attr["_output_shapes"] = AttrValue(list = AttrValue_ListValue(shape = [shape]))
+			listvalue = AttrValue_ListValue([Vector{UInt8}(repr(y)) for y in x],
+											Vector{Int64}(),
+											Vector{Float32}(),
+											Vector{Bool}(),
+											Vector{var"#DataType".T}(), 
+											Vector{TensorShapeProto}(),
+											Vector{TensorProto}(), 
+											Vector{NameAttrList}())
+			attr["value"] = AttrValue(OneOf(:list, listvalue))
+			shape = TensorShapeProto([TensorShapeProto_Dim(length(x), "")], false)
+			listvalue = AttrValue_ListValue(Vector{Vector{UInt8}}(),
+											Vector{Int64}(),
+											Vector{Float32}(),
+											Vector{Bool}(),
+											Vector{var"#DataType".T}(), 
+											[shape],
+											Vector{TensorProto}(), 
+											Vector{NameAttrList}())
+			attr["_output_shapes"] = AttrValue(OneOf(:list, listvalue))
 		elseif isa(x, Function)
-			attr["value"] = AttrValue(func = NameAttrList(name = repr(x)))
+			attr["value"] = AttrValue(OneOf(:func, NameAttrList(name = repr(x))))
 		else
 			#donothing
 		end
-		node = NodeDef(name = name, op = op, input = input, device = device, attr = attr)
+		node = NodeDef(name, op, input, device, attr, nothing, nothing)
 		push!(nodes, node)
 	end
-	GraphDef(node = nodes)
+	GraphDef(nodes, nothing, 0, nothing, nothing)
 end
 
 function jltype2tf(dtype::DataType)

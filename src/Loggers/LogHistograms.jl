@@ -48,11 +48,16 @@ end
 function histogram_summary(name::AbstractString, hist::Histogram{T,1}) where T
     edges     = first(hist.edges)
     hist_vals = hist.weights
-
-    hp = HistogramProto(min=first(edges), max=last(edges),
-                        bucket_limit=collect(edges[2:end]),
-                        bucket=hist_vals)
-    return Summary_Value(tag=name, histo=hp)
+    num = length(hist_vals)
+    histsum = sum(hist_vals)
+    histsumsqr = sum(hist_vals.^2) 
+    hp = HistogramProto(first(edges), last(edges),
+                        num,
+                        histsum,
+                        histsumsqr,
+                        collect(edges[2:end]),
+                        hist_vals)
+    return Summary_Value(name, name, nothing, OneOf(:histo, hp))
 end
 
 # Writes to an Histogram summary the flattened version of the array.
@@ -60,15 +65,19 @@ end
 # reconstruct the original shape when read back into Julia
 function histogram_arr_summary(name::AbstractString, tensor::AbstractArray)
 
-    smpd = SummaryMetadata_PluginData(plugin_name=TB_PLUGIN_JLARRAY_NAME,
-                    content=reinterpret(UInt8, collect(size(tensor))))
-    sm = SummaryMetadata(plugin_data=smpd)
+    smpd = SummaryMetadata_PluginData(TB_PLUGIN_JLARRAY_NAME, reinterpret(UInt8, collect(size(tensor))))
+    sm = SummaryMetadata(smpd, name, "", DataClass.DATA_CLASS_TENSOR)
 
+    num = length(tensor)
+    edges = collect(0:num)
+    histsum = sum(tensor)
+    histsumsqr = sum(tensor.^2) 
+    hp = HistogramProto(minimum(edges), maximum(edges),
+                        num,
+                        histsum,
+                        histsumsqr,
+                        edges[2:end],
+                        vec(tensor))
 
-    edges = collect(0:length(tensor))
-    hp = HistogramProto(min=minimum(edges), max=maximum(edges),
-                        bucket_limit=edges[2:end],
-                        bucket=vec(tensor))
-
-    return Summary_Value(tag=name, histo=hp, metadata=sm)
+    return Summary_Value(name, name, sm, OneOf(:histo, hp))
 end

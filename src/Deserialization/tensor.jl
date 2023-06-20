@@ -1,4 +1,4 @@
-using .tensorboard: TextPluginData
+using .tensorboard_plugin_text: TextPluginData
 
 function deserialize_tensor_summary(summary)
     metadata    = summary.metadata
@@ -15,8 +15,8 @@ function deserialize_tensor_summary(summary)
 end
 
 function deserialize_text_tensor(summary, sizes, names)
-    version_data = readproto(PipeBuffer(summary.metadata.plugin_data.content),
-                             TextPluginData())
+    version_data = decode(ProtoDecoder(PipeBuffer(summary.metadata.plugin_data.content)),
+                             TextPluginData)
     tensor = summary.tensor
     strings = Array{String, length(sizes)}(undef, sizes...)
 

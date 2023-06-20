@@ -21,63 +21,47 @@ pbpath =dirname(dirname(PosixPath(pathof(ProtoBuf))))/p"gen"
 cur_path = cwd()
 TBL_root = dirname(cur_path)
 
-src_dir = cur_path/"proto"
-out_dir   = cur_path/"protojl"
+# src_dir = cur_path/"proto"
+src_dir = PosixPath(".")/"proto"
+out_dir = cur_path/"protojl"
 
 ## Clean the output directory
 rm(out_dir, force=true, recursive=true)
 
 ## First module
 function process_module(cur_module::AbstractString; base_module::AbstractString=cur_module, input_path=cur_module)
-    # Include search paths
-    includes   = [src_dir, src_dir/base_module]
 
     # Output folder
-    module_out_dir    = out_dir/cur_module
+    module_out_dir = out_dir/cur_module
 
     # Input files
-    infiles = glob("*.proto", src_dir/input_path)
+    infiles = split.(string.(glob("*.proto", src_dir/input_path)), '/') .|> (a -> a[3:end]) .|> a -> joinpath(a...)
 
     mkpath(module_out_dir)
-    includes_str=["--proto_path=$path" for path=includes]
-    run(ProtoBuf.protoc(`$includes_str --julia_out=$module_out_dir $infiles`))
-
-    nothing
+    strip_currdir(str::String) = string(strip(str, ['.','/']))
+    # relative_paths = string.(infiles) .|> strip_currdir
+    relative_paths = string.(infiles)
+    search_directories = joinpath(@__DIR__, "proto")
+    output_directory = string(module_out_dir)
+    # println("relative_paths=$relative_paths")
+    # println("search_directories=$search_directories")
+    # println("output_directory=$output_directory")
+    ProtoBuf.protojl(relative_paths ,search_directories ,output_directory)
+    files_to_include = [string(module_out_dir/basename(file)) for file in infiles]
+    return files_to_include
 end
 
 #process_module("tensorflow", input_path="tensorflow/core/protobuf")
 
-process_module("tensorboard", input_path="tensorboard/compat/proto")
+files_to_include = process_module("tensorboard", input_path="tensorboard/compat/proto")
 
 #plugins = ["audio", "custom_scalar", "hparams", "histogram", "image", "scalar", "text"]
 plugins = ["custom_scalar", "hparams", "text"]
-for plugin in plugins
-    process_module("tensorboard/plugins/$plugin", base_module="tensorboard")
-end
 
+append!(files_to_include, (process_module("tensorboard/plugins/$plugin", base_module="tensorboard") for plugin in plugins)...)
 
-## this fails but would be better
-#cur_module  = "tensorboard"
-#base_module = cur_module
-#
-## Include search paths
-#includes   = [src_dir, src_dir/base_module]
-#
-## Output folder
-#module_out_dir    = out_dir/("$cur_module"*"2")
-#
-## Input files
-#infiles = glob("*.proto", src_dir/cur_module/"compat/proto")
-#
-#for plugin in plugins
-#    plugin_proto_files = glob("*.proto", src_dir/cur_module/"plugins/$plugin")
-#    append!(infiles, plugin_proto_files)
-#end
-#
-#mkpath(module_out_dir)
-#includes_str=["--proto_path=$path" for path=includes]
-#run(ProtoBuf.protoc(`$includes_str --julia_out=$module_out_dir $infiles`))
-
+# files_to_include contains all the proto files, can be used for printing and inspection
+println("generated code for \n$files_to_include")
 
 # Finally move the output directory to the src folder
 mv(out_dir, TBL_root/"src"/"protojl")

@@ -1,6 +1,6 @@
 module TensorBoardLogger
 
-using ProtoBuf: readproto, writeproto, ProtoType
+using ProtoBuf: decode, encode, ProtoDecoder, ProtoEncoder, OneOf
 using CRC32c
 
 using ImageCore: colorview, channelview
@@ -37,10 +37,22 @@ export TBText, TBVector, TBHistogram, TBImage, TBImages, TBAudio, TBAudios
 include("FileIO_workaround.jl")
 
 # Protobuffer definitions for tensorboard
-include("protojl/tensorboard/tensorboard.jl")
-using .tensorboard: Summary_Value, GraphDef, Summary, Event, SessionLog_SessionStatus, SessionLog
-using .tensorboard: TensorShapeProto_Dim, TensorShapeProto, TextPluginData
-using .tensorboard: TensorProto, SummaryMetadata, SummaryMetadata_PluginData, _DataType
+include("protojl/tensorboard/tensorboard/tensorboard.jl")
+using .tensorboard: GraphDef, Summary, Event, SessionLog, TensorShapeProto, SourceMetadata, ResourceHandleProto
+using .tensorboard: var"Summary.Value" as Summary_Value
+using .tensorboard: var"SessionLog.SessionStatus" as SessionLog_SessionStatus
+using .tensorboard: var"TensorShapeProto.Dim" as TensorShapeProto_Dim
+using .tensorboard: var"#DataType" as _DataType
+using .tensorboard: TensorProto, VariantTensorDataProto, DataClass, SummaryMetadata
+using .tensorboard: var"SummaryMetadata.PluginData" as SummaryMetadata_PluginData
+using .tensorboard: var"AttrValue.ListValue" as AttrValue_ListValue
+
+include("protojl/tensorboard/plugins/text/tensorboard/tensorboard.jl")
+using .tensorboard_plugin_text: TextPluginData
+include("protojl/tensorboard/plugins/hparams/tensorboard/tensorboard.jl")
+using .tensorboard_plugin_hparams
+include("protojl/tensorboard/plugins/custom_scalar/tensorboard/tensorboard.jl")
+using .tensorboard_plugin_custom_scalar
 
 include("PNG.jl")
 using .PNGImage

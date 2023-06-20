@@ -118,14 +118,15 @@ function create_eventfile(logdir, purge_step=nothing, time=time(); prepend="")
     file     = open(fpath, "w")
 
     # Create the initial log
-    if purge_step != nothing
-        ev_0 = Event(wall_time=time, step=purge_step, file_version="brain.Event:2")
+    source_metadata = Ref{Union{Nothing,SourceMetadata}}(nothing)
+    if !(purge_step isa Nothing)
+        ev_0 = Event(time, purge_step, OneOf(:file_version,"brain.Event:2"), source_metadata[])
         write_event(file, ev_0)
-        sess_log = TensorBoardLogger.SessionLog(status=TensorBoardLogger.SessionLog_SessionStatus.START)
-        ev_0 = Event(wall_time=time, step=purge_step, session_log=sess_log)
+        sess_log = TensorBoardLogger.SessionLog(TensorBoardLogger.SessionLog_SessionStatus.START, logdir, "")
+        ev_0 = Event(time, purge_step, OneOf(:session_log, sess_log), source_metadata[])
         write_event(file, ev_0)
     else
-        ev_0 = Event(wall_time=time, step=0, file_version="brain.Event:2")
+        ev_0 = Event(time, 0, OneOf(:file_version,"brain.Event:2"), source_metadata[])
         write_event(file, ev_0)
     end
 	return fname, file
@@ -138,7 +139,7 @@ Adds an event file to `lg` with `path` prepended to its name. It can be used
 to create sub-event collection in a single event collection.
 """
 function add_eventfile(lg::TBLogger, path="")
-    fname, file = create_eventfile(logdir(lg), prepend=path)
+    fname, file = create_eventfile(logdir(lg); prepend=path)
     lg.all_files[fname] = file
     return fname
 end
@@ -196,7 +197,10 @@ set_step_increment!(lg::TBLogger, Δstep) = lg.step_increment = Δstep
 
 Increments the step counter in the logger by `Δ_Step` and returns the new value.
 """
-increment_step!(lg::TBLogger, Δ_Step) = lg.global_step += Δ_Step
+function increment_step!(lg::TBLogger, Δ_Step)
+    lg.global_step += Δ_Step
+    return lg.global_step
+end
 
 """
     step(lg) -> Int

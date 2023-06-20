@@ -6,15 +6,9 @@ function masked_crc32c(data)
     return UInt32(((x >> 15) | UInt32(x << 17)) + 0xa282ead8)
 end
 
-function serialize_proto(data::ProtoType)
+function serialize_proto(data)
     pb = PipeBuffer()
-    _writeproto(pb, data)
-    pb.data
-end
-
-function serialize_proto(data::Any)
-    pb = PipeBuffer()
-    write(pb, data)
+    encode(ProtoEncoder(pb), data)
     pb.data
 end
 

@@ -16,5 +16,5 @@ function log_value(logger::TBLogger, name::AbstractString, value::Complex; step=
 end
 
 function scalar_summary(name::AbstractString, value::Real)
-    Summary_Value(tag=name, simple_value=value)
+    Summary_Value(name, name, nothing, OneOf(:simple_value, Float32(value)))
 end

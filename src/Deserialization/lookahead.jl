@@ -49,10 +49,10 @@ end
 function lookahead_deserialize_simple_value_summary(old_tag, old_val, evs::Summary,
                                                  state)
     # prepare the default output (when no action is taken)
-    result = old_tag, old_val, state
+    result = old_tag, old_val.value, state
     # iterate to the next element
     res = iterate(evs, state + 1)
-    res == nothing && return result
+    res isa Nothing && return result
 
     # if the next event is identified, check its type
     (new_tag, summary), i_state = res
@@ -60,8 +60,8 @@ function lookahead_deserialize_simple_value_summary(old_tag, old_val, evs::Summa
 
     # if types match, check tags. If they match, return modified structure
     if typ === :simple_value && tags_match_re_im(old_tag, new_tag)
-        val_im = summary.simple_value
-        result = new_tag[1:end-3], old_val + im*val_im, i_state - 1
+        val_im = summary.value.value
+        result = new_tag[1:end-3], old_val.value + im*val_im, i_state - 1
     else
         return result
     end
