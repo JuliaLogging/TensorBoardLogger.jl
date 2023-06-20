@@ -193,7 +193,7 @@ function Base.iterate(iter::SummaryDeserializingIterator, state=1)
         tag, val, state = lookahead_deserialize(tag, val, evs, state, :histo)
     elseif typ === :image
         val = deserialize_image_summary(summary)
-        tag, val, state = lookahead_deserialize(tag, val, evs, state, :image) ## ??? ###  The lookahead deserializer for images is broken. It is also not clear where this will actually be useful or intuitive for users  
+        tag, val, state = lookahead_deserialize(tag, val, evs, state, :image)
     elseif typ === :audio
         val = deserialize_audio_summary(summary)
     elseif typ === :tensor
