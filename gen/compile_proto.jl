@@ -38,8 +38,6 @@ function process_module(cur_module::AbstractString; base_module::AbstractString=
     infiles = split.(string.(glob("*.proto", src_dir/input_path)), '/') .|> (a -> a[3:end]) .|> a -> joinpath(a...)
 
     mkpath(module_out_dir)
-    strip_currdir(str::String) = string(strip(str, ['.','/']))
-    # relative_paths = string.(infiles) .|> strip_currdir
     relative_paths = string.(infiles)
     search_directories = joinpath(@__DIR__, "proto")
     output_directory = string(module_out_dir)

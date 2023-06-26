@@ -250,12 +250,8 @@ function map_summaries(fun::Function, logdir; purge=true, tags=nothing, steps=no
             steps !== nothing && step ∉ steps && continue
 
             iter = SummaryDeserializingIterator(event.what.value, smart)
-            # fullnames = String[]
             for (name, val) in iter
                 tags !== nothing && name ∉ tags && continue
-                # fullname = "$(name)_$(step)"
-                # fullname in fullnames ? continue : push!(fullnames, fullname)
-
                 fun(name, step, val)
             end
         end
