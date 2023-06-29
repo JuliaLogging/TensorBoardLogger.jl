@@ -66,7 +66,7 @@ function TBLogger(logdir="tensorboard_logs/run", overwrite=tb_increment;
 end
 
 """
-	init_logdir(logdir, [overwrite=tb_increment])
+    init_logdir(logdir, [overwrite=tb_increment])
 
 Creates a folder at path `logdir`. If the folder already exhists the behaviour
 is determined by `overwrite`.
@@ -99,7 +99,7 @@ function init_logdir(logdir, overwrite=tb_increment)
 end
 
 """
-	create_eventfile(logdir, [purge_step=nothing; time=time()]) -> IO
+    create_eventfile(logdir, [purge_step=nothing; time=time()]) -> IO
 
 Creates a protobuffer events file in the logdir and returns the IO buffer for
 writing to it. If `purge_step::Int` is passed then a special event is written
@@ -118,17 +118,18 @@ function create_eventfile(logdir, purge_step=nothing, time=time(); prepend="")
     file     = open(fpath, "w")
 
     # Create the initial log
-    if purge_step != nothing
-        ev_0 = Event(wall_time=time, step=purge_step, file_version="brain.Event:2")
+    source_metadata = Ref{Union{Nothing,SourceMetadata}}(nothing)
+    if !(purge_step isa Nothing)
+        ev_0 = Event(time, purge_step, OneOf(:file_version,"brain.Event:2"), source_metadata[])
         write_event(file, ev_0)
-        sess_log = TensorBoardLogger.SessionLog(status=TensorBoardLogger.SessionLog_SessionStatus.START)
-        ev_0 = Event(wall_time=time, step=purge_step, session_log=sess_log)
+        sess_log = TensorBoardLogger.SessionLog(TensorBoardLogger.SessionLog_SessionStatus.START, logdir, "")
+        ev_0 = Event(time, purge_step, OneOf(:session_log, sess_log), source_metadata[])
         write_event(file, ev_0)
     else
-        ev_0 = Event(wall_time=time, step=0, file_version="brain.Event:2")
+        ev_0 = Event(time, 0, OneOf(:file_version,"brain.Event:2"), source_metadata[])
         write_event(file, ev_0)
     end
-	return fname, file
+    return fname, file
 end
 
 """
@@ -138,7 +139,7 @@ Adds an event file to `lg` with `path` prepended to its name. It can be used
 to create sub-event collection in a single event collection.
 """
 function add_eventfile(lg::TBLogger, path="")
-    fname, file = create_eventfile(logdir(lg), prepend=path)
+    fname, file = create_eventfile(logdir(lg); prepend=path)
     lg.all_files[fname] = file
     return fname
 end
@@ -192,11 +193,14 @@ Can be overidden by passing `log_step_increment=some_increment` when logging.
 set_step_increment!(lg::TBLogger, Δstep) = lg.step_increment = Δstep
 
 """
-	increment_step!(lg, Δ_Step) -> Int
+    increment_step!(lg, Δ_Step) -> Int
 
 Increments the step counter in the logger by `Δ_Step` and returns the new value.
 """
-increment_step!(lg::TBLogger, Δ_Step) = lg.global_step += Δ_Step
+function increment_step!(lg::TBLogger, Δ_Step)
+    lg.global_step += Δ_Step
+    return lg.global_step
+end
 
 """
     step(lg) -> Int
@@ -249,7 +253,7 @@ CoreLogging.min_enabled_level(lg::TBLogger) = lg.min_level
 CoreLogging.shouldlog(lg::TBLogger, level, _module, group, id) = true
 
 function CoreLogging.handle_message(lg::TBLogger, level, message, _module, group,
-									id, file, line; kwargs...)
+                                    id, file, line; kwargs...)
     # Unpack the message
     summ    = SummaryCollection()
     i_step = lg.step_increment # :log_step_increment default value
@@ -279,18 +283,18 @@ end
 
 ######################### Methods for pretty printing ##########################
 Base.show(io::IO, tbl::TBLogger) = begin
-	str  = "TBLogger(\"$(tbl.logdir)\"), min_level=$(tbl.min_level), "*
-		   "purge_step=$(tbl.global_step))"
+    str  = "TBLogger(\"$(tbl.logdir)\"), min_level=$(tbl.min_level), "*
+           "purge_step=$(tbl.global_step))"
     Base.print(io, str)
 end
 
 Base.show(io::IO, mime::MIME"text/plain", tbl::TBLogger) = begin
-	str = """
-	TBLogger:
-		- Log level     : $(tbl.min_level)
-		- Current step  : $(tbl.global_step)
-		- Output        : $(tbl.logdir)
-		- open files    : $(length(tbl.all_files))
-	"""
+    str = """
+    TBLogger:
+        - Log level     : $(tbl.min_level)
+        - Current step  : $(tbl.global_step)
+        - Output        : $(tbl.logdir)
+        - open files    : $(length(tbl.all_files))
+    """
     Base.print(io, str)
 end

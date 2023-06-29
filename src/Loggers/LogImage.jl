@@ -1,13 +1,13 @@
-using .tensorboard: Summary_Image
+using .tensorboard: var"Summary.Image" as Summary_Image
 
 function image_summary(name::AbstractString, img::PngImage)
 
     attr    = img.attr
-    imgsumm = Summary_Image(height     = attr[:height],
-                            width      = attr[:width],
-                            colorspace = attr[:colorspace],
-                            encoded_image_string = img.data )
-    return Summary_Value(tag = name, image = imgsumm)
+    imgsumm = Summary_Image(attr[:height],
+                            attr[:width],
+                            attr[:colorspace],
+                            img.data )
+    return Summary_Value(name, name, nothing, OneOf(:image, imgsumm))
 end
 
 

@@ -49,7 +49,7 @@ function read_event(f::IO)
     @assert crc_data == crc_data_ck
 
     pb = PipeBuffer(data)
-    ev = readproto(pb, Event())
+    ev = decode(ProtoDecoder(pb), Event)
     return ev
 end
 
@@ -137,19 +137,9 @@ end
 
 Returns the type of a summary
 """
-function summary_type(summary)
-    if hasproperty(summary, :histo)
-        return :histo
-    elseif hasproperty(summary, :image)
-        return :image
-    elseif hasproperty(summary, :audio)
-        return :audio
-    elseif hasproperty(summary, :tensor)
-        return :tensor
-    #elseif hasproperty(summary, :simple_value)
-    end
-    # always defined
-    return :simple_value
+function summary_type(summary::Summary_Value)
+    summary.value isa Nothing && error("Summary value of Nothing while deserializing")
+    return summary.value.name
 end
 
 """
@@ -193,12 +183,11 @@ SummaryDeserializingIterator(summ; smart=true) =
 function Base.iterate(iter::SummaryDeserializingIterator, state=1)
     evs = iter.summary
     res = iterate(evs, state)
-    res == nothing && return nothing
+    res isa Nothing && return nothing
 
     (tag, summary), i_state = res
 
     typ = summary_type(summary)
-
     if typ === :histo
         val = deserialize_histogram_summary(summary)
         tag, val, state = lookahead_deserialize(tag, val, evs, state, :histo)
@@ -210,7 +199,7 @@ function Base.iterate(iter::SummaryDeserializingIterator, state=1)
     elseif typ === :tensor
         val = deserialize_tensor_summary(summary)
     elseif typ === :simple_value
-        val = summary.simple_value
+        val = summary.value
         tag, val, state = lookahead_deserialize(tag, val, evs, state, :simple_value)
     else
         @error "Event with unknown field" summary=summary
@@ -254,17 +243,15 @@ function map_summaries(fun::Function, logdir; purge=true, tags=nothing, steps=no
 
     for event_file in TBEventFileCollectionIterator(logdir, purge=purge)
         for event in event_file
-            # if event.summary is not defined, don't bother processing this event,
-            # as it's probably a "start file" event or a graph event.
-            !hasproperty(event, :summary) && continue
-
+            # if event.what contains no summary, don't bother processing this event
+            event.what isa Nothing && continue
+            !(event.what.value isa Summary) && continue
             step = event.step
             steps !== nothing && step ∉ steps && continue
 
-            iter = SummaryDeserializingIterator(event.summary, smart)
+            iter = SummaryDeserializingIterator(event.what.value, smart)
             for (name, val) in iter
                 tags !== nothing && name ∉ tags && continue
-
                 fun(name, step, val)
             end
         end

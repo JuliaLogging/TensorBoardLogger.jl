@@ -1,18 +1,20 @@
 # Create summary for Summary_value (default constructor by
 # protobuf is broken).
-SummaryCollection(;kwargs...) = Summary(value=Vector{Summary_Value}(); kwargs...)
-SummaryCollection(summaries::Vector{Summary_Value}; kwargs...) = Summary(value=summaries; kwargs...)
-SummaryCollection(summary::Summary_Value; kwargs...) = Summary(value=[summary]; kwargs...)
+SummaryCollection(;kwargs...) = Summary(Vector{Summary_Value}(); kwargs...)
+SummaryCollection(summaries::Vector{Summary_Value}; kwargs...) = Summary(summaries; kwargs...)
+SummaryCollection(summary::Summary_Value; kwargs...) = Summary([summary]; kwargs...)
 SummaryCollection(summary::GraphDef; kwargs...) = summary
 
 # TODO Clean up this nothing crazyness
 function make_event(logger::TBLogger, summary::Summary; step=TensorBoardLogger.step(logger))
     step = typeof(step) == Nothing ?  TensorBoardLogger.step(logger) : step
-    return Event(wall_time=time(), summary=summary, step=step)
+    source_metadata=Ref{Union{Nothing, SourceMetadata}}(nothing)
+    return Event(time(), step, OneOf(:summary, summary), source_metadata[])
 end
 function make_event(logger::TBLogger, summary::GraphDef; step=TensorBoardLogger.step(logger))
     step = typeof(step) == Nothing ?  TensorBoardLogger.step(logger) : step
-    Event(wall_time=time(), graph_def=serialize_proto(summary), step=step)
+    source_metadata=Ref{Union{Nothing, SourceMetadata}}(nothing)
+    Event(time(), step, OneOf(:graph_def, serialize_proto(summary)), source_metadata[])
 end
 
 """
@@ -28,7 +30,7 @@ format. The format follows the following rule (in bytes)
 """
 function write_event(out::IO, event::Event)
     data = PipeBuffer();
-    _writeproto(data, event)
+    encode(ProtoEncoder(data), event)
 
     #header
     header     = collect(reinterpret(UInt8, [data.size]))

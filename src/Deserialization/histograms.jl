@@ -1,8 +1,9 @@
-function deserialize_histogram_summary(summary)
+function deserialize_histogram_summary(summary::Summary_Value)
     # custom deserialization
     if hasproperty(summary, :metadata)
+        histo = summary.value.value
         if summary.metadata.plugin_data.plugin_name == TB_PLUGIN_JLARRAY_NAME
-            val = reshape(summary.histo.bucket,
+            val = reshape(histo.bucket,
                           reinterpret(Int,
                                       summary.metadata.plugin_data.content)...)
 
@@ -11,7 +12,7 @@ function deserialize_histogram_summary(summary)
     end
 
     # deserialize histogramproto
-    hist_proto = summary.histo
+    hist_proto = summary.value.value
     bin_edges = similar(hist_proto.bucket_limit, length(hist_proto.bucket_limit)+1)
     bin_edges[1] = hist_proto.min
     bin_edges[2:end] .= hist_proto.bucket_limit
@@ -27,7 +28,7 @@ function lookahead_deserialize_histogram_summary(old_tag, old_val, evs::Summary,
     result = old_tag, old_val, state
     # iterate to the next element
     res = iterate(evs, state + 1)
-    res == nothing && return result
+    res isa Nothing && return result
 
     # if the next event is identified, check its type
     (new_tag, summary), i_state = res

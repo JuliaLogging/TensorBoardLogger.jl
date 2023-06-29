@@ -1,5 +1,5 @@
-function deserialize_image_summary(summary)
-    img = summary.image
+function deserialize_image_summary(summary::Summary_Value)
+    img = summary.value.value
 
     value = load(_format_stream(format"PNG", IOBuffer(img.encoded_image_string)))
 
