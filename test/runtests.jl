@@ -5,6 +5,7 @@ using TestImages
 using ImageCore
 using FileIO
 using LightGraphs
+using StatsBase: fit, Histogram
 
 ENV["DATADEPS_ALWAYS_ACCEPT"] = true
 ENV["GKSwstype"] = "100"
@@ -70,20 +71,19 @@ end
         centers = collect(edges[1:end-1] .+0.05)
         histvals = [exp(-((c-x0)/s0)^2) for c=centers]
         data_tuple = (edges, histvals)
-
-        ss = TensorBoardLogger.histogram_summary("test", edges, histvals)
+        hist = fit(Histogram, histvals, edges)
+        ss = TensorBoardLogger.histogram_summary("test", hist)
         @test isa(ss, TensorBoardLogger.Summary_Value)
         @test ss.tag == "test"
         @test isa(ss.value.value, TensorBoardLogger.HistogramProto)
         @test ss.value.value.min == minimum(edges)
         @test ss.value.value.max == maximum(edges)
         @test all(ss.value.value.bucket_limit .== edges[2:end])
-        @test all(ss.value.value.bucket .== histvals)
+        @test ss.value.value.bucket == hist.weights
 
         log_histogram(logger, "hist/cust", data_tuple, step=step)
         log_histogram(logger, "hist/cust", rand(100), step=step)
         log_histogram(logger, "hist/cust", rand(10,10), step=step)
-        log_vector(logger, "hist/cust", rand(10), step=step)
 
         close.(values(logger.all_files))
     end
@@ -93,7 +93,7 @@ end
         vals = rand(10)
         @test data == preprocess("test1", vals, data)
         @test first(data[1]) == "test1"
-        @test last(data[1])  == vals
+        @test last(data[1])  == fit(Histogram, collect(vec(vals)))
 
         vals = rand(ComplexF32, 10)
         preprocess("test2", vals, data)
@@ -104,7 +104,7 @@ end
 
         vals = rand(10, 10)
         preprocess("test2", vals, data)
-        @test last(data[4]) == vals
+        @test last(data[4]) == fit(Histogram, collect(vec(vals)))
 
     end
 
