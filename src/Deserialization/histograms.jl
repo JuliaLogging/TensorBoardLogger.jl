@@ -1,16 +1,4 @@
 function deserialize_histogram_summary(summary::Summary_Value)
-    # custom deserialization
-    if hasproperty(summary, :metadata)
-        histo = summary.value.value
-        if summary.metadata.plugin_data.plugin_name == TB_PLUGIN_JLARRAY_NAME
-            val = reshape(histo.bucket,
-                          reinterpret(Int,
-                                      summary.metadata.plugin_data.content)...)
-
-            return val
-        end
-    end
-
     # deserialize histogramproto
     hist_proto = summary.value.value
     bin_edges = similar(hist_proto.bucket_limit, length(hist_proto.bucket_limit)+1)
