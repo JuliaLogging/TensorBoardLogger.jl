@@ -19,7 +19,7 @@ using  Base.CoreLogging: CoreLogging, AbstractLogger, LogLevel, Info,
     handle_message, shouldlog, min_enabled_level, catch_exceptions, with_logger,
     NullLogger
 
-export TBLogger, reset!, set_step!, increment_step!, set_step_increment!
+export TBLogger, reset!, set_step!, increment_step!, set_step_increment!, with_TBLogger_hold_step
 export log_histogram, log_value, log_vector, log_text, log_image, log_images,
        log_audio, log_audios, log_graph, log_embeddings, log_custom_scalar
 export map_summaries, TBReader
