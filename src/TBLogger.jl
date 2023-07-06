@@ -345,6 +345,6 @@ function with_TBLogger_hold_step(f, step::Int; step_at_end::Bool=true)
 end
 function with_TBLogger_hold_step(f; step_at_end::Bool=true)
     logger = CoreLogging.current_logger()
-    @assert logger isa TBLogger "with_TBLogger_hold_step: current logger is not a TBLogger, cannot establish current step automatically"
+    isa(logger, TBLogger) || error("with_TBLogger_hold_step: current logger is not a TBLogger, cannot establish current step automatically")
     with_TBLogger_hold_step(f, logger.global_step; step_at_end=step_at_end)
 end
