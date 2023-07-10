@@ -111,6 +111,7 @@ at [Reading back TensorBoard data](@ref)
 We also support logging custom types from a the following third-party libraries:
  - [Plots.jl](https://github.com/JuliaPlots/Plots.jl): the `Plots.Plot` type will be rendered to PNG at the resolution specified by the object and logged as an image
  - [PyPlot.jl](https://github.com/JuliaPy/PyPlot.jl): the `PyPlot.Figure` type will be rendered to PNG at the resolution specified by the object and logged as an image
+ - [Gadfly.jl](https://github.com/GiovineItalia/Gadfly.jl) type will be rendered to PNG at the resolution specified by the object and logged as an image. `Cairo` and `Fontconfig` packages must be imported for this functionality to work as it is required by `Gadfly`.
  - [Tracker.jl](https://github.com/FluxML/Tracker.jl): the `TrackedReal` and `TrackedArray` types will be logged as vector data
  - [ValueHistories.jl](https://github.com/JuliaML/ValueHistories.jl): the `MVHistory` type is used to store the deserialized content of .proto files.
 

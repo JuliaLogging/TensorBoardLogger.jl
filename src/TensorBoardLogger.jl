@@ -102,6 +102,16 @@ function __init__()
     @require PyPlot="d330b81b-6aea-500a-939a-2ce795aea3ee" begin
         include("Optional/PyPlot.jl")
     end
+    @require Gadfly="c91e804a-d5a3-530f-b6f0-dfbca275c004" begin
+        @require Fontconfig="186bb1d3-e1f7-5a2c-a377-96d770f13627" begin
+            @require Cairo="159f3aea-2a34-519c-b102-8c37f9878175" begin
+                using .Cairo
+                using .Fontconfig
+                include("Optional/Gadfly.jl")        
+            end
+        end
+    end
+    # @require Gadfly="c91e804a-d5a3-530f-b6f0-dfbca275c004" include("Optional/Gadfly.jl")
     @require Tracker="9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c" begin
         include("Optional/Tracker.jl")
     end
