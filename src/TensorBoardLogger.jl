@@ -51,6 +51,7 @@ include("protojl/tensorboard/plugins/text/tensorboard/tensorboard.jl")
 using .tensorboard_plugin_text: TextPluginData
 include("protojl/tensorboard/plugins/hparams/tensorboard/tensorboard.jl")
 using .tensorboard_plugin_hparams
+include("hparams.jl")
 include("protojl/tensorboard/plugins/custom_scalar/tensorboard/tensorboard.jl")
 using .tensorboard_plugin_custom_scalar
 
