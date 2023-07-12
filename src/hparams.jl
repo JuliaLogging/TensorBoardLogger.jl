@@ -1,5 +1,5 @@
 import .tensorboard_plugin_hparams.hparams: Interval, MetricInfo, MetricName, HParamInfo, Experiment, HParams
-import .tensorboard_plugin_hparams.hparams: var"#DataType" as HParamDataType
+import .tensorboard_plugin_hparams.hparams: var"#DataType" as HParamDataType, DatasetType as HDatasetType
 import .tensorboard_plugin_hparams.google.protobuf: ListValue as HListValue, OneOf as HOneOf, Value as HValue
 struct HParamRealDomain
     min_value::Float64
@@ -13,11 +13,10 @@ Base.@kwdef struct HParamConfig
     datatype::DataType
     displayname::String = ""
     description::String = ""
-    domain::Union{Nothing, HParamRealDomain, HParamSetDomain}
+    domain::Union{Nothing, HParamRealDomain, HParamSetDomain} = nothing
 end
 Base.@kwdef struct MetricConfig
     name::String
-    datatype::DataType
     displayname::String = ""
     description::String = ""
 end
@@ -46,9 +45,10 @@ _convert_hparam_domain(domain::HParamSetDomain) = HOneOf(:domain_discrete, HList
 
 
 function hparam_info(c::HParamConfig)
-    domain = if isnothing(c.domain)
+    datatype = c.datatype
+    domain = c.domain
+    if isnothing(c.domain)
         domain = default_domain(Val(datatype))
-        domain
     else
         if isa(domain, HParamRealDomain)
             @assert datatype==Float64 "Real domains require Float64"
@@ -59,40 +59,37 @@ function hparam_info(c::HParamConfig)
         elseif isa(domain, HParamSetDomain{Float64})
             @assert datatype==Float64 "Domains with floats require a datatype of Float64"
         end
-
-        c.domain
     end
     
-    dtype = _to_proto_hparam_dtype(Val(c.datatype))
+    dtype = _to_proto_hparam_dtype(Val(datatype))
     converted_domain = _convert_hparam_domain(domain)
     return HParamInfo(c.name, c.displayname, c.description, dtype, converted_domain)
 end
 function decode_metric_name(name)
     if contains(name, '/')
-        return (split(name, '/', limit=2)...)
+        return (split(name, '/', limit=2)...,)
     else
         return ("", name)
     end
 end
-function metric_info(c::MetricConfig)
-    dtype = _to_proto_hparam_dtype(Val(c.datatype))
-    
+function metric_info(c::MetricConfig)    
     group, tag = decode_metric_name(c.name)
     mname = MetricName(group, tag)
-    return MetricInfo(mname, c.displayname, c.description, dtype)
+    return MetricInfo(mname, c.displayname, c.description, HDatasetType.DATASET_UNKNOWN)
 end
 
 function init_hparams!(logger::TBLogger, param_configs::AbstractArray{HParamConfig}, metric_configs::AbstractArray{MetricConfig}; name="", description="", user="")
      # Convert to proto types
     hparam_infos = hparam_info.(param_configs)
-    metric_infos = metric_configs.(metric_configs)
+    metric_infos = metric_info.(metric_configs)
     # Create the proto experiment type to serialise
     experiment = Experiment(name, description, user, zero(Float64), hparam_infos, metric_infos)
 
-    # Write this event to a separate file
-    filename = add_eventfile(logger, "hparams_config")
-    eventfile = logger.all_files[filename]
-    write_event(eventfile, experiment)
+    # # Write this event to a separate file
+    # filename = add_eventfile(logger, "hparams_config")
+    # eventfile = logger.all_files[filename]
+    # Write to existing file
+    write_generic_event(logger.file, experiment)
     nothing
 end
 
@@ -105,10 +102,29 @@ function write_hparams!(logger::TBLogger, hparams::Dict{String, Any})
     hparams = HParams(Dict{String, HValue}(k=>_convert_value(v) for (k,v) in hparams))
 
     # Write the configuration to a new event file
-    filename = add_eventfile(logger, "hparams")
-    eventfile = logger.all_files[filename]
-    write_event(eventfile, hparams)
+    # filename = add_eventfile(logger, "hparams")
+    # eventfile = logger.all_files[filename]
+    # Write to existing file
+    write_generic_event(logger.file, hparams)
     nothing
 end
+
+function write_generic_event(out::IO, event)
+    data = PipeBuffer();
+    encode(ProtoEncoder(data), event)
+
+    #header
+    header     = collect(reinterpret(UInt8, [data.size]))
+    crc_header = reinterpret(UInt8, UInt32[masked_crc32c(header)])
+    crc_data   = reinterpret(UInt8, UInt32[masked_crc32c(data.data)])
+
+    write(out, header)
+    write(out, crc_header)
+    write(out, data.data)
+    write(out, crc_data)
+    flush(out)
+end
+
+write_generic_event(logger::TBLogger, event) = write_generic_event(logger.file, event)
 
 export init_hparams!, write_hparams!, HParamRealDomain, HParamSetDomain, HParamConfig, MetricConfig

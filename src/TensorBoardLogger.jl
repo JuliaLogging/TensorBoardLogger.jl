@@ -51,7 +51,6 @@ include("protojl/tensorboard/plugins/text/tensorboard/tensorboard.jl")
 using .tensorboard_plugin_text: TextPluginData
 include("protojl/tensorboard/plugins/hparams/tensorboard/tensorboard.jl")
 using .tensorboard_plugin_hparams
-include("hparams.jl")
 include("protojl/tensorboard/plugins/custom_scalar/tensorboard/tensorboard.jl")
 using .tensorboard_plugin_custom_scalar
 
@@ -63,6 +62,7 @@ include("ImageFormat.jl")
 const TB_PLUGIN_JLARRAY_NAME = "_jl_tbl_array_sz"
 
 include("TBLogger.jl")
+include("hparams.jl")
 include("utils.jl")  # CRC Utils
 include("event.jl")
 include("Loggers/base.jl")

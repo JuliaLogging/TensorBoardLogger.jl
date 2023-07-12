@@ -201,6 +201,10 @@ end
         close.(values(logger.all_files))
     end
 
+    @testset "Hyperparameter logging" begin
+        include("test_hparams.jl")
+    end
+
     @testset "Image processing interface" begin
         #2-d image
         data = Vector{Pair{String,Any}}()
