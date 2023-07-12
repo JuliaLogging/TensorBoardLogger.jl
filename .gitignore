@@ -7,3 +7,5 @@ docs/Manifest.toml
 
 gen/proto
 gen/protojl
+
+.vscode/
