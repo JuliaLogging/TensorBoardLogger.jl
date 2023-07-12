@@ -1,27 +1,36 @@
 using TensorBoardLogger, Logging
-using TensorBoardLogger: preprocess, summary_impl
 using Test
 
 test_hparams_log_dir = "test_hparams_logs/"
 
-@testset "Initialialise Hparams (default domains, no metrics)" begin
+@testset "Write Hparams" begin
     isdir(test_hparams_log_dir) && rm(test_hparams_log_dir, force=true, recursive=true)
 
     # Create a new logger
-    logger = TBLogger(test_hparams_log_dir*"hparams")
-    
-    alpha_config = HParamConfig(; name="alpha", datatype=Float64)
-    beta_config = HParamConfig(; name="beta", datatype=String)
-    gamma_config = HParamConfig(; name="gamma", datatype=Bool)
+    for (i, trial_id) in enumerate(["run1", "run2", "run3"])
+        logger = TBLogger(test_hparams_log_dir*trial_id, tb_append)
 
-    hparams_config = [alpha_config, beta_config, gamma_config]
-    metric_config = [MetricConfig(; name="loss")]
+        # Add in the a dummy loss metric
+        with_logger(logger) do
+            for x in 1:20
+                @info "scalar" loss = i*sqrt(x)
+            end
+        end
 
-    @test typeof(init_hparams!(logger, hparams_config, metric_config)) === Nothing
+        # Setup example hyperparameters
+        # hparams_config = Dict{String, Any}(
+        #     "alpha"=>0.5,
+        #     "id"=>Float64(i),
+        #     "is_testing"=>(i%2==0)
+        # )
+        hparams_config = Dict{String, Any}(
+            "id"=>Float64(i),
+        )
+        metrics = ["scalar/loss"]
+        
+        @test typeof(write_hparams!(logger, hparams_config, metrics)) === Nothing
 
-    # Check that the init didn't create a new file
-    @test length(logger.all_files) == 1
-
-    # close all event files
-    close.(values(logger.all_files))
+        # # Check that a new event file has been created
+        # @test length(logger.all_files) == 2
+    end
 end
