@@ -24,10 +24,8 @@ Base.@kwdef struct MetricConfig
     description::String = ""
 end
 
-# default_domain(::Val{Bool}) = HParamSetDomain([false, true])
-# default_domain(::Val{Float64}) = HParamRealDomain(typemin(Float64), typemax(Float64))
-default_domain(::Val{Bool}) = nothing
-default_domain(::Val{Float64}) = nothing
+default_domain(::Val{Bool}) = HParamSetDomain([false, true])
+default_domain(::Val{Float64}) = HParamRealDomain(typemin(Float64), typemax(Float64))
 default_domain(::Val{String}) = nothing
 
 _to_proto_hparam_dtype(::Val{Bool}) = HParamDataType.DATA_TYPE_BOOL
@@ -72,15 +70,7 @@ function hparam_info(c::HParamConfig)
     converted_domain = _convert_hparam_domain(domain)
     return HParamInfo(c.name, c.displayname, c.description, dtype, converted_domain)
 end
-function decode_metric_name(name)
-    if contains(name, '/')
-        return (split(name, '/', limit=2)...,)
-    else
-        return ("", name)
-    end
-end
-function metric_info(c::MetricConfig)    
-    # group, tag = decode_metric_name(c.name)
+function metric_info(c::MetricConfig)
     mname = MetricName("", c.name)
     return MetricInfo(mname, c.displayname, c.description, HDatasetType.DATASET_UNKNOWN)
 end
@@ -107,7 +97,8 @@ function write_hparams!(logger::TBLogger, hparams::Dict{String, Any}, metrics::A
     hparam_infos = [hparam_info(HParamConfig(; name=k, datatype=typeof(v))) for (k, v) in hparams]
     metric_infos = [metric_info(MetricConfig(; name=metric)) for metric in metrics]
 
-    hparams_dict = Dict{String, HValue}(k=>_convert_value(v) for (k,v) in hparams)
+    
+    hparams_dict = Dict{String, Any}(k=>_convert_value(v) for (k,v) in hparams)
 
     session_start_info = HP.SessionStartInfo(hparams_dict, "", "", "", zero(Float64))
     session_start_content = HP.HParamsPluginData(PLUGIN_DATA_VERSION, HOneOf(:session_start_info, session_start_info))
@@ -120,14 +111,11 @@ function write_hparams!(logger::TBLogger, hparams::Dict{String, Any}, metrics::A
     experiment_summary = Summary([Summary_Value("", EXPERIMENT_TAG, experiment_md, nothing)])
 
     session_end_info = HP.SessionEndInfo(HP.Status.STATUS_SUCCESS, zero(Float64))
-    # session_end_info = HP.SessionEndInfo(HP.Status.STATUS_SUCCESS, zero(Float64))
     session_end_content = HP.HParamsPluginData(PLUGIN_DATA_VERSION, HOneOf(:session_end_info, session_end_info))
     session_end_md = SummaryMetadata(SummaryMetadata_PluginData(PLUGIN_NAME, encode_bytes(session_end_content)), PLUGIN_NAME, "", DataClass.DATA_CLASS_UNKNOWN)
     session_end_summary = Summary([Summary_Value("", SESSION_END_INFO_TAG, session_end_md, nothing)])
 
-    # file = add_eventfile(logger, "hparams")
-    # eventfile = logger.all_files[file]
-    for s in (session_start_summary, experiment_summary, session_end_summary)
+    for s in (experiment_summary, session_start_summary, session_end_summary)
         event = Event(zero(Float64), zero(Int64), OneOf(:summary, s), nothing)
         write_event(logger, event)
     end
