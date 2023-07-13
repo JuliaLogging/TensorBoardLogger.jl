@@ -116,7 +116,7 @@ function write_hparams!(logger::TBLogger, hparams::Dict{String, Any}, metrics::A
     session_end_summary = Summary([Summary_Value("", SESSION_END_INFO_TAG, session_end_md, nothing)])
 
     for s in (experiment_summary, session_start_summary, session_end_summary)
-        event = Event(zero(Float64), zero(Int64), OneOf(:summary, s), nothing)
+        event = make_event(logger, s)
         write_event(logger, event)
     end
     nothing
