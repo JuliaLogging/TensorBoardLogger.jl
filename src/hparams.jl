@@ -1,8 +1,6 @@
-import .tensorboard_plugin_hparams.hparams: Interval, MetricInfo, MetricName, HParamInfo, Experiment, HParams
 import .tensorboard_plugin_hparams.hparams: var"#DataType" as HParamDataType, DatasetType as HDatasetType
 import .tensorboard_plugin_hparams.google.protobuf: ListValue as HListValue, Value as HValue
 import .tensorboard_plugin_hparams.hparams as HP
-import .tensorboard: DataClass
 
 struct HParamRealDomain
     min_value::Float64
@@ -45,7 +43,7 @@ function _convert_value(v::T) where {T<:Union{String, Bool, Real}}
 end
 
 _convert_hparam_domain(::Nothing) = nothing
-_convert_hparam_domain(domain::HParamRealDomain) = OneOf(:domain_interval, Interval(domain.min_value, domain.max_value))
+_convert_hparam_domain(domain::HParamRealDomain) = OneOf(:domain_interval, HP.Interval(domain.min_value, domain.max_value))
 _convert_hparam_domain(domain::HParamSetDomain) = OneOf(:domain_discrete, HListValue([_convert_value(v) for v in domain.values]))
 
 
@@ -68,11 +66,11 @@ function hparam_info(c::HParamConfig)
     
     dtype = _to_proto_hparam_dtype(Val(datatype))
     converted_domain = _convert_hparam_domain(domain)
-    return HParamInfo(c.name, c.displayname, c.description, dtype, converted_domain)
+    return HP.HParamInfo(c.name, c.displayname, c.description, dtype, converted_domain)
 end
 function metric_info(c::MetricConfig)
-    mname = MetricName("", c.name)
-    return MetricInfo(mname, c.displayname, c.description, HDatasetType.DATASET_UNKNOWN)
+    mname = HP.MetricName("", c.name)
+    return HP.MetricInfo(mname, c.displayname, c.description, HDatasetType.DATASET_UNKNOWN)
 end
 
 function encode_bytes(content::HP.HParamsPluginData)
