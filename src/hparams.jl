@@ -79,6 +79,17 @@ function encode_bytes(content::HP.HParamsPluginData)
     return take!(data)
 end
 
+"""
+    write_hparams!(logger::TBLogger, hparams::Dict{String, Any}, metrics::AbstractArray{String})
+
+Writes the supplied hyperparameters to the logger, along with noting all metrics that should be tracked.
+
+The value of `hparams` can be a `String`, `Bool` or a subtype of `Real`. All `Real` values are converted
+to `Float64` when writing the logs.
+
+`metrics` should be a list of tags, which correspond to scalars that have been logged. Tensorboard will
+automatically extract the latest metric logged to use for this value.
+"""
 function write_hparams!(logger::TBLogger, hparams::Dict{String, Any}, metrics::AbstractArray{String})
     PLUGIN_NAME = "hparams"
     PLUGIN_DATA_VERSION = 0
@@ -119,6 +130,3 @@ function write_hparams!(logger::TBLogger, hparams::Dict{String, Any}, metrics::A
     end
     nothing
 end
-
-
-export write_hparams!
