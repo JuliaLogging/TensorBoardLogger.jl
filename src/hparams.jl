@@ -108,6 +108,8 @@ function write_hparams!(logger::TBLogger, hparams::Dict{String, Any}, metrics::A
 
     
     hparams_dict = Dict(k=>_convert_value(v) for (k,v) in hparams)
+    # NOTE: THE ABOVE DICTIONARY IS NOT BEING SERIALISED TO THE FILE PROPERLY,
+    # WE MAY NEED TO EXPLICITLY WRITE AN ENCODER/DECODER FOR THIS TYPE.
 
     session_start_info = HP.SessionStartInfo(hparams_dict, "", "", "", zero(Float64))
     session_start_content = HP.HParamsPluginData(PLUGIN_DATA_VERSION, OneOf(:session_start_info, session_start_info))
