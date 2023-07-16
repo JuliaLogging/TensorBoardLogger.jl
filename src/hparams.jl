@@ -107,7 +107,7 @@ function write_hparams!(logger::TBLogger, hparams::Dict{String, Any}, metrics::A
     metric_infos = [metric_info(MetricConfig(; name=metric)) for metric in metrics]
 
     
-    hparams_dict = Dict{String, Any}(k=>_convert_value(v) for (k,v) in hparams)
+    hparams_dict = Dict(k=>_convert_value(v) for (k,v) in hparams)
 
     session_start_info = HP.SessionStartInfo(hparams_dict, "", "", "", zero(Float64))
     session_start_content = HP.HParamsPluginData(PLUGIN_DATA_VERSION, OneOf(:session_start_info, session_start_info))
