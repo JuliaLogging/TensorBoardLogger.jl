@@ -1,4 +1,4 @@
-# Hyperparameter Tuning
+# Hyperparameter tuning
 
 We will start this example by setting up a simple random walk experiment, and seeing the effect of the hyperparameter `bias` on the results.
 

@@ -11,11 +11,12 @@ makedocs(
                 "Reading back data" => "deserialization.md",
                 "Extending"    =>  "extending_behaviour.md",
                 "Explicit Interface" => "explicit_interface.md",
-                "Hyperparameter API" => "hyperparameter_api.md"
+                "Hyperparameter logging" => "hyperparameters.md"
             ],
             "Examples"      => Any[
                 "Flux.jl"  => "examples/flux.md"
                 "Optim.jl"  => "examples/optim.md"
+                "Hyperparameter tuning"  => "examples/hyperparameter_tuning.md"
             ]
     ],
     format    = Documenter.HTML(
