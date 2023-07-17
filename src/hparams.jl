@@ -82,14 +82,23 @@ end
 
 # Overload the dictionary encoder
 function PB.encode(e::ProtoEncoder, i::Int, x::Dict{String,HValue})
-    PB.Codecs.encode_tag(e, i, PB.Codecs.LENGTH_DELIMITED)
-    PB.Codecs.vbyte_encode(e.io, UInt32(PB.Codecs._encoded_size(x)))
-    
+    # PB.Codecs.encode_tag(e, i, PB.Codecs.LENGTH_DELIMITED)
+    # remaining_size = PB.Codecs._encoded_size(x, i) - 2 # remove two for the field name and length
+    # PB.Codecs.vbyte_encode(e.io, UInt32(remaining_size))
+
     for (k, v) in x
+        PB.Codecs.encode_tag(e, 1, PB.Codecs.LENGTH_DELIMITED)
+        total_size = PB.Codecs._encoded_size(k, 1) + PB.Codecs._encoded_size(v, 2)
+        PB.Codecs.vbyte_encode(e.io, UInt32(total_size)) # Add two for the wire type and length
         PB.Codecs.encode(e, 1, k)
         PB.Codecs.encode(e, 2, v)
     end
     return nothing
+end
+function PB.Codecs._encoded_size(x::Dict{String,HValue}, i::Int)
+    # Field number and length is another 2 bytes
+    # There are two bytes for each key value pair extra
+    return mapreduce((xi) -> 2 + PB.Codecs._encoded_size(xi.first, 1) + PB.Codecs._encoded_size(xi.second, 2), +, x, init=0)
 end
 
 
