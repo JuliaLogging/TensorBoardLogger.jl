@@ -1,6 +1,7 @@
 import .tensorboard_plugin_hparams.hparams: var"#DataType" as HParamDataType, DatasetType as HDatasetType
 import .tensorboard_plugin_hparams.google.protobuf: ListValue as HListValue, Value as HValue
 import .tensorboard_plugin_hparams.hparams as HP
+import ProtoBuf as PB
 
 struct HParamRealDomain
     min_value::Float64
@@ -78,6 +79,19 @@ function encode_bytes(content::HP.HParamsPluginData)
     encode(ProtoEncoder(data), content)
     return take!(data)
 end
+
+# Overload the dictionary encoder
+function PB.encode(e::ProtoEncoder, i::Int, x::Dict{String,HValue})
+    PB.Codecs.encode_tag(e, i, PB.Codecs.LENGTH_DELIMITED)
+    PB.Codecs.vbyte_encode(e.io, UInt32(PB.Codecs._encoded_size(x)))
+    
+    for (k, v) in x
+        PB.Codecs.encode(e, 1, k)
+        PB.Codecs.encode(e, 2, v)
+    end
+    return nothing
+end
+
 
 """
     write_hparams!(logger::TBLogger, hparams::Dict{String, Any}, metrics::AbstractArray{String})
