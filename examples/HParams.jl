@@ -6,9 +6,9 @@ using Random # Exports randn
 for j in 1:10
     logger = TBLogger("random_walks/run$j", tb_append)
 
-    sigma = 0.05
-    epochs = 50
-    bias = (rand()*2 - 1) # create a random bias
+    sigma = 0.1
+    epochs = 200
+    bias = (rand()*2 - 1) / 10 # create a random bias
     use_seed = false
     # Add in the a dummy loss metric
     with_logger(logger) do
