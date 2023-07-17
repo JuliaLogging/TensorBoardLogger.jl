@@ -7,7 +7,7 @@ test_hparams_log_dir = "test_hparams_logs/"
     isdir(test_hparams_log_dir) && rm(test_hparams_log_dir, force=true, recursive=true)
 
     # Create a new logger
-    for (i, trial_id) in enumerate(["run1", "run2", "run3"])
+    for (i, trial_id) in enumerate(["run$k" for k in 1:20])
         logger = TBLogger(test_hparams_log_dir*trial_id, tb_append)
 
         # Add in the a dummy loss metric
@@ -18,13 +18,14 @@ test_hparams_log_dir = "test_hparams_logs/"
         end
 
         # Setup example hyperparameters
-        # hparams_config = Dict{String, Any}(
-        #     "alpha"=>0.5,
-        #     "id"=>Float64(i),
-        #     "is_testing"=>(i%2==0)
-        # )
         hparams_config = Dict{String, Any}(
             "id"=>Float64(i),
+            "alpha"=>0.5,
+            "p1"=>rand(),
+            "p2"=>sqrt(rand()),
+            "p3"=>rand()^5,
+            "optimisations"=>(i%2==0),
+            "method"=>rand(("MC", "SGD"))
         )
         metrics = ["scalar/loss"]
         
