@@ -7,7 +7,7 @@ struct HParamRealDomain
     min_value::Float64
     max_value::Float64
 end
-struct HParamSetDomain{T<:Union{String, Bool, Float64}}
+struct HParamSetDomain{T<:Union{String,Bool,Float64}}
     values::Vector{T}
 end
 Base.@kwdef struct HParamConfig
@@ -15,7 +15,7 @@ Base.@kwdef struct HParamConfig
     datatype::DataType
     displayname::String = ""
     description::String = ""
-    domain::Union{Nothing, HParamRealDomain, HParamSetDomain} = nothing
+    domain::Union{Nothing,HParamRealDomain,HParamSetDomain} = nothing
 end
 Base.@kwdef struct MetricConfig
     name::String
@@ -31,7 +31,7 @@ _to_proto_hparam_dtype(::Val{Bool}) = HParamDataType.DATA_TYPE_BOOL
 _to_proto_hparam_dtype(::Val{Float64}) = HParamDataType.DATA_TYPE_FLOAT64
 _to_proto_hparam_dtype(::Val{String}) = HParamDataType.DATA_TYPE_STRING
 
-function _convert_value(v::T) where {T<:Union{String, Bool, Real}}
+function _convert_value(v::T) where {T<:Union{String,Bool,Real}}
     if v isa String
         return HValue(OneOf(:string_value, v))
     elseif v isa Bool
@@ -47,7 +47,6 @@ _convert_hparam_domain(::Nothing) = nothing
 _convert_hparam_domain(domain::HParamRealDomain) = OneOf(:domain_interval, HP.Interval(domain.min_value, domain.max_value))
 _convert_hparam_domain(domain::HParamSetDomain) = OneOf(:domain_discrete, HListValue([_convert_value(v) for v in domain.values]))
 
-
 function hparam_info(c::HParamConfig)
     datatype = c.datatype
     domain = c.domain
@@ -55,16 +54,16 @@ function hparam_info(c::HParamConfig)
         domain = default_domain(Val(datatype))
     else
         if isa(domain, HParamRealDomain)
-            @assert datatype==Float64 "Real domains require Float64"
+            @assert datatype == Float64 "Real domains require Float64"
         elseif isa(domain, HParamSetDomain{String})
-            @assert datatype==String "Domains with strings require a datatype of String"
+            @assert datatype == String "Domains with strings require a datatype of String"
         elseif isa(domain, HParamSetDomain{Bool})
-            @assert datatype==Bool "Domains with bools require a datatype of Bool"
+            @assert datatype == Bool "Domains with bools require a datatype of Bool"
         elseif isa(domain, HParamSetDomain{Float64})
-            @assert datatype<:Real "Domains with floats require a datatype a Real datatype"
+            @assert datatype <: Real "Domains with floats require a datatype a Real datatype"
         end
     end
-    
+
     dtype = _to_proto_hparam_dtype(Val(datatype))
     converted_domain = _convert_hparam_domain(domain)
     return HP.HParamInfo(c.name, c.displayname, c.description, dtype, converted_domain)
@@ -75,17 +74,15 @@ function metric_info(c::MetricConfig)
 end
 
 function encode_bytes(content::HP.HParamsPluginData)
-    data = PipeBuffer();
+    data = PipeBuffer()
     encode(ProtoEncoder(data), content)
     return take!(data)
 end
 
-# Overload the dictionary encoder
+# Dictionary serialisation in ProtoBuf does not work for this specific map type
+# and must be overloaded so that it can be parsed. The format was derived by
+# looking at the binary output of a log file created by tensorboardX.
 function PB.encode(e::ProtoEncoder, i::Int, x::Dict{String,HValue})
-    # PB.Codecs.encode_tag(e, i, PB.Codecs.LENGTH_DELIMITED)
-    # remaining_size = PB.Codecs._encoded_size(x, i) - 2 # remove two for the field name and length
-    # PB.Codecs.vbyte_encode(e.io, UInt32(remaining_size))
-
     for (k, v) in x
         PB.Codecs.encode_tag(e, 1, PB.Codecs.LENGTH_DELIMITED)
         total_size = PB.Codecs._encoded_size(k, 1) + PB.Codecs._encoded_size(v, 2)
@@ -95,6 +92,8 @@ function PB.encode(e::ProtoEncoder, i::Int, x::Dict{String,HValue})
     end
     return nothing
 end
+# Similarly, we must overload the size calculation to take into account the new
+# format.
 function PB.Codecs._encoded_size(x::Dict{String,HValue}, i::Int)
     # Field number and length is another 2 bytes
     # There are two bytes for each key value pair extra
@@ -113,7 +112,7 @@ to `Float64` when writing the logs.
 `metrics` should be a list of tags, which correspond to scalars that have been logged. Tensorboard will
 automatically extract the latest metric logged to use for this value.
 """
-function write_hparams!(logger::TBLogger, hparams::Dict{String, Any}, metrics::AbstractArray{String})
+function write_hparams!(logger::TBLogger, hparams::Dict{String,Any}, metrics::AbstractArray{String})
     PLUGIN_NAME = "hparams"
     PLUGIN_DATA_VERSION = 0
 
@@ -122,9 +121,9 @@ function write_hparams!(logger::TBLogger, hparams::Dict{String, Any}, metrics::A
     SESSION_END_INFO_TAG = "_hparams_/session_end_info"
 
     # Check for datatypes
-    for (k,v) in hparams
-        @assert typeof(v) <: Union{Bool, String, Real} "Hyperparameters must be of types String, Bool or Real"
-        # Cast to other values
+    for (k, v) in hparams
+        @assert typeof(v) <: Union{Bool,String,Real} "Hyperparameters must be of types String, Bool or Real"
+        # Cast non-supported numerical values to Float64
         if !(typeof(v) <: Bool) && typeof(v) <: Real
             hparams[k] = Float64(v)
         end
@@ -133,12 +132,8 @@ function write_hparams!(logger::TBLogger, hparams::Dict{String, Any}, metrics::A
     hparam_infos = [hparam_info(HParamConfig(; name=k, datatype=typeof(v))) for (k, v) in hparams]
     metric_infos = [metric_info(MetricConfig(; name=metric)) for metric in metrics]
 
-    
-    hparams_dict = Dict(k=>_convert_value(v) for (k,v) in hparams)
-    # NOTE: THE ABOVE DICTIONARY IS NOT BEING SERIALISED TO THE FILE PROPERLY,
-    # WE MAY NEED TO EXPLICITLY WRITE AN ENCODER/DECODER FOR THIS TYPE.
+    hparams_dict = Dict(k => _convert_value(v) for (k, v) in hparams)
 
-    
     experiment = HP.Experiment("", "", "", time(), hparam_infos, metric_infos)
     experiment_content = HP.HParamsPluginData(PLUGIN_DATA_VERSION, OneOf(:experiment, experiment))
     experiment_md = SummaryMetadata(SummaryMetadata_PluginData(PLUGIN_NAME, encode_bytes(experiment_content)), "", "", DataClass.DATA_CLASS_UNKNOWN)
