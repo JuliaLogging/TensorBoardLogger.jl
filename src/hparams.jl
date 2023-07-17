@@ -99,8 +99,12 @@ function write_hparams!(logger::TBLogger, hparams::Dict{String, Any}, metrics::A
     SESSION_END_INFO_TAG = "_hparams_/session_end_info"
 
     # Check for datatypes
-    for v in values(hparams)
+    for (k,v) in hparams
         @assert typeof(v) <: Union{Bool, String, Real} "Hyperparameters must be of types String, Bool or Real"
+        # Cast to other values
+        if !(typeof(v) <: Bool) && typeof(v) <: Real
+            hparams[k] = Float64(v)
+        end
     end
 
     hparam_infos = [hparam_info(HParamConfig(; name=k, datatype=typeof(v))) for (k, v) in hparams]
