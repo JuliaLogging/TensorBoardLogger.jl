@@ -115,17 +115,18 @@ function write_hparams!(logger::TBLogger, hparams::Dict{String, Any}, metrics::A
     # NOTE: THE ABOVE DICTIONARY IS NOT BEING SERIALISED TO THE FILE PROPERLY,
     # WE MAY NEED TO EXPLICITLY WRITE AN ENCODER/DECODER FOR THIS TYPE.
 
-    session_start_info = HP.SessionStartInfo(hparams_dict, "", "", "", zero(Float64))
-    session_start_content = HP.HParamsPluginData(PLUGIN_DATA_VERSION, OneOf(:session_start_info, session_start_info))
-    session_start_md = SummaryMetadata(SummaryMetadata_PluginData(PLUGIN_NAME, encode_bytes(session_start_content)), PLUGIN_NAME, "", DataClass.DATA_CLASS_UNKNOWN)
-    session_start_summary = Summary([Summary_Value("", SESSION_START_INFO_TAG, session_start_md, nothing)])
     
-    experiment = HP.Experiment("", "", "", zero(Float64), hparam_infos, metric_infos)
+    experiment = HP.Experiment("", "", "", time(), hparam_infos, metric_infos)
     experiment_content = HP.HParamsPluginData(PLUGIN_DATA_VERSION, OneOf(:experiment, experiment))
     experiment_md = SummaryMetadata(SummaryMetadata_PluginData(PLUGIN_NAME, encode_bytes(experiment_content)), "", "", DataClass.DATA_CLASS_UNKNOWN)
     experiment_summary = Summary([Summary_Value("", EXPERIMENT_TAG, experiment_md, nothing)])
 
-    session_end_info = HP.SessionEndInfo(HP.Status.STATUS_SUCCESS, zero(Float64))
+    session_start_info = HP.SessionStartInfo(hparams_dict, "", "", "", time())
+    session_start_content = HP.HParamsPluginData(PLUGIN_DATA_VERSION, OneOf(:session_start_info, session_start_info))
+    session_start_md = SummaryMetadata(SummaryMetadata_PluginData(PLUGIN_NAME, encode_bytes(session_start_content)), "", "", DataClass.DATA_CLASS_UNKNOWN)
+    session_start_summary = Summary([Summary_Value("", SESSION_START_INFO_TAG, session_start_md, nothing)])
+
+    session_end_info = HP.SessionEndInfo(HP.Status.STATUS_SUCCESS, time())
     session_end_content = HP.HParamsPluginData(PLUGIN_DATA_VERSION, OneOf(:session_end_info, session_end_info))
     session_end_md = SummaryMetadata(SummaryMetadata_PluginData(PLUGIN_NAME, encode_bytes(session_end_content)), "", "", DataClass.DATA_CLASS_UNKNOWN)
     session_end_summary = Summary([Summary_Value("", SESSION_END_INFO_TAG, session_end_md, nothing)])
