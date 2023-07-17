@@ -117,6 +117,9 @@ We also support logging custom types from a the following third-party libraries:
 
 ## Explicit logging
 
-In alternative, you can also log data to TensorBoard through its functional interface,
-by calling the relevant method with a tag string and the data. For information
-on this interface refer to [Explicit interface](@ref)...
+As an alternative, you can also log data to TensorBoard through its functional interface, by calling the relevant method with a tag string and the data. For information on this interface refer to [Explicit interface](@ref).
+
+## Hyperparameter tuning
+
+Many experiments rely on hyperparameters, which can be difficult to tune. Tensorboard allows you to visualise the effect of your hyperparameters on your metrics, giving you an intuition for the correct hyperparameters for your task. For information on this API, see the [Hyperparameter API](@ref).
+
