@@ -82,6 +82,7 @@ end
 # Dictionary serialisation in ProtoBuf does not work for this specific map type
 # and must be overloaded so that it can be parsed. The format was derived by
 # looking at the binary output of a log file created by tensorboardX.
+# These protobuf overloads should be removed once https://github.com/JuliaIO/ProtoBuf.jl/pull/234 is merged.
 function PB.encode(e::ProtoEncoder, i::Int, x::Dict{String,HValue})
     for (k, v) in x
         PB.Codecs.encode_tag(e, 1, PB.Codecs.LENGTH_DELIMITED)
@@ -92,12 +93,14 @@ function PB.encode(e::ProtoEncoder, i::Int, x::Dict{String,HValue})
     end
     return nothing
 end
+
 # Similarly, we must overload the size calculation to take into account the new
 # format.
-function PB.Codecs._encoded_size(x::Dict{String,HValue}, i::Int)
-    # Field number and length is another 2 bytes
-    # There are two bytes for each key value pair extra
-    return mapreduce((xi) -> 2 + PB.Codecs._encoded_size(xi.first, 1) + PB.Codecs._encoded_size(xi.second, 2), +, x, init=0)
+function PB.Codecs._encoded_size(d::Dict{String,HValue}, i::Int)
+    mapreduce(x->begin
+        total_size = PB.Codecs._encoded_size(x.first, 1) + PB.Codecs._encoded_size(x.second, 2)
+        return 1 + PB.Codecs._varint_size(total_size) + total_size
+    end, +, d, init=0)
 end
 
 
