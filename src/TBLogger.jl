@@ -38,7 +38,8 @@ export tb_append, tb_overwrite, tb_increment
 Creates a TensorBoardLogger in the folder `logdir`. The second (optional)
 argument specifies the behaviour if the `logdir` already exhists: the default
 choice `tb_increment` appends an increasing number 1,2... to `logdir`. Other
-choices are `tb_overwrite`, which overwrites the previous folder, and `tb_append`.
+choices are `tb_overwrite`, which overwrites the previous folder, and `tb_append`,
+which adds to any existing logs.
 
 Optional keyword argument `prefix` can be passed to prepend a path to the file
 name (note, not the log directory). See `create_eventfile()`
