@@ -103,6 +103,23 @@ function PB.Codecs._encoded_size(d::Dict{String,HValue}, i::Int)
     end, +, d, init=0)
 end
 
+function PB.Codecs.decode!(d::ProtoDecoder, buffer::Dict{String,HValue})
+    len = PB.Codecs.vbyte_decode(d.io, UInt32)
+    endpos = position(d.io) + len
+    while position(d.io) < endpos
+        pair_field_number, pair_wire_type = PB.Codecs.decode_tag(d)
+        pair_len = PB.Codecs.vbyte_decode(d.io, UInt32)
+        pair_end_pos = position(d.io) + pair_len
+        field_number, wire_type = PB.Codecs.decode_tag(d)
+        key = PB.Codecs.decode(d, K)
+        field_number, wire_type = PB.Codecs.decode_tag(d)
+        val = PB.Codecs.decode(d, Ref{V})
+        @assert position(d.io) == pair_end_pos
+        buffer[key] = val
+    end
+    @assert position(d.io) == endpos
+    nothing
+end
 
 """
     write_hparams!(logger::TBLogger, hparams::Dict{String, Any}, metrics::AbstractArray{String})
