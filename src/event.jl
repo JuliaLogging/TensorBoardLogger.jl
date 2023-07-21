@@ -29,17 +29,16 @@ format. The format follows the following rule (in bytes)
 #4 N..N+8      UInt32  masked_CRC of #3
 """
 function write_event(out::IO, event::Event)
-    data = PipeBuffer();
-    encode(ProtoEncoder(data), event)
+    event_bytes = serialize_proto(event)
 
     #header
-    header     = collect(reinterpret(UInt8, [data.size]))
+    header     = collect(reinterpret(UInt8, [length(event_bytes)]))
     crc_header = reinterpret(UInt8, UInt32[masked_crc32c(header)])
-    crc_data   = reinterpret(UInt8, UInt32[masked_crc32c(data.data)])
+    crc_data   = reinterpret(UInt8, UInt32[masked_crc32c(event_bytes)])
 
     write(out, header)
     write(out, crc_header)
-    write(out, data.data)
+    write(out, event_bytes)
     write(out, crc_data)
     flush(out)
 end
