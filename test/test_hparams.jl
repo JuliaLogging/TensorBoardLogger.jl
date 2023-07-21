@@ -65,7 +65,7 @@ const hparams_metadata_encoded_bytes = UInt8[0x1a, 0x5b, 0x0a, 0x0e, 0x0a, 0x06,
     session_start_info = TensorBoardLogger.HP.SessionStartInfo(hparams_dict, "", "", "", zero(Float64))
     session_start_content = TensorBoardLogger.HP.HParamsPluginData(PLUGIN_DATA_VERSION, TensorBoardLogger.OneOf(:session_start_info, session_start_info))
     
-    @test TensorBoardLogger.encode_bytes(session_start_content) == hparams_metadata_encoded_bytes
+    @test TensorBoardLogger.serialize_proto(session_start_content) == hparams_metadata_encoded_bytes
 end
 
 
