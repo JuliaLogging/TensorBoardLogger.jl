@@ -31,6 +31,17 @@ function log_histogram(logger::TBLogger, name::AbstractString, data::AbstractArr
     write_event(logger.file, make_event(logger, summ, step=step))
 end
 
+"""
+    log_vector(logger, name, data::Vector; step=step(logger))
+Logs the vector found in `data` as an histogram under the name `name`.
+"""
+function log_vector(logger::TBLogger, name::AbstractString, data::AbstractVector; step=nothing)
+    # @warn "TensorBoardLogger Depracation Warning: log_vector does not correctly log vectors. Use bar diagrams instead using a plotting library."
+    hist = Histogram(collect(0:length(data)), data)
+    summ = SummaryCollection(histogram_summary(name, hist))
+    write_event(logger.file, make_event(logger, summ, step=step))
+end
+
 function histogram_summary(name::AbstractString, hist::Histogram{T,1}) where T
     edges     = first(hist.edges)
     hist_vals = hist.weights

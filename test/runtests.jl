@@ -84,6 +84,7 @@ end
         log_histogram(logger, "hist/cust", data_tuple, step=step)
         log_histogram(logger, "hist/cust", rand(100), step=step)
         log_histogram(logger, "hist/cust", rand(10,10), step=step)
+        log_vector(logger, "hist/cust", rand(10), step=step)
 
         close.(values(logger.all_files))
     end
