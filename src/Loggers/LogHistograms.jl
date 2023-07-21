@@ -36,7 +36,6 @@ end
 Logs the vector found in `data` as an histogram under the name `name`.
 """
 function log_vector(logger::TBLogger, name::AbstractString, data::AbstractVector; step=nothing)
-    # @warn "TensorBoardLogger Depracation Warning: log_vector does not correctly log vectors. Use bar diagrams instead using a plotting library."
     hist = Histogram(collect(0:length(data)), data)
     summ = SummaryCollection(histogram_summary(name, hist))
     write_event(logger.file, make_event(logger, summ, step=step))
