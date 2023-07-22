@@ -9,7 +9,7 @@ end
 function serialize_proto(data)
     pb = PipeBuffer()
     encode(ProtoEncoder(pb), data)
-    return view(pb.data, 1:pb.size) # Do not return additional zeros
+    return take!(pb) # Do not return additional zeros
 end
 
 """
