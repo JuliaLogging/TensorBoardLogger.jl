@@ -73,12 +73,6 @@ function metric_info(c::MetricConfig)
     return HP.MetricInfo(mname, c.displayname, c.description, HDatasetType.DATASET_UNKNOWN)
 end
 
-function encode_bytes(content::HP.HParamsPluginData)
-    data = PipeBuffer()
-    encode(ProtoEncoder(data), content)
-    return take!(data)
-end
-
 # Dictionary serialisation in ProtoBuf does not work for this specific map type
 # and must be overloaded so that it can be parsed. The format was derived by
 # looking at the binary output of a log file created by tensorboardX.
@@ -156,17 +150,17 @@ function write_hparams!(logger::TBLogger, hparams::Dict{String,<:Any}, metrics::
 
     experiment = HP.Experiment("", "", "", time(), hparam_infos, metric_infos)
     experiment_content = HP.HParamsPluginData(PLUGIN_DATA_VERSION, OneOf(:experiment, experiment))
-    experiment_md = SummaryMetadata(SummaryMetadata_PluginData(PLUGIN_NAME, encode_bytes(experiment_content)), "", "", DataClass.DATA_CLASS_UNKNOWN)
+    experiment_md = SummaryMetadata(SummaryMetadata_PluginData(PLUGIN_NAME, serialize_proto(experiment_content)), "", "", DataClass.DATA_CLASS_UNKNOWN)
     experiment_summary = Summary([Summary_Value("", EXPERIMENT_TAG, experiment_md, nothing)])
 
     session_start_info = HP.SessionStartInfo(hparams_dict, "", "", "", time())
     session_start_content = HP.HParamsPluginData(PLUGIN_DATA_VERSION, OneOf(:session_start_info, session_start_info))
-    session_start_md = SummaryMetadata(SummaryMetadata_PluginData(PLUGIN_NAME, encode_bytes(session_start_content)), "", "", DataClass.DATA_CLASS_UNKNOWN)
+    session_start_md = SummaryMetadata(SummaryMetadata_PluginData(PLUGIN_NAME, serialize_proto(session_start_content)), "", "", DataClass.DATA_CLASS_UNKNOWN)
     session_start_summary = Summary([Summary_Value("", SESSION_START_INFO_TAG, session_start_md, nothing)])
 
     session_end_info = HP.SessionEndInfo(HP.Status.STATUS_SUCCESS, time())
     session_end_content = HP.HParamsPluginData(PLUGIN_DATA_VERSION, OneOf(:session_end_info, session_end_info))
-    session_end_md = SummaryMetadata(SummaryMetadata_PluginData(PLUGIN_NAME, encode_bytes(session_end_content)), "", "", DataClass.DATA_CLASS_UNKNOWN)
+    session_end_md = SummaryMetadata(SummaryMetadata_PluginData(PLUGIN_NAME, serialize_proto(session_end_content)), "", "", DataClass.DATA_CLASS_UNKNOWN)
     session_end_summary = Summary([Summary_Value("", SESSION_END_INFO_TAG, session_end_md, nothing)])
 
     for s in (experiment_summary, session_start_summary, session_end_summary)
