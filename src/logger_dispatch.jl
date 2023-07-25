@@ -79,8 +79,6 @@ summary_impl(name, value::Any) = text_summary(name, value)
 preprocess(name, hist::Histogram{<:Any,1}, data) = push!(data, name=>hist)
 summary_impl(name, hist::Histogram) = histogram_summary(name, hist)
 
-preprocess(name,   (bins,weights)::Tuple{AbstractVector{<:Real},AbstractVector{<:Real}}, data) = return preprocess(name, fit(Histogram, weights, bins), data)
-
 preprocess(name, val::AbstractArray{<:Real}, data) = return preprocess(name, fit(Histogram, collect(vec(val))), data)
 
 # Split complex numbers into real/complex pairs
