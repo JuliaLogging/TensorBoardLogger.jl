@@ -12,7 +12,7 @@ At the end of this step, every pair in `objects` will be logged to a specific
 backend, according to the following rules:
 
   - `::AbstractVector{<:Real}` -> [Histogram backend](https://www.tensorflow.org/guide/tensorboard_histograms) as a vector
-  - `::Tuple{AbstractVector,AbstractVector}` [Histogram backend](https://www.tensorflow.org/guide/tensorboard_histograms) as an histogram
+  <!-- - `::Tuple{AbstractVector,AbstractVector}` [Histogram backend](https://www.tensorflow.org/guide/tensorboard_histograms) as an histogram -->
   - `::Real` -> Scalar backend
   - `::AbstractArray{<:Colorant}` -> [Image backend](https://www.tensorflow.org/tensorboard/r2/image_summaries)
   - `::Any` -> Text Backend
