@@ -79,18 +79,7 @@ summary_impl(name, value::Any) = text_summary(name, value)
 preprocess(name, hist::Histogram{<:Any,1}, data) = push!(data, name=>hist)
 summary_impl(name, hist::Histogram) = histogram_summary(name, hist)
 
-# TODO: maybe deprecate? tuple means histogram (only if bins/weights match)
-function preprocess(name,   (bins,weights)::Tuple{AbstractVector,AbstractVector}, data)
-    # if ... this is an histogram
-    if length(bins) == length(weights)+1
-        return preprocess(name, Histogram(bins,weights), data)
-    end
-    preprocess(name*"/1", bins, data)
-    preprocess(name*"/2", weights, data)
-end
-
-preprocess(name, val::AbstractArray{<:Real}, data) = push!(data, name=>val)
-summary_impl(name, val::AbstractArray{<:Real}) = histogram_arr_summary(name, val)
+preprocess(name, val::AbstractArray{<:Real}, data) = return preprocess(name, fit(Histogram, collect(vec(val))), data)
 
 # Split complex numbers into real/complex pairs
 preprocess(name, val::AbstractArray{<:Complex}, data) = push!(data, name*"/re"=>real.(val), name*"/im"=>imag.(val))

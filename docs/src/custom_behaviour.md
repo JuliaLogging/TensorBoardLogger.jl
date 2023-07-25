@@ -5,7 +5,7 @@ value is sent to:
 
   - `::AbstractVector{<:Real}` -> [Histogram backend](https://www.tensorflow.org/guide/tensorboard_histograms) as a vector
   - `::StatsBase.Histogram` -> [Histogram backend](https://www.tensorflow.org/guide/tensorboard_histograms)
-  - `(bin_edges, weights)::Tuple{AbstractVector,AbstractVector}` where `length(bin_edges)==length(weights)+1`, is interpreted as an histogram. (*Will be deprecated.* Please use `TBHistogram(edges, weights)` for this).
+  <!-- - `(bin_edges, weights)::Tuple{AbstractVector,AbstractVector}` where `length(bin_edges)==length(weights)+1`, is interpreted as an histogram. (*Will be deprecated.* Please use `TBHistogram(edges, weights)` for this). -->
   - `::Real` -> Scalar backend
   - `::AbstractArray{<:Colorant}` -> [Image backend](https://www.tensorflow.org/tensorboard/r2/image_summaries)
   - `::Any` -> Text Backend
