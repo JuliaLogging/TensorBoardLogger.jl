@@ -39,8 +39,8 @@ logger in Julia:
 
 You can log to TensorBoard any type. Numeric types will be logged as scalar,
 arrays will be binned into histograms, images and audio will be logged as such,
-and we even support [Plots](https://github.com/JuliaPlots/Plots.jl) and
-[PyPlot](https://github.com/JuliaPlots/Plots.jl) figures!
+and we even support [Plots](https://github.com/JuliaPlots/Plots.jl),
+[PyPlot](https://github.com/JuliaPlots/Plots.jl) and [Gadfly](https://github.com/GiovineItalia/Gadfly.jl) figures!
 
 For details about how types are logged by default, or how to customize this behaviour for your custom types,
 refer to the documentation or the examples folder.
@@ -71,7 +71,7 @@ end
 ```
 
 ## Integration with third party packages
-We also support native logging of the types defined by a few third-party packages, such as `Plots` and `PyPlot` plots.
+We also support native logging of the types defined by a few third-party packages, such as `Plots`, `PyPlot` and `Gadfly` plots.
 If there are other libraries that you think we should include in the list, please open an issue.
 
 ## Roadmap

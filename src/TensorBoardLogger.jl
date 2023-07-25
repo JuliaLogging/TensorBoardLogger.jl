@@ -19,9 +19,9 @@ using  Base.CoreLogging: CoreLogging, AbstractLogger, LogLevel, Info,
     handle_message, shouldlog, min_enabled_level, catch_exceptions, with_logger,
     NullLogger
 
-export TBLogger, reset!, set_step!, increment_step!, set_step_increment!
+export TBLogger, reset!, set_step!, increment_step!, set_step_increment!, with_TBLogger_hold_step
 export log_histogram, log_value, log_vector, log_text, log_image, log_images,
-       log_audio, log_audios, log_graph, log_embeddings, log_custom_scalar
+       log_audio, log_audios, log_graph, log_embeddings, log_custom_scalar, write_hparams!
 export map_summaries, TBReader
 
 export ImageFormat, L, CL, LC, LN, NL, NCL, NLC, CLN, LCN, HW, WH, HWC, WHC,
@@ -62,6 +62,7 @@ include("ImageFormat.jl")
 const TB_PLUGIN_JLARRAY_NAME = "_jl_tbl_array_sz"
 
 include("TBLogger.jl")
+include("hparams.jl")
 include("utils.jl")  # CRC Utils
 include("event.jl")
 include("Loggers/base.jl")
@@ -102,6 +103,16 @@ function __init__()
     @require PyPlot="d330b81b-6aea-500a-939a-2ce795aea3ee" begin
         include("Optional/PyPlot.jl")
     end
+    @require Gadfly="c91e804a-d5a3-530f-b6f0-dfbca275c004" begin
+        @require Fontconfig="186bb1d3-e1f7-5a2c-a377-96d770f13627" begin
+            @require Cairo="159f3aea-2a34-519c-b102-8c37f9878175" begin
+                using .Cairo
+                using .Fontconfig
+                include("Optional/Gadfly.jl")        
+            end
+        end
+    end
+    # @require Gadfly="c91e804a-d5a3-530f-b6f0-dfbca275c004" include("Optional/Gadfly.jl")
     @require Tracker="9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c" begin
         include("Optional/Tracker.jl")
     end
