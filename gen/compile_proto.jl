@@ -55,10 +55,10 @@ function clean_file(filepath)
     
     if length(lines) > 1 && startswith(lines[2], "# original file:")
         proto_syntax = "(" * split(lines[2], " (")[end]
-        lines[2] = "# original path: $short_filepath $proto_syntax"
+        proto_short_filepath = replace(short_filepath, "_pb.jl"=>".proto")
+        lines[2] = "# original path: $proto_short_filepath $proto_syntax"
         should_overwrite = true
     elseif length(lines) > 0 && startswith(lines[1], "module tensorboard")
-        @show short_filepath
         path_segments = splitpath(short_filepath)
         plugin_index = findfirst(path_segments .== "plugins")
         if !isnothing(plugin_index)
