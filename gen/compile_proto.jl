@@ -48,6 +48,47 @@ function process_module(cur_module::AbstractString; base_module::AbstractString=
     files_to_include = [string(module_out_dir/basename(file)) for file in infiles]
     return files_to_include
 end
+function clean_file(filepath)
+    lines = readlines(filepath)
+    short_filepath = relpath(filepath, @__DIR__)
+    should_overwrite = false
+    
+    if length(lines) > 1 && startswith(lines[2], "# original file:")
+        proto_syntax = "(" * split(lines[2], " (")[end]
+        lines[2] = "# original path: $short_filepath $proto_syntax"
+        should_overwrite = true
+    elseif length(lines) > 0 && startswith(lines[1], "module tensorboard")
+        @show short_filepath
+        path_segments = splitpath(short_filepath)
+        plugin_index = findfirst(path_segments .== "plugins")
+        if !isnothing(plugin_index)
+            should_overwrite = true
+            plugin_name = path_segments[plugin_index+1]
+            lines[1] = "module tensorboard_plugin_$plugin_name"
+        end
+    end
+
+    if should_overwrite
+        open(filepath, "w") do io
+            for line in @views lines[begin:end-1]
+                println(io, line)
+            end
+            print(io, lines[end])        
+        end
+    end
+    nothing
+end
+function clean_files(out_dir)
+    for (root, dirs, files) in walkdir(out_dir)
+        for dir in dirs
+            clean_file(joinpath(root, dir))
+        end
+        for file in files
+            clean_file(joinpath(root, file))
+        end
+    end
+    nothing
+end
 
 #process_module("tensorflow", input_path="tensorflow/core/protobuf")
 
@@ -61,5 +102,7 @@ append!(files_to_include, (process_module("tensorboard/plugins/$plugin", base_mo
 # files_to_include contains all the proto files, can be used for printing and inspection
 println("generated code for \n$files_to_include")
 
+clean_files(out_dir)
+
 # Finally move the output directory to the src folder
-mv(out_dir, TBL_root/"src"/"protojl")
+mv(out_dir, TBL_root/"src"/"protojl"; force=true)
