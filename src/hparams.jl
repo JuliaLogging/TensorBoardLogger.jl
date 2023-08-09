@@ -73,47 +73,6 @@ function metric_info(c::MetricConfig)
     return HP.MetricInfo(mname, c.displayname, c.description, HDatasetType.DATASET_UNKNOWN)
 end
 
-# # Dictionary serialisation in ProtoBuf does not work for this specific map type
-# # and must be overloaded so that it can be parsed. The format was derived by
-# # looking at the binary output of a log file created by tensorboardX.
-# # These protobuf overloads should be removed once https://github.com/JuliaIO/ProtoBuf.jl/pull/234 is merged.
-# function PB.encode(e::ProtoEncoder, i::Int, x::Dict{String,HValue})
-#     for (k, v) in x
-#         PB.Codecs.encode_tag(e, 1, PB.Codecs.LENGTH_DELIMITED)
-#         total_size = PB.Codecs._encoded_size(k, 1) + PB.Codecs._encoded_size(v, 2)
-#         PB.Codecs.vbyte_encode(e.io, UInt32(total_size)) # Add two for the wire type and length
-#         PB.Codecs.encode(e, 1, k)
-#         PB.Codecs.encode(e, 2, v)
-#     end
-#     return nothing
-# end
-
-# # Similarly, we must overload the size calculation to take into account the new
-# # format.
-# function PB.Codecs._encoded_size(d::Dict{String,HValue}, i::Int)
-#     mapreduce(x->begin
-#         total_size = PB.Codecs._encoded_size(x.first, 1) + PB.Codecs._encoded_size(x.second, 2)
-#         return 1 + PB.Codecs._varint_size(total_size) + total_size
-#     end, +, d, init=0)
-# end
-
-# function PB.Codecs.decode!(d::ProtoDecoder, buffer::Dict{String,HValue})
-#     len = PB.Codecs.vbyte_decode(d.io, UInt32)
-#     endpos = position(d.io) + len
-#     while position(d.io) < endpos
-#         pair_field_number, pair_wire_type = PB.Codecs.decode_tag(d)
-#         pair_len = PB.Codecs.vbyte_decode(d.io, UInt32)
-#         pair_end_pos = position(d.io) + pair_len
-#         field_number, wire_type = PB.Codecs.decode_tag(d)
-#         key = PB.Codecs.decode(d, K)
-#         field_number, wire_type = PB.Codecs.decode_tag(d)
-#         val = PB.Codecs.decode(d, Ref{V})
-#         @assert position(d.io) == pair_end_pos
-#         buffer[key] = val
-#     end
-#     @assert position(d.io) == endpos
-#     nothing
-# end
 
 """
     write_hparams!(logger::TBLogger, hparams::Dict{String, Any}, metrics::AbstractArray{String})
