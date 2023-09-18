@@ -89,3 +89,18 @@ end
         @test expected_hparams_config[k] == decoded_v
     end
 end
+
+@testset "Reading with hparams present (#137)" begin
+    # https://github.com/JuliaLogging/TensorBoardLogger.jl/issues/137
+    lg = TBLogger(joinpath(mktempdir(), "logs"))
+    TensorBoardLogger.write_hparams!(
+        lg,
+        Dict("hi" => 1.0),
+        ["x/val"]
+    )
+    with_logger(lg) do
+        @info "x" val=3.0
+    end
+    hist = convert(MVHistory, lg)
+    @test haskey(hist, "x/val")
+end
