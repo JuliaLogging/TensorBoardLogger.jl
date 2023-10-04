@@ -187,6 +187,12 @@ function Base.iterate(iter::SummaryDeserializingIterator, state=1)
 
     (tag, summary), i_state = res
 
+    # This can happen in certain cases, e.g. if hyperparameters have been recorded.
+    if summary.value === nothing
+        # Hence, we just skip it.
+        return Base.iterate(iter, state + 1)
+    end
+
     typ = summary_type(summary)
     if typ === :histo
         val = deserialize_histogram_summary(summary)
