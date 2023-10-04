@@ -6,6 +6,7 @@ using ImageCore
 using FileIO
 using LightGraphs
 using StatsBase: fit, Histogram
+using ValueHistories: MVHistory
 
 ENV["DATADEPS_ALWAYS_ACCEPT"] = true
 ENV["GKSwstype"] = "100"
