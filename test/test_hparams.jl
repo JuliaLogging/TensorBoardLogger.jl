@@ -102,5 +102,5 @@ end
         @info "x" val=3.0
     end
     hist = convert(MVHistory, lg)
-    @test haskey(hist, "x/val")
+    @test haskey(hist, Symbol("x/val"))
 end
