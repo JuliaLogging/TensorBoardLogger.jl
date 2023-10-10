@@ -21,6 +21,7 @@ julia = "1.6"
 
 [extras]
 Cairo = "159f3aea-2a34-519c-b102-8c37f9878175"
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 Fontconfig = "186bb1d3-e1f7-5a2c-a377-96d770f13627"
 Gadfly = "c91e804a-d5a3-530f-b6f0-dfbca275c004"
 ImageMagick = "6218d12a-5da1-5696-b52f-db25d2ecc6d1"
