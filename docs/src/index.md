@@ -123,3 +123,6 @@ As an alternative, you can also log data to TensorBoard through its functional i
 
 Many experiments rely on hyperparameters, which can be difficult to tune. Tensorboard allows you to visualise the effect of your hyperparameters on your metrics, giving you an intuition for the correct hyperparameters for your task. For information on this API, see the [Hyperparameter logging](@ref) manual page.
 
+## Other exported methods
+
+For documentation on other exported methods, see the [Exported](@ref) manual page.
