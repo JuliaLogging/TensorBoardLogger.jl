@@ -11,7 +11,8 @@ makedocs(
                 "Reading back data" => "deserialization.md",
                 "Extending"    =>  "extending_behaviour.md",
                 "Explicit Interface" => "explicit_interface.md",
-                "Hyperparameter logging" => "hyperparameters.md"
+                "Hyperparameter logging" => "hyperparameters.md",
+                "Exported" => "exported.md"
             ],
             "Examples"      => Any[
                 "Flux.jl"  => "examples/flux.md"
@@ -19,6 +20,7 @@ makedocs(
                 "Hyperparameter tuning"  => "examples/hyperparameter_tuning.md"
             ]
     ],
+    checkdocs = :exports,
     format    = Documenter.HTML(
                 prettyurls = haskey(ENV, "CI"))
 )

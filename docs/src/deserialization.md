@@ -50,5 +50,4 @@ TensorBoardLogger.tags
 TensorBoardLogger.steps
 map_summaries
 TensorBoardLogger.map_events
-TensorBoardLogger.map_summaries
 ```
