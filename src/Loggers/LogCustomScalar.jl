@@ -1,3 +1,6 @@
+using .tensorboard_plugin_custom_scalar
+using .tensorboard_plugin_custom_scalar: var"MarginChartContent.Series" as MarginChartContent_Series
+
 # possible chart types
 @enum tb_chart_type tb_multiline=1 tb_margin=2
 
