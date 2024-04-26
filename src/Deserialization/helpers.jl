@@ -33,3 +33,23 @@ function steps(tbl; kwargs...)
 
     return steps
 end
+
+"""
+    events(logger)
+
+Returns a list of all the events serialized by `logger`.
+
+`logger` can be a `TBLogger` or the path of a valid TensorBoard logdir.
+
+You should call this function only if you are interested in the events in an array-like
+structure. If you need to iterate over the events, use `map_events` instead.
+"""
+function events(tbl; kwargs...)
+    events = []
+
+    map_events(tbl; kwargs...) do ev
+        push!(events, ev)
+    end
+
+    return events
+end
