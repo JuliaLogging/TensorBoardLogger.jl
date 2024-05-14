@@ -19,7 +19,7 @@ test_log_dir = "test_logs/"
     close.(values(tbl3.all_files))
     tbl4 = TBLogger(test_log_dir*"run_2", tb_overwrite)
     @test !isfile(test_log_dir*"run_2/testfile")
-    
+
     # check custom file prefix
     tbl5 = TBLogger(test_log_dir*"run_3"; time = 0, prefix = "test.")
     @test isfile(test_log_dir*"run_3/test.events.out.tfevents.0.$(gethostname())")
@@ -123,4 +123,12 @@ end
     @test TensorBoardLogger.step(tbl) == 0
     @test length(tbl.all_files) == 1
 
+end
+
+@testset "events" begin
+    tbl = TBLogger(test_log_dir*"run", tb_overwrite)
+    @test length(TensorBoardLogger.events(tbl)) == 1 # creation event
+
+    TensorBoardLogger.log_value(tbl, "test", 1.0)
+    @test length(TensorBoardLogger.events(tbl)) == 2 # creation event + log_value
 end
