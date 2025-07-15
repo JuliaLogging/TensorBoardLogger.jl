@@ -142,7 +142,6 @@ function PB._encoded_size(x::TaggedRunMetadata)
 end
 
 @enumx var"LogMessage.Level" UNKNOWN=0 DEBUGGING=10 INFO=20 WARN=30 ERROR=40 FATAL=50
-Base.depwarn("`var\"LogMessage.Level\"` is deprecated.", ((Base.Core).Typeof(var"LogMessage.Level")).name.mt.name)
 
 struct SessionLog
     status::var"SessionLog.SessionStatus".T
@@ -232,7 +231,6 @@ struct LogMessage
     level::var"LogMessage.Level".T
     message::String
 end
-Base.depwarn("`LogMessage` is deprecated.", ((Base.Core).Typeof(LogMessage)).name.mt.name)
 PB.default_values(::Type{LogMessage}) = (;level = var"LogMessage.Level".UNKNOWN, message = "")
 PB.field_numbers(::Type{LogMessage}) = (;level = 1, message = 2)
 
