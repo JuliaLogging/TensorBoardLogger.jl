@@ -1,4 +1,5 @@
 using .tensorboard: var"Summary.Audio" as Summary_Audio
+using WAV
 
 """
     log_audios(logger::TBLogger, name::AbstractString, samples::AbstractArray, samplerate::Real; step=step(logger))
@@ -30,8 +31,8 @@ function audio_summary(name::AbstractString, samples::AbstractArray, samplerate:
     samples = samples./max(maximum(samples), 1)
     samples = Int16.(floor.(samples.*32767))
     io = IOBuffer()
-    save(_format_stream(format"WAV",io), samples)
-    eas = io.data
+    wavwrite(samples, io; Fs=samplerate)
+    eas = take!(io) 
     audio = Summary_Audio(samplerate, ndims(samples), size(samples, 1), eas, "audio/wav")
     Summary_Value(name, name, nothing, OneOf(:audio, audio))
 end
