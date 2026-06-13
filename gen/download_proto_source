@@ -34,8 +34,10 @@ mv proto/tensorboard/compat/proto/struct.proto proto/tensorboard/compat/proto/st
 if [[ $(uname) == "Darwin" ]]; then
 	echo "Workaround for sed on macos."
 	LC_ALL=C
+	grep -rl "compat/proto/struct.proto" . | xargs sed -i '' -e 's+compat/proto/struct\.proto+compat/proto/struct_tb\.proto+g'
+else
+	grep -rl "compat/proto/struct.proto" . | xargs sed -i -e 's+compat/proto/struct\.proto+compat/proto/struct_tb\.proto+g'
 fi
-grep -rl "compat/proto/struct.proto" . | xargs sed -i '' -e 's+compat/proto/struct\.proto+compat/proto/struct_tb\.proto+g'
 
 cd ..
 mv tmp/proto proto
