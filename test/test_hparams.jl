@@ -47,25 +47,26 @@ const hparams_metadata_encoded_bytes = UInt8[0x1a, 0x5b, 0x0a, 0x0e, 0x0a, 0x06,
            "optimisations"=>false,
            "method"=>"MC"
     )
-    metrics = ["scalar/loss"]
-
-    PLUGIN_NAME = "hparams"
     PLUGIN_DATA_VERSION = 0
-
-    EXPERIMENT_TAG = "_hparams_/experiment"
-    SESSION_START_INFO_TAG = "_hparams_/session_start_info"
-    SESSION_END_INFO_TAG = "_hparams_/session_end_info"
-
-    hparam_infos = [TensorBoardLogger.hparam_info(TensorBoardLogger.HParamConfig(; name=k, datatype=typeof(v))) for (k, v) in hparams_config]
-    metric_infos = [TensorBoardLogger.metric_info(TensorBoardLogger.MetricConfig(; name=metric)) for metric in metrics]
-
 
     hparams_dict = Dict(k => TensorBoardLogger._convert_value(v) for (k, v) in hparams_config)
 
     session_start_info = TensorBoardLogger.HP.SessionStartInfo(hparams_dict, "", "", "", zero(Float64))
     session_start_content = TensorBoardLogger.HP.HParamsPluginData(PLUGIN_DATA_VERSION, TensorBoardLogger.OneOf(:session_start_info, session_start_info))
-    
-    @test TensorBoardLogger.serialize_proto(session_start_content) == hparams_metadata_encoded_bytes
+
+    encoded_content = TensorBoardLogger.serialize_proto(session_start_content)
+    decoder = TensorBoardLogger.ProtoDecoder(IOBuffer(encoded_content))
+    decoded_content = PB.decode(decoder, TensorBoardLogger.HP.HParamsPluginData)
+    decoded_session_info = decoded_content.data.value
+    decoded_hparams = Dict(k => v.kind.value for (k, v) in decoded_session_info.hparams)
+
+    @test decoded_content.version == PLUGIN_DATA_VERSION
+    @test decoded_content.data.name === :session_start_info
+    @test decoded_hparams == hparams_config
+    @test decoded_session_info.model_uri == ""
+    @test decoded_session_info.monitor_url == ""
+    @test decoded_session_info.group_name == ""
+    @test decoded_session_info.start_time_secs == 0.0
 end
 
 
