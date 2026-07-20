@@ -77,6 +77,10 @@ function TBEventFileCollectionIterator(path; purge=true)
     # Only consider files whose first event file would be valid.
     # So if there are other files in this folder, we ignore them.
     for fname in fnames
+        # Skip subdirectories and other non-file entries. Opening a directory
+        # throws "Permission denied" on Windows (and silently misbehaves
+        # elsewhere), so guard the `open` call below.
+        isfile(joinpath(path, fname)) || continue
         open(joinpath(path,fname), "r") do f
             is_valid_event(f) && push!(good_fnames, fname)
         end
