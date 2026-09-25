@@ -1,6 +1,6 @@
 name = "TensorBoardLogger"
 uuid = "899adc3e-224a-11e9-021f-63837185c80f"
-version = "0.1.26"
+version = "1.0.0"
 authors = ["Filippo Vicentini <filippovicentini@gmail.com>"]
 
 [deps]
