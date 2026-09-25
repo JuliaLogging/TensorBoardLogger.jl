@@ -58,8 +58,23 @@ plugins = ["custom_scalar", "hparams", "text"]
 
 append!(files_to_include, (process_module("tensorboard/plugins/$plugin", base_module="tensorboard") for plugin in plugins)...)
 
+const PLUGIN_MODULE_NAMES = Dict(
+    "text" => "tensorboard_plugin_text",
+    "hparams" => "tensorboard_plugin_hparams",
+    "custom_scalar" => "tensorboard_plugin_custom_scalar",
+)
+
+for (plugin, module_name) in PLUGIN_MODULE_NAMES
+    wrapper = out_dir / "tensorboard" / "plugins" / plugin / "tensorboard" / "tensorboard.jl"
+    if isfile(wrapper)
+        content = read(wrapper, String)
+        write(wrapper, replace(content, "module tensorboard" => "module $module_name", "end # module tensorboard" => "end # module $module_name"))
+    end
+end
+
 # files_to_include contains all the proto files, can be used for printing and inspection
 println("generated code for \n$files_to_include")
 
 # Finally move the output directory to the src folder
-mv(out_dir, TBL_root/"src"/"protojl")
+rm(TBL_root / "src" / "protojl"; force = true, recursive = true)
+mv(out_dir, TBL_root / "src" / "protojl")

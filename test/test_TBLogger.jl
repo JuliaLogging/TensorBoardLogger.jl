@@ -90,25 +90,30 @@ end
 end
 
 @testset "closing" begin
-    tbl = TBLogger(test_log_dir*"run", tb_overwrite)
+    logdir = joinpath(mktempdir(), "run")
+    tbl = TBLogger(logdir, tb_overwrite)
     TensorBoardLogger.add_eventfile(tbl, "pp")
-    files = keys(tbl.all_files)
+    files = collect(keys(tbl.all_files))
+    streams = collect(values(tbl.all_files))
 
     close(tbl)
+    @test all(stream -> !isopen(stream), streams)
     @test begin
-        foreach(f -> rm(joinpath(test_log_dir*"run", f)), files)
+        foreach(f -> rm(joinpath(logdir, f)), files)
         # rm will error if the file is still open
         true
     end
 
-    tbl = TBLogger(test_log_dir*"run", tb_overwrite)
+    tbl = TBLogger(logdir, tb_overwrite)
     TensorBoardLogger.add_eventfile(tbl, "pp")
-    files = keys(tbl.all_files)
+    files = collect(keys(tbl.all_files))
+    streams = collect(values(tbl.all_files))
 
-    tbl = nothing
     Base.finalize(tbl)
+    tbl = nothing
+    @test all(stream -> !isopen(stream), streams)
     @test begin
-        foreach(f -> rm(joinpath(test_log_dir*"run", f)), files)
+        foreach(f -> rm(joinpath(logdir, f)), files)
         # rm will error if the file is still open
         true
     end
@@ -123,6 +128,7 @@ end
     @test TensorBoardLogger.step(tbl) == 0
     @test length(tbl.all_files) == 1
 
+    close(tbl)
 end
 
 @testset "events" begin
@@ -131,4 +137,6 @@ end
 
     TensorBoardLogger.log_value(tbl, "test", 1.0)
     @test length(TensorBoardLogger.events(tbl)) == 2 # creation event + log_value
+
+    close(tbl)
 end

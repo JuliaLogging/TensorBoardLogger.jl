@@ -4,4 +4,4 @@ include("../google/google.jl")
 
 include("hparams/hparams.jl")
 
-end # module tensorboard
+end # module tensorboard_plugin_hparams

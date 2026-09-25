@@ -13,13 +13,13 @@ end
 log_image(logger, "explicit/p", p)
 
 # test serialization
-pb = PipeBuffer()
-show(pb, MIME("image/png"), p)
+expected_image = convert(TensorBoardLogger.PngImage, p)
 data = TensorBoardLogger.preprocess("key", p, Vector())
 @test length(data) == 1
 @test first(data[1]) == "key"
 @test last(data[1]) isa TensorBoardLogger.PngImage
-@test last(data[1]).data == pb.data
+@test last(data[1]).attr == expected_image.attr
+@test TensorBoardLogger.PNGImage.check_valid_png(last(data[1]).data)
 
 # test unpacking of array of plots
 data = TensorBoardLogger.preprocess("key", [p, p], Vector())

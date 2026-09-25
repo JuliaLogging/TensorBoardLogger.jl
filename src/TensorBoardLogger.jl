@@ -7,11 +7,6 @@ using ImageCore: colorview, channelview
 using ImageCore: Colorant, Gray, GrayA, RGB, RGBA
 using FileIO: FileIO, @format_str, Stream, save, load
 
-# hasproperty is not defined before 1.2. This is Compat.hasproperty
-if VERSION < v"1.2.0-DEV.272"
-    using ProtoBuf: hasproperty
-end
-
 #TODO: Is there a more lightweight package for compmuting an histogram?
 using StatsBase: Histogram, fit
 
