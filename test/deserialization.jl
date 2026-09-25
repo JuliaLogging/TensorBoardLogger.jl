@@ -22,7 +22,10 @@ ENV["GKSwstype"] = "100"
     f = open(joinpath(dir, "mockdata"), "w")
     write(f, "baddta")
     close(f)
-    
+
+    # Issue #152: ignore subdirectories (opening a directory throws on Windows)
+    mkpath(joinpath(dir, "checkpoints"))
+
     tgs = TensorBoardLogger.tags(logger)
     @test "test/val" ∈ tgs
     @test "test/b" ∈ tgs
